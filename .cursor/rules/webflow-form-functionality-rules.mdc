@@ -1,0 +1,305 @@
+---
+description: Build a Webflow‑native form functionality library that enhances forms only via Custom Attributes (Designer → Element Settings → “Custom Attributes”). The code must not require changes to Webflow’s generated HTML structure, and must remain compatible with Webflow Interactions (IX2), Webflow Forms, and the Webflow Designer.
+globs:
+alwaysApply: true
+---
+
+# Cursor Rules — Webflow Form Functionality Library
+
+## Purpose
+
+This library aims to provide enhanced form functionality within Webflow projects by leveraging only Custom Attributes applied via the Webflow Designer's Element Settings. It avoids any modifications to Webflow’s generated HTML structure, ensuring full compatibility with Webflow Interactions (IX2), native Webflow Forms, and the Designer interface.
+
+## Hard Constraints
+
+- No changes to Webflow-generated HTML structure.
+- All enhancements must be triggered exclusively via Custom Attributes.
+- Full compatibility with Webflow Interactions (IX2).
+- Must work seamlessly with Webflow Forms and the Webflow Designer.
+- The library should initialize automatically on page load and support dynamic content.
+
+## Tooling
+
+- TypeScript for type safety and maintainability.
+- Webflow Designer for applying Custom Attributes.
+- Native DOM APIs for event handling and manipulation.
+- No external dependencies or frameworks.
+
+## File Structure
+
+```
+/src
+  /index.ts       # Entry point, initializes the library
+  /features       # Folder containing feature modules
+    validation.ts # Form validation feature
+    submission.ts # Form submission handling
+    ui.ts         # UI feedback (loading, success, error states)
+  /utils.ts       # Utility functions
+```
+
+## Initialization
+
+- The library auto-initializes on `DOMContentLoaded`.
+- Scans the DOM for forms and elements with specific Custom Attributes.
+- Attaches event listeners and applies enhancements based on attributes.
+
+## Native First Policy
+
+Do not intercept submit; rely on Webflow’s native submission and `.w-form-done` / `.w-form-fail`. Use augmentation only for behaviors Webflow lacks.
+
+## Attribute Contract
+
+| Attribute                   | Description                                         | Example                             |
+|-----------------------------|---------------------------------------------------|-----------------------------------|
+| `data-cd-form="true"`       | Marks a form to be enhanced by the library        | `<form data-cd-form="true">`      |
+| `data-cd-validate="email"`  | Validates input as email (for advanced validation) | `<input data-cd-validate="email">` |
+
+## Features
+
+- **Validation Augmentation:** Cross-field validation, input masking & normalization (not native), computed fields, conditional visibility, and repeatable rows.  
+  *Note:* Use native validation (`required`, `type`, `pattern`, `min`, `max`) first.
+
+## Events
+
+| Event Name         | Description                                           | Target Element |
+|--------------------|-------------------------------------------------------|----------------|
+| `cdForm:validated` | Fired after the library runs augmentation checks before submit | Form element   |
+| `cdForm:invalid`   | Fired if augmentation blocks submit due to cross-field errors | Form element   |
+
+## QA Checklist
+
+- [ ] Forms with `data-cd-form="true"` initialize correctly.
+- [ ] Validation triggers on input and form submission.
+- [ ] Native Webflow success and fail wrappers (`.w-form-done`, `.w-form-fail`) remain functional and unmodified.
+- [ ] Custom events fire at appropriate times.
+- [ ] No interference with Webflow Interactions (IX2).
+- [ ] Works with dynamically added forms/elements.
+- [ ] No console errors or warnings.
+
+## Example Usages
+
+### Basic Form with Native Validation
+
+```html
+<form data-cd-form="true">
+  <input type="email" name="email" required />
+  <button type="submit">Subscribe</button>
+</form>
+```
+
+### Custom Validation Pattern (Advanced)
+
+```html
+<input type="text" name="username" data-cd-validate="pattern" pattern="^[a-zA-Z0-9_-]{3,16}$" required />
+```
+
+### Listening to Events
+
+```ts
+const form = document.querySelector('form[data-cd-form="true"]');
+form?.addEventListener('cdForm:validated', () => {
+  console.log('Form passed augmentation validation!');
+});
+form?.addEventListener('cdForm:invalid', () => {
+  console.log('Form blocked by augmentation validation!');
+});
+```
+
+
+# Feature: Form Row Repeater (Dynamic Rows)
+
+## TryFormly Summary Interop
+
+Example of `data-summary-for` and `data-summary-template` usage:
+
+```html
+<div data-summary-for="members">
+  <div data-summary-template>
+    <div class="summary-row">
+      <span data-input-field="members[{i}][person_entity_name]"></span>
+      <span data-input-field="members[{i}][current_ownership]"></span>
+      <span data-input-field="members[{i}][new_ownership]"></span>
+    </div>
+  </div>
+</div>
+```
+
+### TryFormly Interop — Detailed
+The repeater is designed to mirror TryFormly’s name-matching model so summaries stay accurate as rows are added/removed.
+
+#### How it stays in sync
+1) **Deterministic naming per row**
+   - Each input inside the row uses a stable key via `data-repeat-name` (e.g., `person_entity_name`).
+   - On render/reindex, the library generates a final `name` using your `namePattern`, for example:
+     - Row 1 → `members[1][person_entity_name]`, `members[1][current_ownership]`, `members[1][new_ownership]`
+     - Row 2 → `members[2][person_entity_name]`, ...
+
+2) **Summary templating mirrors the same pattern**
+   - Your summary template uses `{i}` tokens inside `data-input-field` so the library can generate one summary row per data row:
+     - `data-input-field="members[{i}][person_entity_name]"`, etc.
+
+3) **Reindexing keeps both sides aligned**
+   - When a row is removed, the library reindexes **all subsequent rows**, updating:
+     - input `name` values (e.g., `members[3]…` becomes `members[2]…`)
+     - summary `data-input-field` values to the new indices
+
+4) **Change notification** *(belt-and-suspenders)*
+   - After (re)assigning names and summary fields, the library dispatches synthetic `input` events on affected inputs.
+   - If available, it also calls `window.TryFormly?.refresh?.()` safely (no-op if undefined) to nudge external listeners.
+
+#### Multiple inputs per row
+- You can include any number of inputs per row. Give each a unique `data-repeat-name` key, and add matching `data-input-field` entries inside the summary template.
+
+**Mini example:**
+```html
+<div class="multi-form_input-row-wrapper">
+  <input class="form_input w-input" data-repeat-name="person_entity_name" placeholder="e.g., John Doe">
+  <input class="form_input w-input" data-repeat-name="current_ownership" placeholder="e.g., 25%">
+  <input class="form_input w-input" data-repeat-name="new_ownership" placeholder="e.g., 30%">
+</div>
+
+<div data-summary-for="members">
+  <div data-summary-template>
+    <div class="summary-row">
+      <span data-input-field="members[{i}][person_entity_name]"></span>
+      <span data-input-field="members[{i}][current_ownership]"></span>
+      <span data-input-field="members[{i}][new_ownership]"></span>
+    </div>
+  </div>
+</div>
+```
+
+#### Edge cases
+- **Removing middle rows:** the library reindexes below the removed row so mappings remain correct.
+- **Empty rows:** summaries will mirror empty values; you may optionally hide empty summary rows via a Designer rule.
+- **IDs/labels:** if the template contains `id`/`for`, the library suffixes ids with `-<i>` and updates `label[for]` accordingly.
+- **Performance:** reindexing is O(row_count × fields_per_row) with event delegation to avoid per-input listeners.
+
+#### Acceptance checklist (TryFormly)
+- [ ] `namePattern` and summary `data-input-field` use the **same structure** (including bracket style and token order).
+- [ ] Every row input has a unique `data-repeat-name` key and a matching summary element.
+- [ ] After add/remove, the number of summary rows equals the number of data rows.
+- [ ] After reindex, names and `data-input-field`s are updated; synthetic `input` events are dispatched; optional `TryFormly.refresh()` is called if present.
+
+# Feature: Input Formatting (data-input)
+
+## Purpose
+Standardize user input for dates and times while keeping editing fully natural (no blocking of Backspace/Delete, free cursor movement). Formatting is **soft**: the library derives a raw value from user keystrokes and renders a formatted value on the fly.
+
+## Activation & Attributes
+Add `data-input` to any `.w-input`/`.form_input` that needs formatting. Supported values (case-insensitive):
+
+- `data-input="date:mmddyyyy"` → renders `MM/DD/YYYY` (U.S.)
+- `data-input="date:ddmmyyyy"` → renders `DD/MM/YYYY` (EU)
+- `data-input="time:hhmm am"` → renders `HH:MM AM` (12‑hour AM)
+- `data-input="time:hhmm pm"` → renders `HH:MM PM` (12‑hour PM)
+
+> Notes
+> - Spaces in the attribute value are allowed; parser is case‑insensitive and trims whitespace.
+> - The formatted output always uses a single space before `AM/PM` and uppercase meridiem.
+
+## Behavior (authoritative)
+- **Soft mask model**
+  - On `input` (and `change/blur`), read the current value and caret. Strip all non‑digits (and meridiem letters for time), producing a **raw token stream**.
+  - Reformat the string according to the selected pattern.
+  - Write the formatted string back to the field and restore the caret to the nearest logical position (see Caret rules below).
+- **Deletion safety**
+  - Backspace/Delete must **always** remove a character adjacent to the caret from the **raw token stream**, not get stuck on slashes/colons/space.
+  - Slashes/colons/space are **derived characters**. They are not individually “owned” by the user; deleting across them simply removes the appropriate raw token and then re-renders the separators.
+- **Partial entry tolerance**
+  - Users may type partial digits; the field renders as far as possible without forcing completion (e.g., `1` → `1`, `12` → `12/`, `123` → `12/3`, etc.).
+  - On `blur`, perform **autocorrect** within safe ranges (e.g., clamp month 0→01, >12→12; day 0→01, >31→31). Do **not** change the year length (require 4 digits for year to finalize date).
+- **Time rules (12‑hour)**
+  - Accept digits for hour/minute and optional letters `a|p|am|pm` in any case. If attribute specifies `time:hhmm am`, default meridiem to `AM` when omitted; similarly `time:hhmm pm` defaults to `PM`.
+  - Clamp hour to [1..12] (0→01, >12→12). Clamp minute to [00..59].
+  - Render as `HH:MM AM/PM` with a space before meridiem.
+
+## Caret & Editing Rules
+- Track **previous value** and **caret index** before change.
+- After reformat:
+  - Map previous caret to the corresponding position in the **raw token stream** (accounting for a delete/insert), then map that raw position back into the **formatted string**.
+  - If caret lands on a derived character (`/`, `:`, space), place it **after** that character when moving forward or **before** when moving backward, preserving user intent.
+- Selecting a range and typing/pasting replaces the selected portion of the **raw tokens**, then re-renders.
+- Arrow/Home/End keys behave natively; library does not override.
+
+## Parsing & Rendering (reference logic)
+- **Date mmddyyyy**
+  - Raw digits: up to 8 → `MM` (1–2), `DD` (1–2), `YYYY` (0–4). Format: `MM/DD/YYYY`.
+- **Date ddmmyyyy**
+  - Raw digits: up to 8 → `DD` (1–2), `MM` (1–2), `YYYY` (0–4). Format: `DD/MM/YYYY`.
+- **Time hhmm am/pm**
+  - Raw: up to 4 digits for `HHMM` + optional letters for meridiem.
+  - Insert `:` after 2 digits when available. Append ` AM`/` PM` when meridiem known or implied by the attribute’s default.
+
+## Validation & Autocorrect (on blur)
+- Dates: clamp month (01–12), day (01–31). If year has <4 digits, leave as typed (do not guess century). If date is impossible (e.g., 31/02), **do not auto‑roll**; leave value and set `aria-invalid="true"`.
+- Times: clamp hour (01–12), minute (00–59). Ensure meridiem present; if missing, apply attribute default AM/PM.
+
+## Accessibility
+- Update `aria-invalid` only when the rendered value violates the pattern on `blur`.
+- Provide descriptive `placeholder` text that matches the rendered format (e.g., `MM/DD/YYYY`, `HH:MM AM`).
+- Do not trap focus; respect native text editing and selection.
+
+## Events
+- Dispatch bubbling `CustomEvent`s on the input:
+  - `cd:inputformat:bound` — when formatting is attached.
+  - `cd:inputformat:changed` — after each render with `{ detail: { raw: string, formatted: string } }`.
+  - `cd:inputformat:invalid` — on blur when value is syntactically invalid.
+
+## Examples (Designer markup)
+```html
+<!-- U.S. date -->
+<input class="form_input w-input" name="dob" placeholder="MM/DD/YYYY" data-input="date:mmddyyyy">
+
+<!-- EU date -->
+<input class="form_input w-input" name="start_date" placeholder="DD/MM/YYYY" data-input="date:ddmmyyyy">
+
+<!-- 12-hour time, default AM if omitted -->
+<input class="form_input w-input" name="appt_time" placeholder="HH:MM AM" data-input="time:hhmm am">
+
+<!-- 12-hour time, default PM if omitted -->
+<input class="form_input w-input" name="event_time" placeholder="HH:MM PM" data-input="time:hhmm pm">
+```
+
+## Acceptance Checklist
+- [ ] Backspace/Delete always remove a digit from the raw sequence; never get stuck on `/`, `:`, or space.
+- [ ] Partial input renders progressively without forcing completion; on blur, safe clamping is applied.
+- [ ] Caret position is preserved logically across inserts/deletes and when clicking into the middle of the string.
+- [ ] Pasting mixed content (e.g., `1-2/3 2026`) results in a best‑effort clean parse to the target format.
+- [ ] `aria-invalid` only set when final value is syntactically invalid after blur.
+- [ ] No interference with native form submission or Webflow success/error wrappers.
+
+# Deployment via UNPKG
+
+To connect this library to a Webflow site using UNPKG (a public CDN for npm packages), follow these steps:
+
+## Prerequisites
+- Ensure the library is built for distribution (e.g., compile TypeScript to JavaScript via `tsc` or a bundler like Rollup, producing files in `/dist`).
+- Set up `package.json` with:
+  - `"name": "cd-form-library"`
+  - `"version": "x.y.z"` (semantic versioning)
+  - `"main": "dist/index.js"` (or equivalent entry point)
+  - `"unpkg": "dist/index.js"` (optional, for UNPKG optimization)
+  - Build scripts, e.g., `"build": "tsc"`
+
+## Publishing to npm
+1. Run `npm run build` to generate distributables.
+2. Log in to npm: `npm login`
+3. Publish: `npm publish --access public` (assumes public repo)
+
+## Including in Webflow
+- In the Webflow Designer, add a Custom Code embed (or site-wide in Settings > Custom Code > Footer).
+- Include the script: `<script src="https://unpkg.com/cd-form-library@x.y.z/dist/index.js"></script>`
+- Replace `x.y.z` with your published version for stability (or omit for latest).
+
+## Notes
+- UNPKG serves minified files if available (add minification to build).
+- The library auto-initializes on load, so no further setup is needed.
+- Test compatibility: Ensure it works with Webflow's native forms and IX2 without conflicts.
+- For updates, bump version, rebuild, republish, and update the script src in Webflow.
+
+## QA Checklist (Deployment)
+- [ ] Library builds cleanly to `/dist`.
+- [ ] Publishes to npm without errors.
+- [ ] Loads via UNPKG in Webflow and enhances forms as expected.
+- [ ] No impact on Webflow's generated HTML or native behaviors.

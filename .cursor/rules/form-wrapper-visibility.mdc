@@ -1,0 +1,77 @@
+---
+description: Controls the visibility of form wrapper elements based on user selections.
+globs:
+  - "**/form-wrapper-visibility.mdc"
+alwaysApply: false
+---
+
+# Purpose
+
+This rule manages the visibility of form wrapper elements dynamically based on user interaction. It allows sections of a form to be shown or hidden depending on the value selected in a related input field.
+
+# Activation & Attributes
+
+Form wrapper elements that should be conditionally visible must include the attribute:
+
+```
+data-show-when="&lt;group&gt;=&lt;value&gt;"
+```
+
+- `&lt;group&gt;`: The name of the input group or field to monitor.
+- `&lt;value&gt;`: The value that triggers the wrapper to be shown.
+
+When the input with the matching group name has the specified value, the wrapper becomes visible; otherwise, it is hidden.
+
+# Behavior
+
+- On page load, the rule checks the current value of the input group.
+- If the value matches the condition in `data-show-when`, the wrapper is shown.
+- If not, the wrapper is hidden.
+- When the user changes the input value, the visibility updates accordingly in real-time.
+
+# Accessibility
+
+- Hidden wrappers are removed from the tab order and screen readers by using appropriate ARIA attributes and CSS styles.
+- When shown, wrappers become accessible again.
+- This ensures a seamless experience for keyboard and assistive technology users.
+
+# Initialization & Lifecycle
+
+- The rule initializes on page load.
+- It attaches event listeners to input groups referenced by `data-show-when`.
+- On input change, it updates the visibility of associated wrappers.
+
+# Example
+
+```html
+<div class="form-wrapper" data-show-when="newsletter=Yes">
+  <label for="email">Email Address</label>
+  <input type="email" id="email" name="email" />
+</div>
+
+<label>
+  <input type="radio" name="newsletter" value="Yes" /> Yes
+</label>
+<label>
+  <input type="radio" name="newsletter" value="No" /> No
+</label>
+```
+
+# Events
+
+- `form-wrapper-visibility:shown` — Fired when a wrapper is shown.
+- `form-wrapper-visibility:hidden` — Fired when a wrapper is hidden.
+
+# Notes
+
+- Multiple wrappers can listen to the same input group.
+- Complex conditions (e.g., multiple values) are not supported in this version.
+- Ensure the input group name exactly matches the `data-show-when` attribute.
+
+# Acceptance Checklist
+
+- [ ] Wrappers with `data-show-when` attribute toggle visibility based on input value.
+- [ ] Hidden wrappers are not focusable or visible to screen readers.
+- [ ] Visibility updates immediately on input value change.
+- [ ] Events fire correctly on show/hide actions.
+- [ ] Works on page load with pre-selected input values.
