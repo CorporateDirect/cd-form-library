@@ -1,0 +1,1 @@
+export { initFormEnhancements } from './validation';

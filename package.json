@@ -1,0 +1,24 @@
+{
+  "name": "cd-form-library",
+  "version": "0.1.0",
+  "description": "Webflow-native form enhancement library using Custom Attributes",
+  "main": "dist/index.js",
+  "unpkg": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "webflow",
+    "forms",
+    "custom-attributes"
+  ],
+  "author": "CorporateDirect",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts"
+}
