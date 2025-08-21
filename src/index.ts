@@ -5,11 +5,17 @@ import { initFormEnhancements, initInputFormatting } from './features'; // Updat
 
 function initializeLibrary() {
   console.log('CD Form Library initializing...');
+  console.log('Document ready state:', document.readyState);
+  
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
-  forms.forEach(form => {
+  console.log(`Found ${forms.length} forms with data-cd-form="true"`);
+  
+  forms.forEach((form, index) => {
+    console.log(`Processing form ${index + 1}:`, form);
     initFormEnhancements(form as HTMLFormElement);
-    initInputFormatting(form as HTMLFormElement); // Add input formatting
+    initInputFormatting(form as HTMLFormElement);
   });
+  
   console.log(`Enhanced ${forms.length} forms.`);
 }
 

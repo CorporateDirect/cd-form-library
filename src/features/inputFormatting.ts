@@ -104,32 +104,53 @@ function preserveCaret(input: HTMLInputElement, oldValue: string, newValue: stri
 }
 
 export function initInputFormatting(form: HTMLFormElement) {
+  console.log('initInputFormatting called for form:', form);
+  
   const inputs = form.querySelectorAll('input[data-input]');
-  inputs.forEach((el) => {
+  console.log(`Found ${inputs.length} inputs with data-input attribute`);
+  
+  inputs.forEach((el, index) => {
     const input = el as HTMLInputElement;
     const attr = input.getAttribute('data-input');
-    if (!attr) return;
+    console.log(`Input ${index + 1}:`, input, 'data-input value:', attr);
+    
+    if (!attr) {
+      console.log(`Input ${index + 1} has no data-input attribute, skipping`);
+      return;
+    }
 
     const config = parseFormat(attr);
-    if (!config) return;
+    console.log(`Input ${index + 1} parsed config:`, config);
+    
+    if (!config) {
+      console.log(`Input ${index + 1} config parsing failed, skipping`);
+      return;
+    }
 
+    console.log(`Input ${index + 1} successfully configured for formatting:`, config);
     input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
 
     const handleInput = (event: Event) => {
+      console.log(`Input event triggered for ${config.type} field:`, input);
+      
       const oldValue = input.value;
       const oldCaret = input.selectionStart || 0;
+      console.log('Old value:', oldValue, 'Old caret:', oldCaret);
 
       let raw = input.value;
       let formatted: string;
 
       if (config.type === 'date') {
         formatted = formatDate(raw, config.pattern);
+        console.log('Date formatting - raw:', raw, 'formatted:', formatted);
       } else {
         formatted = formatTime(raw, config.defaultMeridiem!);
+        console.log('Time formatting - raw:', raw, 'formatted:', formatted);
       }
 
       input.value = formatted;
       preserveCaret(input, oldValue, formatted, oldCaret);
+      console.log('Final value set:', input.value);
 
       input.dispatchEvent(new CustomEvent('cd:inputformat:changed', {
         bubbles: true,
