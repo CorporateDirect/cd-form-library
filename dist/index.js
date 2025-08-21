@@ -3,13 +3,13 @@
 // Auto-initializes on DOMContentLoaded
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializeLibrary = initializeLibrary;
-const features_1 = require("./features"); // To be implemented
+const features_1 = require("./features"); // Updated import
 function initializeLibrary() {
     console.log('CD Form Library initializing...');
     const forms = document.querySelectorAll('form[data-cd-form="true"]');
     forms.forEach(form => {
         (0, features_1.initFormEnhancements)(form);
-        initInputFormatting(form); // Add input formatting
+        (0, features_1.initInputFormatting)(form); // Add input formatting
     });
     console.log(`Enhanced ${forms.length} forms.`);
 }

@@ -10,10 +10,8 @@ function parseFormat(attr) {
         return { type: 'date', pattern: 'mmddyyyy' };
     if (normalized === 'date:ddmmyyyy')
         return { type: 'date', pattern: 'ddmmyyyy' };
-    if (normalized === 'time:hhmmam')
-        return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'AM' };
-    if (normalized === 'time:hhmmpm')
-        return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'PM' };
+    if (normalized === 'time:hhmm')
+        return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'AM' }; // Unified, default AM
     return null;
 }
 function formatDate(raw, pattern) {
@@ -38,13 +36,10 @@ function formatDate(raw, pattern) {
     return formatted;
 }
 function formatTime(raw, defaultMeridiem) {
-    const digits = raw.replace(/[^0-9apAP]/g, '').toUpperCase();
-    const numPart = digits.replace(/[AP]/g, '').slice(0, 4);
-    let meridiem = defaultMeridiem;
-    if (digits.includes('A'))
-        meridiem = 'AM';
-    if (digits.includes('P'))
-        meridiem = 'PM';
+    const cleaned = raw.toUpperCase().replace(/[^0-9AP]/g, '');
+    const numPart = cleaned.replace(/[AP]/g, '').slice(0, 4);
+    const meridiemMatch = cleaned.match(/[AP]+$/);
+    let meridiem = meridiemMatch ? (meridiemMatch[0].startsWith('A') ? 'AM' : 'PM') : defaultMeridiem;
     let formatted = '';
     if (numPart.length >= 2)
         formatted += numPart.slice(0, 2) + ':';
@@ -55,16 +50,51 @@ function formatTime(raw, defaultMeridiem) {
     return formatted;
 }
 function autocorrectDate(value, pattern) {
-    // TODO: Implement clamping (e.g., month 01-12, day 01-31) on blur
-    return value; // Placeholder
+    const parts = value.split('/').map(p => p.padStart(2, '0'));
+    let month = parseInt(parts[0] || '00', 10);
+    let day = parseInt(parts[1] || '00', 10);
+    let year = parts[2] || '';
+    if (pattern === 'ddmmyyyy')
+        [day, month] = [month, day]; // Swap for EU format
+    month = Math.max(1, Math.min(12, month));
+    day = Math.max(1, Math.min(31, day)); // Basic clamp; no month-specific max yet
+    const isValid = year.length === 4 && day <= new Date(parseInt(year, 10), month, 0).getDate(); // Simple invalid check
+    const formattedMonth = month.toString().padStart(2, '0');
+    const formattedDay = day.toString().padStart(2, '0');
+    let corrected = pattern === 'mmddyyyy'
+        ? `${formattedMonth}/${formattedDay}/${year}`
+        : `${formattedDay}/${formattedMonth}/${year}`;
+    return { corrected, isValid: year.length === 4 && isValid };
 }
+// Update autocorrectTime to handle unified default
 function autocorrectTime(value, defaultMeridiem) {
-    // TODO: Implement clamping (hour 01-12, minute 00-59) on blur
-    return value; // Placeholder
+    var _a;
+    const parts = value.split(/[: ]/);
+    let hour = parseInt(parts[0] || '00', 10);
+    let minute = parseInt(parts[1] || '00', 10);
+    let meridiem = ((_a = parts[2]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) || defaultMeridiem;
+    if (!['AM', 'PM'].includes(meridiem))
+        meridiem = defaultMeridiem;
+    hour = Math.max(1, Math.min(12, hour));
+    minute = Math.max(0, Math.min(59, minute));
+    const isValid = true;
+    const corrected = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem}`;
+    return { corrected, isValid };
 }
 function preserveCaret(input, oldValue, newValue, oldCaret) {
-    // TODO: Implement logical caret mapping (raw to formatted, skip derived chars)
-    input.setSelectionRange(oldCaret, oldCaret); // Basic fallback
+    // Simple mapping: count non-derived chars before oldCaret, place after same count in newValue
+    const rawOld = oldValue.replace(/[^0-9a-zA-Z]/g, ''); // Strip derived
+    const rawPos = rawOld.slice(0, oldCaret).length;
+    let newPos = 0;
+    let rawCount = 0;
+    for (let i = 0; i < newValue.length; i++) {
+        if (/[0-9a-zA-Z]/.test(newValue[i]))
+            rawCount++;
+        if (rawCount > rawPos)
+            break;
+        newPos = i + 1; // Place after the matching raw char
+    }
+    input.setSelectionRange(newPos, newPos);
 }
 function initInputFormatting(form) {
     const inputs = form.querySelectorAll('input[data-input]');
@@ -96,16 +126,14 @@ function initInputFormatting(form) {
             }));
         };
         const handleBlur = () => {
-            let corrected;
-            if (config.type === 'date') {
-                corrected = autocorrectDate(input.value, config.pattern);
-            }
-            else {
-                corrected = autocorrectTime(input.value, config.defaultMeridiem);
-            }
+            const { corrected, isValid } = config.type === 'date'
+                ? autocorrectDate(input.value, config.pattern)
+                : autocorrectTime(input.value, config.defaultMeridiem);
             input.value = corrected;
-            // TODO: Validate syntax and set aria-invalid if needed
-            // if (invalid) input.dispatchEvent(new CustomEvent('cd:inputformat:invalid', { bubbles: true }));
+            input.setAttribute('aria-invalid', (!isValid).toString());
+            if (!isValid) {
+                input.dispatchEvent(new CustomEvent('cd:inputformat:invalid', { bubbles: true }));
+            }
             handleInput(new Event('input')); // Re-trigger format
         };
         input.addEventListener('input', handleInput);
