@@ -14,7 +14,7 @@
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.initInputFormatting = initInputFormatting;
     function parseFormat(attr) {
-        const normalized = attr.toLowerCase().trim().replace(/\s+/g, '');
+        var normalized = attr.toLowerCase().trim().replace(/\s+/g, '');
         if (normalized === 'date:mmddyyyy')
             return { type: 'date', pattern: 'mmddyyyy' };
         if (normalized === 'date:ddmmyyyy')
@@ -24,8 +24,8 @@
         return null;
     }
     function formatDate(raw, pattern) {
-        const digits = raw.replace(/\D/g, '').slice(0, 8);
-        let formatted = '';
+        var digits = raw.replace(/\D/g, '').slice(0, 8);
+        var formatted = '';
         if (pattern === 'mmddyyyy') {
             if (digits.length >= 2)
                 formatted += digits.slice(0, 2) + '/';
@@ -45,11 +45,11 @@
         return formatted;
     }
     function formatTime(raw, defaultMeridiem) {
-        const cleaned = raw.toUpperCase().replace(/[^0-9AP]/g, '');
-        const numPart = cleaned.replace(/[AP]/g, '').slice(0, 4);
-        const meridiemMatch = cleaned.match(/[AP]+$/);
-        let meridiem = meridiemMatch ? (meridiemMatch[0].startsWith('A') ? 'AM' : 'PM') : defaultMeridiem;
-        let formatted = '';
+        var cleaned = raw.toUpperCase().replace(/[^0-9AP]/g, '');
+        var numPart = cleaned.replace(/[AP]/g, '').slice(0, 4);
+        var meridiemMatch = cleaned.match(/[AP]+$/);
+        var meridiem = meridiemMatch ? (meridiemMatch[0].startsWith('A') ? 'AM' : 'PM') : defaultMeridiem;
+        var formatted = '';
         if (numPart.length >= 2)
             formatted += numPart.slice(0, 2) + ':';
         if (numPart.length > 2)
@@ -59,44 +59,45 @@
         return formatted;
     }
     function autocorrectDate(value, pattern) {
-        const parts = value.split('/').map(p => p.padStart(2, '0'));
-        let month = parseInt(parts[0] || '00', 10);
-        let day = parseInt(parts[1] || '00', 10);
-        let year = parts[2] || '';
+        var _a;
+        var parts = value.split('/').map(function (p) { return p.padStart(2, '0'); });
+        var month = parseInt(parts[0] || '00', 10);
+        var day = parseInt(parts[1] || '00', 10);
+        var year = parts[2] || '';
         if (pattern === 'ddmmyyyy')
-            [day, month] = [month, day]; // Swap for EU format
+            _a = [month, day], day = _a[0], month = _a[1]; // Swap for EU format
         month = Math.max(1, Math.min(12, month));
         day = Math.max(1, Math.min(31, day)); // Basic clamp; no month-specific max yet
-        const isValid = year.length === 4 && day <= new Date(parseInt(year, 10), month, 0).getDate(); // Simple invalid check
-        const formattedMonth = month.toString().padStart(2, '0');
-        const formattedDay = day.toString().padStart(2, '0');
-        let corrected = pattern === 'mmddyyyy'
-            ? `${formattedMonth}/${formattedDay}/${year}`
-            : `${formattedDay}/${formattedMonth}/${year}`;
-        return { corrected, isValid: year.length === 4 && isValid };
+        var isValid = year.length === 4 && day <= new Date(parseInt(year, 10), month, 0).getDate(); // Simple invalid check
+        var formattedMonth = month.toString().padStart(2, '0');
+        var formattedDay = day.toString().padStart(2, '0');
+        var corrected = pattern === 'mmddyyyy'
+            ? "".concat(formattedMonth, "/").concat(formattedDay, "/").concat(year)
+            : "".concat(formattedDay, "/").concat(formattedMonth, "/").concat(year);
+        return { corrected: corrected, isValid: year.length === 4 && isValid };
     }
     // Update autocorrectTime to handle unified default
     function autocorrectTime(value, defaultMeridiem) {
         var _a;
-        const parts = value.split(/[: ]/);
-        let hour = parseInt(parts[0] || '00', 10);
-        let minute = parseInt(parts[1] || '00', 10);
-        let meridiem = ((_a = parts[2]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) || defaultMeridiem;
+        var parts = value.split(/[: ]/);
+        var hour = parseInt(parts[0] || '00', 10);
+        var minute = parseInt(parts[1] || '00', 10);
+        var meridiem = ((_a = parts[2]) === null || _a === void 0 ? void 0 : _a.toUpperCase()) || defaultMeridiem;
         if (!['AM', 'PM'].includes(meridiem))
             meridiem = defaultMeridiem;
         hour = Math.max(1, Math.min(12, hour));
         minute = Math.max(0, Math.min(59, minute));
-        const isValid = true;
-        const corrected = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem}`;
-        return { corrected, isValid };
+        var isValid = true;
+        var corrected = "".concat(hour.toString().padStart(2, '0'), ":").concat(minute.toString().padStart(2, '0'), " ").concat(meridiem);
+        return { corrected: corrected, isValid: isValid };
     }
     function preserveCaret(input, oldValue, newValue, oldCaret) {
         // Simple mapping: count non-derived chars before oldCaret, place after same count in newValue
-        const rawOld = oldValue.replace(/[^0-9a-zA-Z]/g, ''); // Strip derived
-        const rawPos = rawOld.slice(0, oldCaret).length;
-        let newPos = 0;
-        let rawCount = 0;
-        for (let i = 0; i < newValue.length; i++) {
+        var rawOld = oldValue.replace(/[^0-9a-zA-Z]/g, ''); // Strip derived
+        var rawPos = rawOld.slice(0, oldCaret).length;
+        var newPos = 0;
+        var rawCount = 0;
+        for (var i = 0; i < newValue.length; i++) {
             if (/[0-9a-zA-Z]/.test(newValue[i]))
                 rawCount++;
             if (rawCount > rawPos)
@@ -107,31 +108,31 @@
     }
     function initInputFormatting(form) {
         console.log('initInputFormatting called for form:', form);
-        const inputs = form.querySelectorAll('input[data-input]');
-        console.log(`Found ${inputs.length} inputs with data-input attribute`);
-        inputs.forEach((el, index) => {
-            const input = el;
-            const attr = input.getAttribute('data-input');
-            console.log(`Input ${index + 1}:`, input, 'data-input value:', attr);
+        var inputs = form.querySelectorAll('input[data-input]');
+        console.log("Found ".concat(inputs.length, " inputs with data-input attribute"));
+        inputs.forEach(function (el, index) {
+            var input = el;
+            var attr = input.getAttribute('data-input');
+            console.log("Input ".concat(index + 1, ":"), input, 'data-input value:', attr);
             if (!attr) {
-                console.log(`Input ${index + 1} has no data-input attribute, skipping`);
+                console.log("Input ".concat(index + 1, " has no data-input attribute, skipping"));
                 return;
             }
-            const config = parseFormat(attr);
-            console.log(`Input ${index + 1} parsed config:`, config);
+            var config = parseFormat(attr);
+            console.log("Input ".concat(index + 1, " parsed config:"), config);
             if (!config) {
-                console.log(`Input ${index + 1} config parsing failed, skipping`);
+                console.log("Input ".concat(index + 1, " config parsing failed, skipping"));
                 return;
             }
-            console.log(`Input ${index + 1} successfully configured for formatting:`, config);
+            console.log("Input ".concat(index + 1, " successfully configured for formatting:"), config);
             input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
-            const handleInput = (event) => {
-                console.log(`Input event triggered for ${config.type} field:`, input);
-                const oldValue = input.value;
-                const oldCaret = input.selectionStart || 0;
+            var handleInput = function (event) {
+                console.log("Input event triggered for ".concat(config.type, " field:"), input);
+                var oldValue = input.value;
+                var oldCaret = input.selectionStart || 0;
                 console.log('Old value:', oldValue, 'Old caret:', oldCaret);
-                let raw = input.value;
-                let formatted;
+                var raw = input.value;
+                var formatted;
                 if (config.type === 'date') {
                     formatted = formatDate(raw, config.pattern);
                     console.log('Date formatting - raw:', raw, 'formatted:', formatted);
@@ -145,13 +146,13 @@
                 console.log('Final value set:', input.value);
                 input.dispatchEvent(new CustomEvent('cd:inputformat:changed', {
                     bubbles: true,
-                    detail: { raw, formatted }
+                    detail: { raw: raw, formatted: formatted }
                 }));
             };
-            const handleBlur = () => {
-                const { corrected, isValid } = config.type === 'date'
+            var handleBlur = function () {
+                var _a = config.type === 'date'
                     ? autocorrectDate(input.value, config.pattern)
-                    : autocorrectTime(input.value, config.defaultMeridiem);
+                    : autocorrectTime(input.value, config.defaultMeridiem), corrected = _a.corrected, isValid = _a.isValid;
                 input.value = corrected;
                 input.setAttribute('aria-invalid', (!isValid).toString());
                 if (!isValid) {

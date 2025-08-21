@@ -3,8 +3,11 @@
 
 import { initFormEnhancements, initInputFormatting } from './features';
 
+// Get version from package.json - will be replaced during build
+const VERSION = '0.1.16';
+
 // Immediate debug log to confirm script execution
-console.log('🚀 CD Form Library v0.1.15 - Script executing!');
+console.log(`🚀 CD Form Library v${VERSION} - Script executing!`);
 console.log('🚀 Document state:', document.readyState);
 console.log('🚀 Window object:', typeof window);
 
@@ -61,7 +64,7 @@ export { initializeLibrary, initFormEnhancements, initInputFormatting };
 // Global exposure for browser environments
 if (typeof window !== 'undefined') {
   (window as any).CDFormLibrary = {
-    version: '0.1.15',
+    version: VERSION,
     initialize: initializeLibrary,
     features: {
       initFormEnhancements,

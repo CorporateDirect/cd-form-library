@@ -17,6 +17,7 @@ This library aims to provide enhanced form functionality within Webflow projects
 - Full compatibility with Webflow Interactions (IX2).
 - Must work seamlessly with Webflow Forms and the Webflow Designer.
 - The library should initialize automatically on page load and support dynamic content.
+- This is a webflow native project. when testing, never create html files--we will test within Webflow.
 
 ## Tooling
 
