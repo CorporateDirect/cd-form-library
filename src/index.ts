@@ -1,7 +1,7 @@
 // Entry point for the library
 // Auto-initializes on DOMContentLoaded
 
-import { initFormEnhancements } from './features'; // To be implemented
+import { initFormEnhancements, initInputFormatting } from './features'; // Updated import
 
 function initializeLibrary() {
   console.log('CD Form Library initializing...');
