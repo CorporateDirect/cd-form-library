@@ -8,27 +8,91 @@
   console.log('🚀 Document state:', document.readyState);
   console.log('🚀 Window object:', typeof window);
 
-  // Load Maskito library dynamically
-  function loadMaskito() {
-    return new Promise((resolve, reject) => {
-      if (window.Maskito) {
-        console.log('🚀 Maskito already loaded');
-        resolve();
-        return;
+  // Simple, reliable input masking (no external dependencies)
+  function applyInputMask(input, config) {
+    console.log(`🚀 Applying mask to input:`, input, 'config:', config);
+    
+    let isUpdating = false;
+    
+    function formatValue(value) {
+      if (config.type === 'date') {
+        // Extract only digits
+        const digits = value.replace(/\D/g, '').slice(0, 8);
+        let formatted = '';
+        
+        if (digits.length >= 1) {
+          formatted += digits.slice(0, Math.min(2, digits.length));
+        }
+        if (digits.length >= 3) {
+          formatted += '/' + digits.slice(2, Math.min(4, digits.length));
+        }
+        if (digits.length >= 5) {
+          formatted += '/' + digits.slice(4);
+        }
+        
+        return formatted;
+      } else if (config.type === 'time') {
+        // Extract digits and letters
+        const cleaned = value.toUpperCase();
+        const digits = cleaned.replace(/[^0-9]/g, '').slice(0, 4);
+        
+        // Detect AM/PM
+        let meridiem = config.defaultMeridiem || 'AM';
+        if (cleaned.includes('A')) {
+          meridiem = 'AM';
+        } else if (cleaned.includes('P')) {
+          meridiem = 'PM';
+        }
+        
+        let formatted = '';
+        if (digits.length >= 1) {
+          formatted += digits.slice(0, Math.min(2, digits.length));
+        }
+        if (digits.length >= 3) {
+          formatted += ':' + digits.slice(2);
+        }
+        if (digits.length >= 1) {
+          formatted += ' ' + meridiem;
+        }
+        
+        return formatted;
       }
-
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/@maskito/core@latest/dist/index.umd.js';
-      script.onload = () => {
-        console.log('🚀 Maskito loaded successfully');
-        resolve();
-      };
-      script.onerror = () => {
-        console.error('🚀 Failed to load Maskito');
-        reject(new Error('Failed to load Maskito'));
-      };
-      document.head.appendChild(script);
-    });
+      return value;
+    }
+    
+    function handleInput(event) {
+      if (isUpdating) return;
+      
+      const oldValue = input.value;
+      const caretPos = input.selectionStart;
+      const formatted = formatValue(oldValue);
+      
+      if (formatted !== oldValue) {
+        isUpdating = true;
+        input.value = formatted;
+        
+        // Preserve caret position
+        const newCaretPos = Math.min(caretPos + (formatted.length - oldValue.length), formatted.length);
+        input.setSelectionRange(newCaretPos, newCaretPos);
+        
+        setTimeout(() => {
+          isUpdating = false;
+        }, 10);
+        
+        console.log(`🚀 Formatted: "${oldValue}" → "${formatted}"`);
+      }
+    }
+    
+    // Add event listeners
+    input.addEventListener('input', handleInput);
+    input.addEventListener('paste', handleInput);
+    
+    // Format initial value if present
+    if (input.value) {
+      handleInput();
+    }
+    
+    return true;
   }
 
   // Input formatting functions
@@ -40,44 +104,7 @@
     return null;
   }
 
-  // Maskito configuration for different input types
-  function getMaskitoConfig(config) {
-    if (config.type === 'date') {
-      if (config.pattern === 'mmddyyyy') {
-        return {
-          mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
-          guide: false,
-          keepCharPositions: true
-        };
-      } else { // ddmmyyyy
-        return {
-          mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
-          guide: false,
-          keepCharPositions: true
-        };
-      }
-    } else if (config.type === 'time') {
-      return {
-        mask: [/\d/, /\d/, ':', /\d/, /\d/, ' ', /[AP]/, 'M'],
-        guide: false,
-        keepCharPositions: true,
-        pipe: function(conformedValue) {
-          // Auto-convert single digits to proper format
-          let value = conformedValue;
-          
-          // Handle AM/PM detection
-          if (value.includes('A') && !value.includes('AM')) {
-            value = value.replace('A', 'AM');
-          } else if (value.includes('P') && !value.includes('PM')) {
-            value = value.replace('P', 'PM');
-          }
-          
-          return value;
-        }
-      };
-    }
-    return null;
-  }
+  // No external configuration needed - built-in masking
 
   function initInputFormatting(form) {
     console.log('🚀 initInputFormatting called for form:', form);
@@ -85,48 +112,35 @@
     const inputs = form.querySelectorAll('input[data-input]');
     console.log(`🚀 Found ${inputs.length} inputs with data-input attribute`);
     
-    // Load Maskito first, then apply to inputs
-    loadMaskito().then(() => {
-      inputs.forEach(function(input, index) {
-        const attr = input.getAttribute('data-input');
-        console.log(`🚀 Input ${index + 1}:`, input, 'data-input value:', attr);
-        
-        if (!attr) {
-          console.log(`🚀 Input ${index + 1} has no data-input attribute, skipping`);
-          return;
-        }
+    // Apply built-in masking to inputs
+    inputs.forEach(function(input, index) {
+      const attr = input.getAttribute('data-input');
+      console.log(`🚀 Input ${index + 1}:`, input, 'data-input value:', attr);
+      
+      if (!attr) {
+        console.log(`🚀 Input ${index + 1} has no data-input attribute, skipping`);
+        return;
+      }
 
-        const config = parseFormat(attr);
-        console.log(`🚀 Input ${index + 1} parsed config:`, config);
-        
-        if (!config) {
-          console.log(`🚀 Input ${index + 1} config parsing failed, skipping`);
-          return;
-        }
+      const config = parseFormat(attr);
+      console.log(`🚀 Input ${index + 1} parsed config:`, config);
+      
+      if (!config) {
+        console.log(`🚀 Input ${index + 1} config parsing failed, skipping`);
+        return;
+      }
 
-        console.log(`🚀 Input ${index + 1} successfully configured for formatting:`, config);
+      console.log(`🚀 Input ${index + 1} successfully configured for formatting:`, config);
 
-        // Get Maskito configuration
-        const maskitoConfig = getMaskitoConfig(config);
-        if (!maskitoConfig) {
-          console.log(`🚀 Input ${index + 1} - no Maskito config available, skipping`);
-          return;
+      try {
+        // Apply built-in mask to the input
+        const success = applyInputMask(input, config);
+        if (success) {
+          console.log(`🚀 Input ${index + 1} - Built-in mask applied successfully`);
         }
-
-        try {
-          // Apply Maskito mask to the input
-          const maskedInput = new window.Maskito(input, maskitoConfig);
-          console.log(`🚀 Input ${index + 1} - Maskito mask applied successfully`);
-          
-          // Store the mask instance for potential cleanup
-          input._maskitoInstance = maskedInput;
-          
-        } catch (error) {
-          console.error(`🚀 Input ${index + 1} - Failed to apply Maskito mask:`, error);
-        }
-      });
-    }).catch((error) => {
-      console.error('🚀 Failed to load Maskito, falling back to no formatting:', error);
+      } catch (error) {
+        console.error(`🚀 Input ${index + 1} - Failed to apply mask:`, error);
+      }
     });
   }
 
