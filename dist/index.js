@@ -9,6 +9,7 @@ function initializeLibrary() {
     const forms = document.querySelectorAll('form[data-cd-form="true"]');
     forms.forEach(form => {
         (0, features_1.initFormEnhancements)(form);
+        initInputFormatting(form); // Add input formatting
     });
     console.log(`Enhanced ${forms.length} forms.`);
 }
