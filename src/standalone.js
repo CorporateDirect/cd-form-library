@@ -4,9 +4,32 @@
 (function() {
   'use strict';
   
-  console.log('🚀 CD Form Library v0.1.6 - Standalone version executing!');
+  console.log('🚀 CD Form Library v0.1.10 - Standalone version executing!');
   console.log('🚀 Document state:', document.readyState);
   console.log('🚀 Window object:', typeof window);
+
+  // Load Maskito library dynamically
+  function loadMaskito() {
+    return new Promise((resolve, reject) => {
+      if (window.Maskito) {
+        console.log('🚀 Maskito already loaded');
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/@maskito/core@latest/dist/index.umd.js';
+      script.onload = () => {
+        console.log('🚀 Maskito loaded successfully');
+        resolve();
+      };
+      script.onerror = () => {
+        console.error('🚀 Failed to load Maskito');
+        reject(new Error('Failed to load Maskito'));
+      };
+      document.head.appendChild(script);
+    });
+  }
 
   // Input formatting functions
   function parseFormat(attr) {
@@ -17,80 +40,43 @@
     return null;
   }
 
-  function formatDate(raw, pattern) {
-    const digits = raw.replace(/\D/g, '').slice(0, 8);
-    let formatted = '';
-    
-    if (digits.length === 0) return '';
-    
-    if (pattern === 'mmddyyyy') {
-      // Month (1-2 digits)
-      if (digits.length >= 1) {
-        formatted += digits.slice(0, Math.min(2, digits.length));
+  // Maskito configuration for different input types
+  function getMaskitoConfig(config) {
+    if (config.type === 'date') {
+      if (config.pattern === 'mmddyyyy') {
+        return {
+          mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
+          guide: false,
+          keepCharPositions: true
+        };
+      } else { // ddmmyyyy
+        return {
+          mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
+          guide: false,
+          keepCharPositions: true
+        };
       }
-      // Add slash after month if we have day digits
-      if (digits.length >= 3) {
-        formatted += '/';
-        // Day (3-4 digits become positions 1-2 after slash)
-        formatted += digits.slice(2, Math.min(4, digits.length));
-      }
-      // Add slash after day if we have year digits  
-      if (digits.length >= 5) {
-        formatted += '/';
-        // Year (5+ digits)
-        formatted += digits.slice(4);
-      }
-    } else { // ddmmyyyy - same logic
-      if (digits.length >= 1) {
-        formatted += digits.slice(0, Math.min(2, digits.length));
-      }
-      if (digits.length >= 3) {
-        formatted += '/';
-        formatted += digits.slice(2, Math.min(4, digits.length));
-      }
-      if (digits.length >= 5) {
-        formatted += '/';
-        formatted += digits.slice(4);
-      }
+    } else if (config.type === 'time') {
+      return {
+        mask: [/\d/, /\d/, ':', /\d/, /\d/, ' ', /[AP]/, 'M'],
+        guide: false,
+        keepCharPositions: true,
+        pipe: function(conformedValue) {
+          // Auto-convert single digits to proper format
+          let value = conformedValue;
+          
+          // Handle AM/PM detection
+          if (value.includes('A') && !value.includes('AM')) {
+            value = value.replace('A', 'AM');
+          } else if (value.includes('P') && !value.includes('PM')) {
+            value = value.replace('P', 'PM');
+          }
+          
+          return value;
+        }
+      };
     }
-    return formatted;
-  }
-
-  function formatTime(raw, defaultMeridiem) {
-    const cleaned = raw.toUpperCase();
-    
-    // Extract digits and meridiem separately
-    const digits = cleaned.replace(/[^0-9]/g, '').slice(0, 4);
-    
-    // Look for A, P, AM, PM anywhere in the string
-    let meridiem = defaultMeridiem;
-    if (cleaned.includes('A')) {
-      meridiem = 'AM';
-    } else if (cleaned.includes('P')) {
-      meridiem = 'PM';
-    }
-    
-    if (digits.length === 0) return '';
-    
-    let formatted = '';
-    
-    // Hour (1-2 digits)
-    if (digits.length >= 1) {
-      formatted += digits.slice(0, Math.min(2, digits.length));
-    }
-    
-    // Add colon and minutes if we have minute digits
-    if (digits.length >= 3) {
-      formatted += ':';
-      formatted += digits.slice(2, Math.min(4, digits.length));
-    }
-    
-    // Add meridiem if we have at least hour
-    if (digits.length >= 1) {
-      formatted += ' ' + meridiem;
-    }
-    
-    return formatted;
+    return null;
   }
 
   function initInputFormatting(form) {
