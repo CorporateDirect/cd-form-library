@@ -87,8 +87,9 @@
           console.log('🚀 Time formatting - raw:', raw, 'formatted:', formatted);
         }
 
-        input.value = formatted;
-        console.log('🚀 Final value set:', input.value);
+        // TEMPORARILY DISABLED - Let's see if this fixes input blocking
+        // input.value = formatted;
+        console.log('🚀 Formatting disabled for testing - would set:', formatted);
       };
 
       input.addEventListener('input', handleInput);
