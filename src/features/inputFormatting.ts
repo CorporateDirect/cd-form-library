@@ -48,19 +48,58 @@ function formatTime(raw: string, defaultMeridiem: 'AM' | 'PM'): string {
   return formatted;
 }
 
-function autocorrectDate(value: string, pattern: string): string {
-  // TODO: Implement clamping (e.g., month 01-12, day 01-31) on blur
-  return value; // Placeholder
+function autocorrectDate(value: string, pattern: string): { corrected: string; isValid: boolean } {
+  const parts = value.split('/').map(p => p.padStart(2, '0'));
+  let month = parseInt(parts[0] || '00', 10);
+  let day = parseInt(parts[1] || '00', 10);
+  let year = parts[2] || '';
+
+  if (pattern === 'ddmmyyyy') [day, month] = [month, day]; // Swap for EU format
+
+  month = Math.max(1, Math.min(12, month));
+  day = Math.max(1, Math.min(31, day)); // Basic clamp; no month-specific max yet
+
+  const isValid = year.length === 4 && day <= new Date(parseInt(year, 10), month, 0).getDate(); // Simple invalid check
+
+  const formattedMonth = month.toString().padStart(2, '0');
+  const formattedDay = day.toString().padStart(2, '0');
+
+  let corrected = pattern === 'mmddyyyy'
+    ? `${formattedMonth}/${formattedDay}/${year}`
+    : `${formattedDay}/${formattedMonth}/${year}`;
+
+  return { corrected, isValid: year.length === 4 && isValid };
 }
 
-function autocorrectTime(value: string, defaultMeridiem: 'AM' | 'PM'): string {
-  // TODO: Implement clamping (hour 01-12, minute 00-59) on blur
-  return value; // Placeholder
+function autocorrectTime(value: string, defaultMeridiem: 'AM' | 'PM'): { corrected: string; isValid: boolean } {
+  const parts = value.split(/[: ]/);
+  let hour = parseInt(parts[0] || '00', 10);
+  let minute = parseInt(parts[1] || '00', 10);
+  let meridiem = parts[2] || defaultMeridiem;
+
+  hour = Math.max(1, Math.min(12, hour));
+  minute = Math.max(0, Math.min(59, minute));
+
+  const isValid = true; // Always valid after clamp for now
+
+  const corrected = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem.toUpperCase()}`;
+  return { corrected, isValid };
 }
 
 function preserveCaret(input: HTMLInputElement, oldValue: string, newValue: string, oldCaret: number) {
-  // TODO: Implement logical caret mapping (raw to formatted, skip derived chars)
-  input.setSelectionRange(oldCaret, oldCaret); // Basic fallback
+  // Simple mapping: count non-derived chars before oldCaret, place after same count in newValue
+  const rawOld = oldValue.replace(/[^0-9a-zA-Z]/g, ''); // Strip derived
+  const rawPos = rawOld.slice(0, oldCaret).length;
+
+  let newPos = 0;
+  let rawCount = 0;
+  for (let i = 0; i < newValue.length; i++) {
+    if (/[0-9a-zA-Z]/.test(newValue[i])) rawCount++;
+    if (rawCount > rawPos) break;
+    newPos = i + 1; // Place after the matching raw char
+  }
+
+  input.setSelectionRange(newPos, newPos);
 }
 
 export function initInputFormatting(form: HTMLFormElement) {
@@ -98,16 +137,16 @@ export function initInputFormatting(form: HTMLFormElement) {
     };
 
     const handleBlur = () => {
-      let corrected: string;
-      if (config.type === 'date') {
-        corrected = autocorrectDate(input.value, config.pattern);
-      } else {
-        corrected = autocorrectTime(input.value, config.defaultMeridiem!);
-      }
-      input.value = corrected;
+      const { corrected, isValid } = config.type === 'date'
+        ? autocorrectDate(input.value, config.pattern)
+        : autocorrectTime(input.value, config.defaultMeridiem!);
 
-      // TODO: Validate syntax and set aria-invalid if needed
-      // if (invalid) input.dispatchEvent(new CustomEvent('cd:inputformat:invalid', { bubbles: true }));
+      input.value = corrected;
+      input.setAttribute('aria-invalid', (!isValid).toString());
+
+      if (!isValid) {
+        input.dispatchEvent(new CustomEvent('cd:inputformat:invalid', { bubbles: true }));
+      }
 
       handleInput(new Event('input')); // Re-trigger format
     };
