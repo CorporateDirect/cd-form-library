@@ -1,14 +1,25 @@
-"use strict";
 // Entry point for the library
 // Auto-initializes on DOMContentLoaded
-// Immediate debug log to confirm script execution
-console.log('🚀 CD Form Library v0.1.5 - Script executing!');
-console.log('🚀 Document state:', document.readyState);
-console.log('🚀 Window object:', typeof window);
-try {
-    console.log('🚀 Attempting to import features...');
-    const { initFormEnhancements, initInputFormatting } = require('./features');
-    console.log('🚀 Features imported successfully');
+(function (factory) {
+    if (typeof module === "object" && typeof module.exports === "object") {
+        var v = factory(require, exports);
+        if (v !== undefined) module.exports = v;
+    }
+    else if (typeof define === "function" && define.amd) {
+        define(["require", "exports", "./features"], factory);
+    }
+})(function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.initInputFormatting = exports.initFormEnhancements = void 0;
+    exports.initializeLibrary = initializeLibrary;
+    const features_1 = require("./features");
+    Object.defineProperty(exports, "initFormEnhancements", { enumerable: true, get: function () { return features_1.initFormEnhancements; } });
+    Object.defineProperty(exports, "initInputFormatting", { enumerable: true, get: function () { return features_1.initInputFormatting; } });
+    // Immediate debug log to confirm script execution
+    console.log('🚀 CD Form Library v0.1.15 - Script executing!');
+    console.log('🚀 Document state:', document.readyState);
+    console.log('🚀 Window object:', typeof window);
     function initializeLibrary() {
         console.log('🚀 CD Form Library initializing...');
         console.log('🚀 Document ready state:', document.readyState);
@@ -25,8 +36,8 @@ try {
         forms.forEach((form, index) => {
             console.log(`🚀 Processing form ${index + 1}:`, form);
             try {
-                initFormEnhancements(form);
-                initInputFormatting(form);
+                (0, features_1.initFormEnhancements)(form);
+                (0, features_1.initInputFormatting)(form);
                 console.log(`🚀 Form ${index + 1} enhanced successfully`);
             }
             catch (error) {
@@ -50,7 +61,16 @@ try {
         console.log('🚀 Backup initialization after 2 seconds...');
         initializeLibrary();
     }, 2000);
-}
-catch (error) {
-    console.error('🚀 Error in CD Form Library:', error);
-}
+    // Global exposure for browser environments
+    if (typeof window !== 'undefined') {
+        window.CDFormLibrary = {
+            version: '0.1.15',
+            initialize: initializeLibrary,
+            features: {
+                initFormEnhancements: features_1.initFormEnhancements,
+                initInputFormatting: features_1.initInputFormatting
+            }
+        };
+        console.log('🚀 CDFormLibrary exposed on window object');
+    }
+});
