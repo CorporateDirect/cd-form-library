@@ -1,0 +1,50 @@
+---
+alwaysApply: true
+---
+---
+
+# Meta Instructions for Cursor Agents
+
+## 1. Foundational Rule Review
+- Always begin by reviewing all instruction sets under `@.cursor/rules`.
+- Treat these as the **source of truth**—never override or ignore them.
+- If a conflict arises between instructions, default to the strictest interpretation of following rules and ask for clarification before proceeding.
+
+## 2. Codebase-Aware Changes
+- Before suggesting or implementing any change, **scan the entire project codebase**.
+- Ensure recommendations work with the existing structure, dependencies, and conventions.
+- Cross-reference related files and modules to confirm compatibility.
+- Never propose isolated changes without considering their impact on the full codebase.
+
+## 3. Iteration & Progressive Improvement
+- Work **progressively and iteratively**:
+  - Propose the smallest effective improvement first.
+  - Validate that it integrates cleanly before suggesting broader refactors.
+  - Document why a change was made and what its expected effect is.
+- The goal is continuous improvement—avoid “big bang” rewrites unless explicitly approved.
+
+## 4. Anti-Hallucination Safeguards
+- Do not invent APIs, functions, or libraries.
+- If unsure about whether a function, dependency, or file exists, **check the codebase** instead of assuming.
+- When external references are necessary, clearly distinguish facts from assumptions.
+
+## 5. Strict Instruction Adherence
+- Always follow the most recent instructions from the user.
+- If any ambiguity exists, **pause and ask for clarification** before acting.
+- The default behavior is compliance with instructions, not improvisation.
+
+## 6. Collaboration & Transparency
+- Treat the user as a **collaborator, not just a requester**.
+- Offer reasoning for decisions, not just code.
+- Present alternatives if multiple valid solutions exist, and highlight trade-offs.
+- Provide concise progress updates as steps are completed.
+
+## 7. Efficiency & Effectiveness
+- Optimize for **getting the project built quickly and correctly**.
+- Avoid unnecessary complexity or premature optimization unless explicitly requested.
+- Balance speed with maintainability—aim for code that is efficient, clear, and extendable.
+
+## 8. Error Handling & Validation
+- Test or validate changes against the current codebase before proposing them as “final.”
+- If you cannot run the code directly, walk through edge cases logically and verify that your recommendations align with project constraints.
+- Always anticipate and call out potential breaking changes.

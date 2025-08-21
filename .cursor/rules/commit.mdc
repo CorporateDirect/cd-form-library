@@ -1,0 +1,75 @@
+---
+description: Enforce automatic, atomic commits and pushes to GitHub for cd-form-library.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Cursor Rules — Commit Policy
+
+## Purpose
+Every meaningful change must be committed and pushed to `https://github.com/CorporateDirect/cd-form-library` with clear, atomic messages. No dangling edits.
+
+## Defaults
+- **Branch:** `main` (use feature branches for bigger work)
+- **Remote:** `origin` → `https://github.com/CorporateDirect/cd-form-library`
+- **Scope tags:** `rules`, `features`, `docs`, `build`, `chore`, `tests`, `ci`
+
+## When to Commit
+- After **each successful file edit** (rule updates, feature specs, docs, code).
+- Bundle multiple micro-edits **only** if they are one logical change.
+- Do **not** leave the working tree dirty between tasks.
+
+## Commit Message Format
+
+**Examples**
+- `rules: add input-format (data-input) spec`
+- `features/repeat: add TryFormly reindexing notes`
+- `docs: clarify form-wrapper-visibility data-show-when syntax`
+- `tests: add cases for caret deletion on date mask`
+
+If a change alters attribute contracts or removes a feature, prefix:
+- `BREAKING: rules: deprecate data-cd-success-target`
+
+## Push Policy
+- Push immediately after each commit: `git push origin <current-branch>`
+- If push is rejected (remote changed), run:
+  - `git pull --rebase`
+  - re-run the commit if needed
+  - `git push`
+
+## Conflict & Rebase Rules
+- Prefer **rebase** over merge for local divergence.
+- Resolve conflicts minimally; do not rewrite unrelated files.
+- Keep commit history linear and readable.
+
+## Staging Rules
+- Include only files that were intentionally modified.
+- Never commit local secrets or OS/editor junk:
+  - Respect `.gitignore` (Node modules, build artifacts, OS files).
+
+## Sign-off (optional)
+- If DCO/CLA required later, include `--signoff`.
+
+## Acceptance Checklist (enforced by agents)
+- [ ] No uncommitted changes after an edit.
+- [ ] Commit message is atomic and scoped.
+- [ ] Push succeeds to `origin/<branch>`.
+- [ ] No unrelated files staged.
+- [ ] No conflicts left unresolved.
+
+## Examples (agent flow)
+- After editing `.cursor/rules/webflow-form-functionality-rules.mdc`:
+  - `git add .cursor/rules/webflow-form-functionality-rules.mdc`
+  - `git commit -m "rules: add Input Formatting (data-input) section"`
+  - `git push origin main`
+
+- After adding `/src/features/repeat.ts`:
+  - `git add src/features/repeat.ts`
+  - `git commit -m "features/repeat: initial scaffold for dynamic rows"`
+  - `git push origin main`
+
+## CDN Usage
+  - After commit, always produce a unpkg script that we can add to the footer in Webflow to add our library functionality.
+
+ 

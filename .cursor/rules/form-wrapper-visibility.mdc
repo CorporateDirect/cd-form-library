@@ -1,10 +1,6 @@
 ---
-description: Controls the visibility of form wrapper elements based on user selections.
-globs:
-  - "**/form-wrapper-visibility.mdc"
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Purpose
 
 This rule manages the visibility of form wrapper elements dynamically based on user interaction. It allows sections of a form to be shown or hidden depending on the value selected in a related input field.

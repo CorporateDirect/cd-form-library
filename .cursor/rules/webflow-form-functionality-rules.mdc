@@ -23,7 +23,8 @@ This library aims to provide enhanced form functionality within Webflow projects
 - TypeScript for type safety and maintainability.
 - Webflow Designer for applying Custom Attributes.
 - Native DOM APIs for event handling and manipulation.
-- No external dependencies or frameworks.
+- Utilize Maskito (https://maskito.dev/getting-started/maskito-libraries) for field formatting.
+
 
 ## File Structure
 
