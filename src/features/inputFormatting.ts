@@ -2,7 +2,7 @@
 // Applies soft masking to inputs with data-input attribute (e.g., dates, times)
 // Adheres to rules: natural editing, caret preservation, autocorrect on blur, events
 
-type FormatType = 'date:mmddyyyy' | 'date:ddmmyyyy' | 'time:hhmm am' | 'time:hhmm pm';
+type FormatType = 'date:mmddyyyy' | 'date:ddmmyyyy' | 'time:hhmm';
 
 interface FormatConfig {
   type: 'date' | 'time';
@@ -14,8 +14,7 @@ function parseFormat(attr: string): FormatConfig | null {
   const normalized = attr.toLowerCase().trim().replace(/\s+/g, '');
   if (normalized === 'date:mmddyyyy') return { type: 'date', pattern: 'mmddyyyy' };
   if (normalized === 'date:ddmmyyyy') return { type: 'date', pattern: 'ddmmyyyy' };
-  if (normalized === 'time:hhmmam') return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'AM' };
-  if (normalized === 'time:hhmmpm') return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'PM' };
+  if (normalized === 'time:hhmm') return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'AM' }; // Unified, default AM
   return null;
 }
 
@@ -35,11 +34,9 @@ function formatDate(raw: string, pattern: string): string {
 }
 
 function formatTime(raw: string, defaultMeridiem: 'AM' | 'PM'): string {
-  const digits = raw.replace(/[^0-9apAP]/g, '').toUpperCase();
-  const numPart = digits.replace(/[AP]/g, '').slice(0, 4);
-  let meridiem = defaultMeridiem;
-  if (digits.includes('A')) meridiem = 'AM';
-  if (digits.includes('P')) meridiem = 'PM';
+  const cleaned = raw.toUpperCase().replace(/[^0-9AP]/g, '');
+  const numPart = cleaned.replace(/[AP]/g, '').slice(0, 4);
+  let meridiem = cleaned.match(/[AP]+$/)?.[0].startsWith('A') ? 'AM' : 'PM' || defaultMeridiem;
 
   let formatted = '';
   if (numPart.length >= 2) formatted += numPart.slice(0, 2) + ':';
@@ -71,18 +68,21 @@ function autocorrectDate(value: string, pattern: string): { corrected: string; i
   return { corrected, isValid: year.length === 4 && isValid };
 }
 
+// Update autocorrectTime to handle unified default
 function autocorrectTime(value: string, defaultMeridiem: 'AM' | 'PM'): { corrected: string; isValid: boolean } {
   const parts = value.split(/[: ]/);
   let hour = parseInt(parts[0] || '00', 10);
   let minute = parseInt(parts[1] || '00', 10);
-  let meridiem = parts[2] || defaultMeridiem;
+  let meridiem = parts[2]?.toUpperCase() || defaultMeridiem;
+
+  if (!['AM', 'PM'].includes(meridiem)) meridiem = defaultMeridiem;
 
   hour = Math.max(1, Math.min(12, hour));
   minute = Math.max(0, Math.min(59, minute));
 
-  const isValid = true; // Always valid after clamp for now
+  const isValid = true;
 
-  const corrected = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem.toUpperCase()}`;
+  const corrected = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')} ${meridiem}`;
   return { corrected, isValid };
 }
 
