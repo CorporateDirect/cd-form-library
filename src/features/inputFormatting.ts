@@ -22,13 +22,13 @@ function formatDate(raw: string, pattern: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 8);
   let formatted = '';
   if (pattern === 'mmddyyyy') {
-    if (digits.length >= 2) formatted += digits.slice(0, 2) + '/';
-    if (digits.length >= 4) formatted += digits.slice(2, 4) + '/';
-    if (digits.length > 4) formatted += digits.slice(4);
+    if (digits.length >= 1) formatted += digits.slice(0, 2);
+    if (digits.length >= 3) formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4);
+    if (digits.length >= 5) formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
   } else { // ddmmyyyy
-    if (digits.length >= 2) formatted += digits.slice(0, 2) + '/';
-    if (digits.length >= 4) formatted += digits.slice(2, 4) + '/';
-    if (digits.length > 4) formatted += digits.slice(4);
+    if (digits.length >= 1) formatted += digits.slice(0, 2);
+    if (digits.length >= 3) formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4);
+    if (digits.length >= 5) formatted = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
   }
   return formatted;
 }
