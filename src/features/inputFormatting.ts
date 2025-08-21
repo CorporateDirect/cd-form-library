@@ -36,7 +36,8 @@ function formatDate(raw: string, pattern: string): string {
 function formatTime(raw: string, defaultMeridiem: 'AM' | 'PM'): string {
   const cleaned = raw.toUpperCase().replace(/[^0-9AP]/g, '');
   const numPart = cleaned.replace(/[AP]/g, '').slice(0, 4);
-  let meridiem = cleaned.match(/[AP]+$/)?.[0].startsWith('A') ? 'AM' : 'PM' || defaultMeridiem;
+  const meridiemMatch = cleaned.match(/[AP]+$/);
+  let meridiem = meridiemMatch ? (meridiemMatch[0].startsWith('A') ? 'AM' : 'PM') : defaultMeridiem;
 
   let formatted = '';
   if (numPart.length >= 2) formatted += numPart.slice(0, 2) + ':';
