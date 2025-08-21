@@ -1,3 +1,3 @@
 // Export feature initializers
-export { initFormEnhancements } from './validation';
-export { initInputFormatting } from './inputFormatting'; // New export
+export { initInputFormatting } from './inputFormatting';
+export { initFormWrapperVisibility } from './formWrapperVisibility';

@@ -4,15 +4,15 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "./validation", "./inputFormatting"], factory);
+        define(["require", "exports", "./inputFormatting", "./formWrapperVisibility"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.initInputFormatting = exports.initFormEnhancements = void 0;
+    exports.initFormWrapperVisibility = exports.initInputFormatting = void 0;
     // Export feature initializers
-    var validation_1 = require("./validation");
-    Object.defineProperty(exports, "initFormEnhancements", { enumerable: true, get: function () { return validation_1.initFormEnhancements; } });
-    var inputFormatting_1 = require("./inputFormatting"); // New export
+    var inputFormatting_1 = require("./inputFormatting");
     Object.defineProperty(exports, "initInputFormatting", { enumerable: true, get: function () { return inputFormatting_1.initInputFormatting; } });
+    var formWrapperVisibility_1 = require("./formWrapperVisibility");
+    Object.defineProperty(exports, "initFormWrapperVisibility", { enumerable: true, get: function () { return formWrapperVisibility_1.initFormWrapperVisibility; } });
 });
