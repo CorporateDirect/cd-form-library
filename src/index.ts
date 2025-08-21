@@ -4,7 +4,7 @@
 import { initFormEnhancements, initInputFormatting } from './features';
 
 // Get version from package.json - will be replaced during build
-const VERSION = '0.1.17';
+const VERSION = '0.1.18';
 
 // Immediate debug log to confirm script execution
 console.log(`🚀 CD Form Library v${VERSION} - Script executing!`);
