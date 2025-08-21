@@ -119,8 +119,15 @@
       console.log(`🚀 Input ${index + 1} successfully configured for formatting:`, config);
 
       let formatTimer;
+      let isFormatting = false; // Flag to prevent recursive formatting
       
       const handleInput = function(event) {
+        // Skip if we're currently formatting to prevent recursion
+        if (isFormatting) {
+          console.log('🚀 Skipping input event - currently formatting');
+          return;
+        }
+        
         console.log(`🚀 Input event triggered for ${config.type} field:`, input);
         
         // Clear any existing timer
@@ -147,6 +154,7 @@
 
           // Only update if the formatted value is different
           if (formatted !== oldValue) {
+            isFormatting = true; // Set flag before changing value
             input.value = formatted;
             
             // Try to preserve caret position
@@ -154,6 +162,11 @@
             input.setSelectionRange(newCaretPos, newCaretPos);
             
             console.log('🚀 Value updated to:', formatted, 'new caret:', newCaretPos);
+            
+            // Clear flag after a brief delay to allow the input event to complete
+            setTimeout(() => {
+              isFormatting = false;
+            }, 10);
           }
         }, 300); // 300ms delay
       };
