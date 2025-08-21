@@ -20,28 +20,76 @@
   function formatDate(raw, pattern) {
     const digits = raw.replace(/\D/g, '').slice(0, 8);
     let formatted = '';
+    
+    if (digits.length === 0) return '';
+    
     if (pattern === 'mmddyyyy') {
-      if (digits.length >= 2) formatted += digits.slice(0, 2) + '/';
-      if (digits.length >= 4) formatted += digits.slice(2, 4) + '/';
-      if (digits.length > 4) formatted += digits.slice(4);
-    } else { // ddmmyyyy
-      if (digits.length >= 2) formatted += digits.slice(0, 2) + '/';
-      if (digits.length >= 4) formatted += digits.slice(2, 4) + '/';
-      if (digits.length > 4) formatted += digits.slice(4);
+      // Month (1-2 digits)
+      if (digits.length >= 1) {
+        formatted += digits.slice(0, Math.min(2, digits.length));
+      }
+      // Add slash after month if we have day digits
+      if (digits.length >= 3) {
+        formatted += '/';
+        // Day (3-4 digits become positions 1-2 after slash)
+        formatted += digits.slice(2, Math.min(4, digits.length));
+      }
+      // Add slash after day if we have year digits  
+      if (digits.length >= 5) {
+        formatted += '/';
+        // Year (5+ digits)
+        formatted += digits.slice(4);
+      }
+    } else { // ddmmyyyy - same logic
+      if (digits.length >= 1) {
+        formatted += digits.slice(0, Math.min(2, digits.length));
+      }
+      if (digits.length >= 3) {
+        formatted += '/';
+        formatted += digits.slice(2, Math.min(4, digits.length));
+      }
+      if (digits.length >= 5) {
+        formatted += '/';
+        formatted += digits.slice(4);
+      }
     }
     return formatted;
   }
 
   function formatTime(raw, defaultMeridiem) {
-    const cleaned = raw.toUpperCase().replace(/[^0-9AP]/g, '');
-    const numPart = cleaned.replace(/[AP]/g, '').slice(0, 4);
-    const meridiemMatch = cleaned.match(/[AP]+$/);
-    let meridiem = meridiemMatch ? (meridiemMatch[0].startsWith('A') ? 'AM' : 'PM') : defaultMeridiem;
-
+    const cleaned = raw.toUpperCase();
+    
+    // Extract digits and meridiem separately
+    const digits = cleaned.replace(/[^0-9]/g, '').slice(0, 4);
+    
+    // Look for A, P, AM, PM anywhere in the string
+    let meridiem = defaultMeridiem;
+    if (cleaned.includes('A')) {
+      meridiem = 'AM';
+    } else if (cleaned.includes('P')) {
+      meridiem = 'PM';
+    }
+    
+    if (digits.length === 0) return '';
+    
     let formatted = '';
-    if (numPart.length >= 2) formatted += numPart.slice(0, 2) + ':';
-    if (numPart.length > 2) formatted += numPart.slice(2);
-    if (numPart.length >= 2) formatted += ' ' + meridiem;
+    
+    // Hour (1-2 digits)
+    if (digits.length >= 1) {
+      formatted += digits.slice(0, Math.min(2, digits.length));
+    }
+    
+    // Add colon and minutes if we have minute digits
+    if (digits.length >= 3) {
+      formatted += ':';
+      formatted += digits.slice(2, Math.min(4, digits.length));
+    }
+    
+    // Add meridiem if we have at least hour
+    if (digits.length >= 1) {
+      formatted += ' ' + meridiem;
+    }
+    
     return formatted;
   }
 
