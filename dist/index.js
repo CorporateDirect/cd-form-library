@@ -14,7 +14,7 @@
     exports.initializeLibrary = initializeLibrary;
     var inputFormatting_1 = require("./features/inputFormatting");
     var formWrapperVisibility_1 = require("./features/formWrapperVisibility");
-    var VERSION = '0.1.20';
+    var VERSION = '0.1.21';
     function initializeLibrary() {
         var forms = document.querySelectorAll('form[data-cd-form="true"]');
         forms.forEach(function (form) {

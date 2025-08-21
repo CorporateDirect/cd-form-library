@@ -4,7 +4,7 @@
 import { initInputFormatting } from './features/inputFormatting';
 import { initFormWrapperVisibility } from './features/formWrapperVisibility';
 
-const VERSION = '0.1.20';
+const VERSION = '0.1.21';
 
 function initializeLibrary() {
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
