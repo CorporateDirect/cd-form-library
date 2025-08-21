@@ -4,7 +4,7 @@
 (function() {
   'use strict';
   
-  console.log('🚀 CD Form Library v0.1.10 - Standalone version executing!');
+  console.log('🚀 CD Form Library v0.1.12 - Standalone version executing!');
   console.log('🚀 Document state:', document.readyState);
   console.log('🚀 Window object:', typeof window);
 
@@ -85,113 +85,75 @@
     const inputs = form.querySelectorAll('input[data-input]');
     console.log(`🚀 Found ${inputs.length} inputs with data-input attribute`);
     
-    inputs.forEach(function(input, index) {
-      const attr = input.getAttribute('data-input');
-      console.log(`🚀 Input ${index + 1}:`, input, 'data-input value:', attr);
-      
-      if (!attr) {
-        console.log(`🚀 Input ${index + 1} has no data-input attribute, skipping`);
-        return;
-      }
-
-      const config = parseFormat(attr);
-      console.log(`🚀 Input ${index + 1} parsed config:`, config);
-      
-      if (!config) {
-        console.log(`🚀 Input ${index + 1} config parsing failed, skipping`);
-        return;
-      }
-
-      console.log(`🚀 Input ${index + 1} successfully configured for formatting:`, config);
-
-      let formatTimer;
-      let isFormatting = false; // Flag to prevent recursive formatting
-      
-      const handleInput = function(event) {
-        // Skip if we're currently formatting to prevent recursion
-        if (isFormatting) {
-          console.log('🚀 Skipping input event - currently formatting');
+    // Load Maskito first, then apply to inputs
+    loadMaskito().then(() => {
+      inputs.forEach(function(input, index) {
+        const attr = input.getAttribute('data-input');
+        console.log(`🚀 Input ${index + 1}:`, input, 'data-input value:', attr);
+        
+        if (!attr) {
+          console.log(`🚀 Input ${index + 1} has no data-input attribute, skipping`);
           return;
         }
+
+        const config = parseFormat(attr);
+        console.log(`🚀 Input ${index + 1} parsed config:`, config);
         
-        console.log(`🚀 Input event triggered for ${config.type} field:`, input);
-        
-        // Clear any existing timer
-        if (formatTimer) {
-          clearTimeout(formatTimer);
+        if (!config) {
+          console.log(`🚀 Input ${index + 1} config parsing failed, skipping`);
+          return;
         }
-        
-        // Set a short delay before formatting to avoid interfering with typing
-        formatTimer = setTimeout(() => {
-          const oldValue = input.value;
-          const caretPos = input.selectionStart;
-          console.log('🚀 Formatting after delay - old value:', oldValue, 'caret:', caretPos);
 
-          let raw = input.value;
-          let formatted;
+        console.log(`🚀 Input ${index + 1} successfully configured for formatting:`, config);
 
-          if (config.type === 'date') {
-            formatted = formatDate(raw, config.pattern);
-            console.log('🚀 Date formatting - raw:', raw, 'formatted:', formatted);
-          } else {
-            formatted = formatTime(raw, config.defaultMeridiem);
-            console.log('🚀 Time formatting - raw:', raw, 'formatted:', formatted);
-          }
+        // Get Maskito configuration
+        const maskitoConfig = getMaskitoConfig(config);
+        if (!maskitoConfig) {
+          console.log(`🚀 Input ${index + 1} - no Maskito config available, skipping`);
+          return;
+        }
 
-          // Only update if the formatted value is different
-          if (formatted !== oldValue) {
-            isFormatting = true; // Set flag before changing value
-            input.value = formatted;
-            
-            // Try to preserve caret position
-            const newCaretPos = Math.min(caretPos, formatted.length);
-            input.setSelectionRange(newCaretPos, newCaretPos);
-            
-            console.log('🚀 Value updated to:', formatted, 'new caret:', newCaretPos);
-            
-            // Clear flag after a brief delay to allow the input event to complete
-            setTimeout(() => {
-              isFormatting = false;
-            }, 10);
-          }
-        }, 300); // 300ms delay
-      };
-
-      input.addEventListener('input', handleInput);
-      input.addEventListener('change', handleInput);
-      
-      // Initial format if value present
-      if (input.value) handleInput();
+        try {
+          // Apply Maskito mask to the input
+          const maskedInput = new window.Maskito(input, maskitoConfig);
+          console.log(`🚀 Input ${index + 1} - Maskito mask applied successfully`);
+          
+          // Store the mask instance for potential cleanup
+          input._maskitoInstance = maskedInput;
+          
+        } catch (error) {
+          console.error(`🚀 Input ${index + 1} - Failed to apply Maskito mask:`, error);
+        }
+      });
+    }).catch((error) => {
+      console.error('🚀 Failed to load Maskito, falling back to no formatting:', error);
     });
+  }
+
+  function initFormEnhancements(form) {
+    console.log('🚀 initFormEnhancements called for form:', form);
+    // Initialize input formatting
+    initInputFormatting(form);
   }
 
   function initializeLibrary() {
     console.log('🚀 CD Form Library initializing...');
     console.log('🚀 Document ready state:', document.readyState);
     
-    const forms = document.querySelectorAll('form[data-cd-form="true"]');
-    console.log(`🚀 Found ${forms.length} forms with data-cd-form="true"`);
-    
-    if (forms.length === 0) {
-      console.log('🚀 No forms found - checking all forms on page...');
-      const allForms = document.querySelectorAll('form');
-      console.log(`🚀 Total forms on page: ${allForms.length}`);
-      allForms.forEach(function(form, i) {
-        console.log(`🚀 Form ${i + 1}:`, form, 'data-cd-form:', form.getAttribute('data-cd-form'));
-      });
-    }
-    
-    forms.forEach(function(form, index) {
-      console.log(`🚀 Processing form ${index + 1}:`, form);
-      try {
-        initInputFormatting(form);
+    try {
+      const forms = document.querySelectorAll('form[data-cd-form="true"]');
+      console.log(`🚀 Found ${forms.length} forms with data-cd-form="true"`);
+      
+      forms.forEach(function(form, index) {
+        console.log(`🚀 Processing form ${index + 1}:`, form);
+        initFormEnhancements(form);
         console.log(`🚀 Form ${index + 1} enhanced successfully`);
-      } catch (error) {
-        console.error(`🚀 Error enhancing form ${index + 1}:`, error);
-      }
-    });
-    
-    console.log(`🚀 Enhanced ${forms.length} forms.`);
+      });
+      
+      console.log(`🚀 Enhanced ${forms.length} forms.`);
+    } catch (error) {
+      console.error('🚀 Error during library initialization:', error);
+    }
   }
 
   // Auto-init on page load
