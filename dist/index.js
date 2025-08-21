@@ -26,10 +26,18 @@
         console.log(`Enhanced ${forms.length} forms.`);
     }
     // Auto-init on page load
+    console.log('CD Form Library script loaded! Document state:', document.readyState);
     if (document.readyState === 'loading') {
+        console.log('Document still loading, waiting for DOMContentLoaded...');
         document.addEventListener('DOMContentLoaded', initializeLibrary);
     }
     else {
+        console.log('Document ready, initializing immediately...');
         initializeLibrary();
     }
+    // Also try to initialize after a delay as backup
+    setTimeout(() => {
+        console.log('Backup initialization after 2 seconds...');
+        initializeLibrary();
+    }, 2000);
 });
