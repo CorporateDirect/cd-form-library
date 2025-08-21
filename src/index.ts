@@ -1,7 +1,8 @@
 // Entry point for the library
 // Auto-initializes on DOMContentLoaded
 
-import { initFormEnhancements, initInputFormatting } from './features';
+import { initInputFormatting, parseFormat, createMaskitoOptions } from './features/inputFormatting';
+import { Maskito } from '@maskito/core';
 
 // Get version from package.json - will be replaced during build
 const VERSION = '0.1.18';
@@ -30,7 +31,6 @@ function initializeLibrary() {
   forms.forEach((form, index) => {
     console.log(`🚀 Processing form ${index + 1}:`, form);
     try {
-      initFormEnhancements(form as HTMLFormElement);
       initInputFormatting(form as HTMLFormElement);
       console.log(`🚀 Form ${index + 1} enhanced successfully`);
     } catch (error) {
@@ -42,24 +42,122 @@ function initializeLibrary() {
 }
 
 // Auto-init on page load
-console.log('🚀 Setting up initialization...');
+console.log('\uD83D\uDE80 Setting up initialization...');
 
 if (document.readyState === 'loading') {
-  console.log('🚀 Document still loading, waiting for DOMContentLoaded...');
+  console.log('\uD83D\uDE80 Document still loading, waiting for DOMContentLoaded...');
   document.addEventListener('DOMContentLoaded', initializeLibrary);
 } else {
-  console.log('🚀 Document ready, initializing immediately...');
+  console.log('\uD83D\uDE80 Document ready, initializing immediately...');
   initializeLibrary();
 }
 
 // Also try to initialize after a delay as backup
 setTimeout(() => {
-  console.log('🚀 Backup initialization after 2 seconds...');
+  console.log('\uD83D\uDE80 Backup initialization after 2 seconds...');
   initializeLibrary();
 }, 2000);
 
 // Export for manual initialization if needed
-export { initializeLibrary, initFormEnhancements, initInputFormatting };
+export { initializeLibrary, initInputFormatting };
+
+// Define the applyMaskToInput function
+function applyMaskToInput(el: HTMLInputElement) {
+  const attr = el.getAttribute('data-input');
+  if (!attr) return;
+
+  const config = parseFormat(attr);
+  if (!config) return;
+
+  const maskitoOptions = createMaskitoOptions(config);
+  if (!maskitoOptions) return;
+
+  const maskito = new Maskito(el, maskitoOptions);
+  el.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
+
+  el.addEventListener('input', () => {
+    const newValue = el.value;
+    el.dispatchEvent(new CustomEvent('cd:inputformat:changed', {
+      bubbles: true,
+      detail: { raw: el.value, formatted: newValue }
+    }));
+  });
+
+  el.addEventListener('blur', () => {
+    const isValid = el.value.length === 0 || el.checkValidity();
+    el.setAttribute('aria-invalid', (!isValid).toString());
+
+    if (!isValid) {
+      el.dispatchEvent(new CustomEvent('cd:inputformat:invalid', { bubbles: true }));
+    }
+  });
+
+  (el as any).__maskito = maskito;
+}
+
+// Define the FormLib object
+const FormLib = {
+  initMasks(opts?: any) {
+    const inputs = document.querySelectorAll('input[data-input], textarea[data-input]');
+    inputs.forEach((input) => {
+      applyMaskToInput(input as HTMLInputElement);
+    });
+
+    // Observe for dynamically added inputs
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node instanceof HTMLElement) {
+            const newInputs = node.querySelectorAll('input[data-input], textarea[data-input]');
+            newInputs.forEach((input) => {
+              applyMaskToInput(input as HTMLInputElement);
+            });
+          }
+        });
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  },
+
+  applyMaskToInput(el: HTMLInputElement) {
+    const attr = el.getAttribute('data-input');
+    if (!attr) return;
+
+    const config = parseFormat(attr);
+    if (!config) return;
+
+    const maskitoOptions = createMaskitoOptions(config);
+    if (!maskitoOptions) return;
+
+    const maskito = new Maskito(el, maskitoOptions);
+    el.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
+
+    el.addEventListener('input', () => {
+      const newValue = el.value;
+      el.dispatchEvent(new CustomEvent('cd:inputformat:changed', {
+        bubbles: true,
+        detail: { raw: el.value, formatted: newValue }
+      }));
+    });
+
+    el.addEventListener('blur', () => {
+      const isValid = el.value.length === 0 || el.checkValidity();
+      el.setAttribute('aria-invalid', (!isValid).toString());
+
+      if (!isValid) {
+        el.dispatchEvent(new CustomEvent('cd:inputformat:invalid', { bubbles: true }));
+      }
+    });
+
+    (el as any).__maskito = maskito;
+  }
+};
+
+// Expose FormLib globally
+if (typeof window !== 'undefined') {
+  (window as any).FormLib = FormLib;
+}
 
 // Global exposure for browser environments
 if (typeof window !== 'undefined') {
@@ -67,9 +165,8 @@ if (typeof window !== 'undefined') {
     version: VERSION,
     initialize: initializeLibrary,
     features: {
-      initFormEnhancements,
       initInputFormatting
     }
   };
-  console.log('🚀 CDFormLibrary exposed on window object');
+  console.log('\uD83D\uDE80 CDFormLibrary exposed on window object');
 }

@@ -39,6 +39,8 @@ function createMaskitoOptions(config: FormatConfig) {
   return null;
 }
 
+export { parseFormat, createMaskitoOptions };
+
 export function initInputFormatting(form: HTMLFormElement) {
   console.log('initInputFormatting called for form:', form);
   
