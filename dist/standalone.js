@@ -70,26 +70,44 @@
 
       console.log(`🚀 Input ${index + 1} successfully configured for formatting:`, config);
 
+      let formatTimer;
+      
       const handleInput = function(event) {
         console.log(`🚀 Input event triggered for ${config.type} field:`, input);
         
-        const oldValue = input.value;
-        console.log('🚀 Old value:', oldValue);
-
-        let raw = input.value;
-        let formatted;
-
-        if (config.type === 'date') {
-          formatted = formatDate(raw, config.pattern);
-          console.log('🚀 Date formatting - raw:', raw, 'formatted:', formatted);
-        } else {
-          formatted = formatTime(raw, config.defaultMeridiem);
-          console.log('🚀 Time formatting - raw:', raw, 'formatted:', formatted);
+        // Clear any existing timer
+        if (formatTimer) {
+          clearTimeout(formatTimer);
         }
+        
+        // Set a short delay before formatting to avoid interfering with typing
+        formatTimer = setTimeout(() => {
+          const oldValue = input.value;
+          const caretPos = input.selectionStart;
+          console.log('🚀 Formatting after delay - old value:', oldValue, 'caret:', caretPos);
 
-        // TEMPORARILY DISABLED - Let's see if this fixes input blocking
-        // input.value = formatted;
-        console.log('🚀 Formatting disabled for testing - would set:', formatted);
+          let raw = input.value;
+          let formatted;
+
+          if (config.type === 'date') {
+            formatted = formatDate(raw, config.pattern);
+            console.log('🚀 Date formatting - raw:', raw, 'formatted:', formatted);
+          } else {
+            formatted = formatTime(raw, config.defaultMeridiem);
+            console.log('🚀 Time formatting - raw:', raw, 'formatted:', formatted);
+          }
+
+          // Only update if the formatted value is different
+          if (formatted !== oldValue) {
+            input.value = formatted;
+            
+            // Try to preserve caret position
+            const newCaretPos = Math.min(caretPos, formatted.length);
+            input.setSelectionRange(newCaretPos, newCaretPos);
+            
+            console.log('🚀 Value updated to:', formatted, 'new caret:', newCaretPos);
+          }
+        }, 300); // 300ms delay
       };
 
       input.addEventListener('input', handleInput);
