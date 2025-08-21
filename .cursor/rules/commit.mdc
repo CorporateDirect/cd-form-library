@@ -69,7 +69,66 @@ If a change alters attribute contracts or removes a feature, prefix:
   - `git commit -m "features/repeat: initial scaffold for dynamic rows"`
   - `git push origin main`
 
-## CDN Usage
-  - After commit, always produce a unpkg script that we can add to the footer in Webflow to add our library functionality.
+## NPM Publishing & CDN Generation
+
+### Required Process for Every Commit
+After committing and pushing to GitHub, **always** follow these steps to make the library available via UNPKG:
+
+1. **Update Version Numbers**
+   - Increment version in `package.json`
+   - Update version constant in `src/index.ts`
+   - Update version in `dist/index.js` (if manually edited)
+
+2. **Build & Publish to NPM**
+   ```bash
+   npm run build
+   npm publish
+   ```
+
+3. **Verify NPM Publication**
+   ```bash
+   npm view cd-form-library version
+   ```
+
+4. **Generate UNPKG Script**
+   After successful npm publish, provide the UNPKG script:
+   ```html
+   <script src="https://unpkg.com/cd-form-library@x.y.z/dist/index.js"></script>
+   ```
+
+### Version Management
+- Use semantic versioning (x.y.z)
+- **Patch** (0.0.1): Bug fixes, small improvements
+- **Minor** (0.1.0): New features, non-breaking changes  
+- **Major** (1.0.0): Breaking changes, major rewrites
+
+### UNPKG Availability
+- UNPKG serves from npm registry, not GitHub
+- Allow 1-2 minutes for UNPKG cache to update after npm publish
+- Verify availability: `curl -I https://unpkg.com/cd-form-library@x.y.z/dist/index.js`
+
+### Complete Agent Workflow Example
+```bash
+# 1. Make changes and commit
+git add .
+git commit -m "features: add form wrapper visibility"
+git push origin main
+
+# 2. Update version and publish
+# (Update package.json version first)
+npm run build
+npm publish
+
+# 3. Provide UNPKG script
+echo "UNPKG Script: <script src=\"https://unpkg.com/cd-form-library@x.y.z/dist/index.js\"></script>"
+```
+
+### Acceptance Checklist (NPM & CDN)
+- [ ] Version updated in package.json, src/index.ts, and dist/index.js
+- [ ] Code built successfully with `npm run build`
+- [ ] Published to npm with `npm publish`
+- [ ] NPM version verified with `npm view cd-form-library version`
+- [ ] UNPKG script provided with correct version number
+- [ ] UNPKG URL accessibility confirmed
 
  
