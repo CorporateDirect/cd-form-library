@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.26';
+    const VERSION = '0.1.27';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -275,78 +275,61 @@
     function initDynamicRows() {
         console.log('🔧 initDynamicRows called');
         
-        // Find all row wrappers (elements with class containing "row-wrapper")
-        const rowWrappers = document.querySelectorAll('[class*="row-wrapper"]');
-        console.log('🔧 Found ' + rowWrappers.length + ' row wrappers');
+        // Find all row repeater groups using data-repeat-group attribute
+        const repeaterGroups = document.querySelectorAll('[data-repeat-group]');
+        console.log('🔧 Found ' + repeaterGroups.length + ' repeater groups');
         
-        // Group row wrappers by their common prefix to identify related rows
-        const rowGroups = new Map();
-        
-        for (let i = 0; i < rowWrappers.length; i++) {
-            const wrapper = rowWrappers[i];
-            const classList = wrapper.className.split(' ');
+        for (let i = 0; i < repeaterGroups.length; i++) {
+            const group = repeaterGroups[i];
+            const groupName = group.getAttribute('data-repeat-group');
             
-            // Look for classes that end with "row-wrapper"
-            let groupName = '';
-            for (let j = 0; j < classList.length; j++) {
-                const className = classList[j];
-                if (className.includes('row-wrapper')) {
-                    // Extract the prefix (everything before "row-wrapper")
-                    groupName = className.replace(/[-_]?row[-_]?wrapper.*$/i, '');
-                    break;
-                }
+            if (!groupName) {
+                console.log('🔧 Skipping group without data-repeat-group value');
+                continue;
             }
             
-            if (groupName) {
-                if (!rowGroups.has(groupName)) {
-                    rowGroups.set(groupName, []);
-                }
-                rowGroups.get(groupName).push(wrapper);
-                console.log('🔧 Added wrapper to group "' + groupName + '":', wrapper);
-            }
-        }
-        
-        console.log('🔧 Found ' + rowGroups.size + ' row groups');
-        
-        // Process each row group
-        rowGroups.forEach(function(wrappers, groupName) {
-            console.log('🔧 Processing row group "' + groupName + '" with ' + wrappers.length + ' rows');
+            console.log('🔧 Processing repeater group "' + groupName + '"');
             
-            // Add data-repeat-name attributes to inputs in each row
-            for (let i = 0; i < wrappers.length; i++) {
-                const wrapper = wrappers[i];
-                const inputs = wrapper.querySelectorAll('input, select, textarea');
-                const rowIndex = i;
+            // Find all rows within this group using data-repeat-row attribute
+            const rows = group.querySelectorAll('[data-repeat-row="' + groupName + '"]');
+            console.log('🔧 Found ' + rows.length + ' rows for group "' + groupName + '"');
+            
+            // Convert NodeList to Array for easier manipulation
+            const rowsArray = Array.prototype.slice.call(rows);
+            
+            // Process each row to set up data-repeat-name attributes
+            for (let j = 0; j < rowsArray.length; j++) {
+                const row = rowsArray[j];
+                const inputs = row.querySelectorAll('input, select, textarea');
                 
-                console.log('🔧 Processing row ' + (i + 1) + ' with ' + inputs.length + ' inputs');
+                console.log('🔧 Processing row ' + (j + 1) + ' with ' + inputs.length + ' inputs');
                 
-                for (let j = 0; j < inputs.length; j++) {
-                    const input = inputs[j];
-                    const originalName = input.getAttribute('name') || '';
+                for (let k = 0; k < inputs.length; k++) {
+                    const input = inputs[k];
+                    const repeatName = input.getAttribute('data-repeat-name');
                     
-                    // Create unique name for this row
-                    if (originalName && !originalName.includes('[' + rowIndex + ']')) {
-                        const newName = originalName + '[' + rowIndex + ']';
-                        input.setAttribute('name', newName);
-                        input.setAttribute('data-repeat-name', originalName);
-                        console.log('🔧 Updated input name: ' + originalName + ' -> ' + newName);
+                    if (repeatName) {
+                        // Generate indexed name using pattern: groupName[index][fieldName]
+                        const indexedName = groupName + '[' + j + '][' + repeatName + ']';
+                        input.setAttribute('name', indexedName);
+                        console.log('🔧 Updated input name: ' + repeatName + ' -> ' + indexedName);
                     }
                 }
             }
             
             // Set up add/remove button functionality
-            setupRowButtons(groupName, wrappers);
-        });
+            setupRowButtons(groupName, rowsArray, group);
+        }
         
         console.log('🔧 Dynamic rows initialization complete');
     }
     
-    function setupRowButtons(groupName, wrappers) {
+    function setupRowButtons(groupName, wrappers, groupElement) {
         console.log('🔧 Setting up buttons for group "' + groupName + '"');
         
-        // Find add and remove buttons for this group
-        const addButtons = document.querySelectorAll('[class*="' + groupName + '"][class*="add"], [data-action*="add"][class*="' + groupName + '"]');
-        const removeButtons = document.querySelectorAll('[class*="' + groupName + '"][class*="remove"], [data-action*="remove"][class*="' + groupName + '"]');
+        // Find add and remove buttons using data attributes
+        const addButtons = document.querySelectorAll('[data-repeat-add="' + groupName + '"]');
+        const removeButtons = document.querySelectorAll('[data-repeat-remove="' + groupName + '"]');
         
         console.log('🔧 Found ' + addButtons.length + ' add buttons and ' + removeButtons.length + ' remove buttons for group "' + groupName + '"');
         
@@ -355,7 +338,7 @@
             const button = addButtons[i];
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-                addRow(groupName, wrappers);
+                addRow(groupName, wrappers, groupElement);
             });
             console.log('🔧 Add button listener attached for group "' + groupName + '"');
         }
@@ -365,13 +348,13 @@
             const button = removeButtons[i];
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-                removeRow(groupName, wrappers, this);
+                removeRow(groupName, wrappers, this, groupElement);
             });
             console.log('🔧 Remove button listener attached for group "' + groupName + '"');
         }
     }
     
-    function addRow(groupName, wrappers) {
+    function addRow(groupName, wrappers, groupElement) {
         console.log('🔧 Adding row to group "' + groupName + '"');
         
         if (wrappers.length === 0) return;
@@ -393,13 +376,12 @@
                 input.value = '';
             }
             
-            // Update the name with new index
-            const originalName = input.getAttribute('data-repeat-name') || input.getAttribute('name') || '';
-            if (originalName) {
-                const baseName = originalName.replace(/\[\d+\]$/, '');
-                const newName = baseName + '[' + newIndex + ']';
-                input.setAttribute('name', newName);
-                input.setAttribute('data-repeat-name', baseName);
+            // Update the name with new index using data-repeat-name
+            const repeatName = input.getAttribute('data-repeat-name');
+            if (repeatName) {
+                const indexedName = groupName + '[' + newIndex + '][' + repeatName + ']';
+                input.setAttribute('name', indexedName);
+                console.log('🔧 Updated new row input: ' + repeatName + ' -> ' + indexedName);
             }
         }
         
@@ -410,6 +392,9 @@
         // Add the new wrapper to our tracking array
         wrappers.push(newRow);
         
+        // Update summary if present
+        updateSummaryForGroup(groupName, wrappers);
+        
         // Dispatch custom event
         newRow.dispatchEvent(new CustomEvent('dynamic-rows:added', { 
             bubbles: true,
@@ -419,7 +404,7 @@
         console.log('🔧 Row added to group "' + groupName + '", new total: ' + wrappers.length);
     }
     
-    function removeRow(groupName, wrappers, clickedButton) {
+    function removeRow(groupName, wrappers, clickedButton, groupElement) {
         console.log('🔧 Removing row from group "' + groupName + '"');
         
         if (wrappers.length <= 1) {
@@ -457,13 +442,17 @@
             
             for (let j = 0; j < inputs.length; j++) {
                 const input = inputs[j];
-                const baseName = input.getAttribute('data-repeat-name') || '';
-                if (baseName) {
-                    const newName = baseName + '[' + i + ']';
-                    input.setAttribute('name', newName);
+                const repeatName = input.getAttribute('data-repeat-name');
+                if (repeatName) {
+                    const indexedName = groupName + '[' + i + '][' + repeatName + ']';
+                    input.setAttribute('name', indexedName);
+                    console.log('🔧 Reindexed input: ' + repeatName + ' -> ' + indexedName);
                 }
             }
         }
+        
+        // Update summary if present
+        updateSummaryForGroup(groupName, wrappers);
         
         // Dispatch custom event
         document.dispatchEvent(new CustomEvent('dynamic-rows:removed', { 
@@ -472,6 +461,59 @@
         }));
         
         console.log('🔧 Row removed from group "' + groupName + '", new total: ' + wrappers.length);
+    }
+    
+    function updateSummaryForGroup(groupName, wrappers) {
+        console.log('🔧 Updating summary for group "' + groupName + '"');
+        
+        // Find summary container using data-summary-for attribute
+        const summaryContainer = document.querySelector('[data-summary-for="' + groupName + '"]');
+        if (!summaryContainer) {
+            console.log('🔧 No summary container found for group "' + groupName + '"');
+            return;
+        }
+        
+        // Find summary template
+        const template = summaryContainer.querySelector('[data-summary-template]');
+        if (!template) {
+            console.log('🔧 No summary template found for group "' + groupName + '"');
+            return;
+        }
+        
+        // Clear existing summary rows (but keep the template)
+        const existingSummaryRows = summaryContainer.querySelectorAll('[data-summary-row]');
+        for (let i = 0; i < existingSummaryRows.length; i++) {
+            existingSummaryRows[i].parentNode.removeChild(existingSummaryRows[i]);
+        }
+        
+        // Generate summary rows for each data row
+        for (let i = 0; i < wrappers.length; i++) {
+            const summaryRow = template.cloneNode(true);
+            summaryRow.removeAttribute('data-summary-template');
+            summaryRow.setAttribute('data-summary-row', 'true');
+            
+            // Update data-input-field attributes to match row index
+            const inputFields = summaryRow.querySelectorAll('[data-input-field]');
+            for (let j = 0; j < inputFields.length; j++) {
+                const field = inputFields[j];
+                const fieldTemplate = field.getAttribute('data-input-field');
+                
+                // Replace {i} token with actual index
+                const indexedField = fieldTemplate.replace(/\{i\}/g, i);
+                field.setAttribute('data-input-field', indexedField);
+            }
+            
+            // Insert the summary row after the template
+            template.parentNode.insertBefore(summaryRow, template.nextSibling);
+        }
+        
+        console.log('🔧 Summary updated for group "' + groupName + '" with ' + wrappers.length + ' rows');
+        
+        // Trigger TryFormly refresh if available
+        if (typeof window.TryFormly !== 'undefined' && window.TryFormly.refresh) {
+            window.TryFormly.refresh();
+            console.log('🔧 TryFormly.refresh() called');
+        }
     }
     
     function initializeLibrary() {
