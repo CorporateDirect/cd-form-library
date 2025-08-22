@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.28';
+    const VERSION = '0.1.29';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -410,6 +410,30 @@
         
         // Add the new wrapper to our tracking array
         wrappers.push(newRow);
+        
+        // Initialize input formatting for the new row inputs
+        console.log('🔧 Initializing input formatting for new row inputs');
+        const newRowInputs = newRow.querySelectorAll('input[data-input]');
+        for (let i = 0; i < newRowInputs.length; i++) {
+            const input = newRowInputs[i];
+            const attr = input.getAttribute('data-input');
+            console.log('🔧 New row input with data-input:', attr);
+            
+            if (!attr) continue;
+            
+            const config = parseFormat(attr);
+            if (!config) continue;
+            
+            const mask = createSimpleMask(config);
+            if (!mask) continue;
+            
+            // Apply the mask to the new input
+            mask.apply(input);
+            
+            // Dispatch bound event
+            input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
+            console.log('🔧 Input formatting applied to new row input');
+        }
         
         // Update summary if present
         updateSummaryForGroup(groupName, wrappers);
