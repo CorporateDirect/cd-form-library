@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.39';
+    const VERSION = '0.1.45';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -752,14 +752,19 @@
             const wrapper = wrappers[i];
             const inputs = wrapper.querySelectorAll('input, select, textarea');
             
+            console.log('📊 WRAPPER ' + i + ' INPUTS:');
             for (let j = 0; j < inputs.length; j++) {
                 const input = inputs[j];
                 const inputName = input.getAttribute('name');
                 const inputValue = input.value;
+                console.log('  📊 Input ' + j + ': name="' + inputName + '", value="' + inputValue + '"');
                 
                 if (inputName && inputValue) {
-                    // Find corresponding summary field
+                    // Find corresponding summary field with exact attribute selector
                     const summaryField = summaryContainer.querySelector('[data-cd-input-field="' + inputName + '"]');
+                    console.log('📊 Looking for summary field with data-cd-input-field="' + inputName + '"');
+                    console.log('📊 Found summary field:', summaryField);
+                    
                     if (summaryField) {
                         // Debug current field state
                         console.log('📊 DEBUG: Before update - field:', summaryField);
@@ -795,9 +800,11 @@
                         console.log('📊 WARNING: No summary field found for input name: ' + inputName);
                         // Debug available summary fields
                         const allSummaryFields = summaryContainer.querySelectorAll('[data-cd-input-field]');
-                        console.log('📊 DEBUG: Available summary fields:');
+                        console.log('📊 DEBUG: Available summary fields (' + allSummaryFields.length + ' total):');
                         for (let k = 0; k < allSummaryFields.length; k++) {
-                            console.log('  📊 Field ' + k + ': data-cd-input-field="' + allSummaryFields[k].getAttribute('data-cd-input-field') + '"');
+                            const fieldAttr = allSummaryFields[k].getAttribute('data-cd-input-field');
+                            const isMatch = fieldAttr === inputName;
+                            console.log('  📊 Field ' + k + ': data-cd-input-field="' + fieldAttr + '" (match: ' + isMatch + ')');
                         }
                     }
                 }
