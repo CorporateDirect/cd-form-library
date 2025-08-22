@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.29';
+    const VERSION = '0.1.30';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -433,6 +433,18 @@
             // Dispatch bound event
             input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
             console.log('🔧 Input formatting applied to new row input');
+        }
+        
+        // Initialize remove button for the new row
+        console.log('🔧 Initializing remove button for new row');
+        const newRemoveButtons = newRow.querySelectorAll('[data-repeat-remove="' + groupName + '"]');
+        for (let i = 0; i < newRemoveButtons.length; i++) {
+            const button = newRemoveButtons[i];
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                removeRow(groupName, wrappers, this, groupElement);
+            });
+            console.log('🔧 Remove button listener attached for new row in group "' + groupName + '"');
         }
         
         // Update summary if present
