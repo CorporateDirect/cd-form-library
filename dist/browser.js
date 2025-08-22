@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.45';
+    const VERSION = '0.1.47';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -297,7 +297,7 @@
             // Convert NodeList to Array for easier manipulation
             const rowsArray = Array.prototype.slice.call(rows);
             
-            // Process each row to set up data-repeat-name attributes
+            // Process each row to set up indexed naming for dynamic arrays
             for (let j = 0; j < rowsArray.length; j++) {
                 const row = rowsArray[j];
                 const inputs = row.querySelectorAll('input, select, textarea');
@@ -306,13 +306,28 @@
                 
                 for (let k = 0; k < inputs.length; k++) {
                     const input = inputs[k];
-                    const repeatName = input.getAttribute('data-repeat-name');
+                    let repeatName = input.getAttribute('data-repeat-name');
+                    const currentName = input.getAttribute('name');
+                    
+                    // If no data-repeat-name, generate one from the current name
+                    if (!repeatName && currentName) {
+                        // Map common field names to data-repeat-name format
+                        const nameMapping = {
+                            'Name-of-Person-Entity': 'person_entity_name',
+                            'Current-Ownership': 'current_ownership', 
+                            'New-Ownership': 'new_ownership'
+                        };
+                        
+                        repeatName = nameMapping[currentName] || currentName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                        input.setAttribute('data-repeat-name', repeatName);
+                        console.log('🔧 Generated data-repeat-name for ' + currentName + ': ' + repeatName);
+                    }
                     
                     if (repeatName) {
                         // Generate indexed name using pattern: groupName[index][fieldName]
                         const indexedName = groupName + '[' + j + '][' + repeatName + ']';
                         input.setAttribute('name', indexedName);
-                        console.log('🔧 Updated input name: ' + repeatName + ' -> ' + indexedName);
+                        console.log('🔧 Set indexed input name: ' + indexedName);
                     }
                 }
             }
@@ -427,7 +442,25 @@
             }
             
             // Update the name with new index using data-repeat-name
-            const repeatName = input.getAttribute('data-repeat-name');
+            let repeatName = input.getAttribute('data-repeat-name');
+            
+            // If no data-repeat-name, generate one from the current name
+            if (!repeatName) {
+                const currentName = input.getAttribute('name');
+                if (currentName) {
+                    // Map common field names to data-repeat-name format
+                    const nameMapping = {
+                        'Name-of-Person-Entity': 'person_entity_name',
+                        'Current-Ownership': 'current_ownership', 
+                        'New-Ownership': 'new_ownership'
+                    };
+                    
+                    repeatName = nameMapping[currentName] || currentName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+                    input.setAttribute('data-repeat-name', repeatName);
+                    console.log('🔧 Generated data-repeat-name for new row: ' + currentName + ' -> ' + repeatName);
+                }
+            }
+            
             if (repeatName) {
                 const indexedName = groupName + '[' + newIndex + '][' + repeatName + ']';
                 input.setAttribute('name', indexedName);
@@ -680,14 +713,14 @@
             summaryRow.style.top = '';
             summaryRow.removeAttribute('aria-hidden');
             
-            // Update data-cd-input-field attributes to match row index
+            // Update data-cd-input-field attributes to match indexed input names
             const inputFields = summaryRow.querySelectorAll('[data-cd-input-field]');
             console.log('📊 Processing ' + inputFields.length + ' input fields for row ' + i);
             for (let j = 0; j < inputFields.length; j++) {
                 const field = inputFields[j];
                 const fieldTemplate = field.getAttribute('data-cd-input-field');
                 
-                // Replace {i} token with actual index
+                // Replace {i} token with actual index to match input names
                 const indexedField = fieldTemplate.replace(/\{i\}/g, i);
                 field.setAttribute('data-cd-input-field', indexedField);
                 

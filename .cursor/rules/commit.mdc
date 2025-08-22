@@ -131,4 +131,4 @@ echo "UNPKG Script: <script src=\"https://unpkg.com/cd-form-library@x.y.z/dist/i
 - [ ] UNPKG script provided with correct version number
 - [ ] UNPKG URL accessibility confirmed
 
- 
+ ### DO NOT INCLUDE CLAUDE CODE ATTRIBUTION WHEN COMMITTING!
