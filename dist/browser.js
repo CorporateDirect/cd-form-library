@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.30';
+    const VERSION = '0.1.31';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -561,7 +561,8 @@
             existingSummaryRows[i].parentNode.removeChild(existingSummaryRows[i]);
         }
         
-        // Generate summary rows for each data row
+        // Generate summary rows for each data row and collect them
+        const summaryRowsToInsert = [];
         for (let i = 0; i < wrappers.length; i++) {
             const summaryRow = template.cloneNode(true);
             summaryRow.removeAttribute('data-summary-template');
@@ -576,10 +577,29 @@
                 // Replace {i} token with actual index
                 const indexedField = fieldTemplate.replace(/\{i\}/g, i);
                 field.setAttribute('data-input-field', indexedField);
+                
+                // Make summary fields visible by removing display:none
+                field.style.display = '';
             }
             
-            // Insert the summary row after the template
-            template.parentNode.insertBefore(summaryRow, template.nextSibling);
+            summaryRowsToInsert.push(summaryRow);
+        }
+        
+        // Insert all summary rows in order after the template
+        let insertAfter = template;
+        for (let i = 0; i < summaryRowsToInsert.length; i++) {
+            insertAfter.parentNode.insertBefore(summaryRowsToInsert[i], insertAfter.nextSibling);
+            insertAfter = summaryRowsToInsert[i];
+        }
+        
+        // Dispatch input events on all form inputs to trigger TryFormly updates
+        for (let i = 0; i < wrappers.length; i++) {
+            const wrapper = wrappers[i];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            for (let j = 0; j < inputs.length; j++) {
+                const input = inputs[j];
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         }
         
         console.log('🔧 Summary updated for group "' + groupName + '" with ' + wrappers.length + ' rows');
