@@ -18,15 +18,26 @@
     var core_1 = require("@maskito/core");
     var kit_1 = require("@maskito/kit");
     function parseFormat(attr) {
+        console.log('🔧 parseFormat called with attr:', JSON.stringify(attr));
         var normalized = attr.toLowerCase().trim().replace(/\s+/g, ' ');
-        if (normalized === 'date:mmddyyyy')
+        console.log('🔧 normalized attr:', JSON.stringify(normalized));
+        if (normalized === 'date:mmddyyyy') {
+            console.log('🔧 Matched date:mmddyyyy');
             return { type: 'date', pattern: 'mmddyyyy' };
-        if (normalized === 'date:ddmmyyyy')
+        }
+        if (normalized === 'date:ddmmyyyy') {
+            console.log('🔧 Matched date:ddmmyyyy');
             return { type: 'date', pattern: 'ddmmyyyy' };
-        if (normalized === 'time:hhmm am' || normalized === 'time:hhmm')
+        }
+        if (normalized === 'time:hhmm am' || normalized === 'time:hhmm') {
+            console.log('🔧 Matched time:hhmm am');
             return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'AM' };
-        if (normalized === 'time:hhmm pm')
+        }
+        if (normalized === 'time:hhmm pm') {
+            console.log('🔧 Matched time:hhmm pm');
             return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'PM' };
+        }
+        console.log('🔧 No format match found for:', JSON.stringify(normalized));
         return null;
     }
     function createMaskitoOptions(config) {
@@ -45,22 +56,36 @@
         return null;
     }
     function initInputFormatting(form) {
+        console.log('🔧 initInputFormatting called for form:', form);
         var inputs = form.querySelectorAll('input[data-input]');
-        inputs.forEach(function (el) {
+        console.log("\uD83D\uDD27 Found ".concat(inputs.length, " inputs with data-input attribute"));
+        inputs.forEach(function (el, index) {
             var input = el;
             var attr = input.getAttribute('data-input');
-            if (!attr)
+            console.log("\uD83D\uDD27 Input ".concat(index + 1, ":"), input, 'data-input value:', attr);
+            if (!attr) {
+                console.log("\uD83D\uDD27 Input ".concat(index + 1, " has no data-input attribute, skipping"));
                 return;
+            }
             var config = parseFormat(attr);
-            if (!config)
+            console.log("\uD83D\uDD27 Input ".concat(index + 1, " parsed config:"), config);
+            if (!config) {
+                console.log("\uD83D\uDD27 Input ".concat(index + 1, " config parsing failed for attr:"), attr);
                 return;
+            }
             var maskitoOptions = createMaskitoOptions(config);
-            if (!maskitoOptions)
+            console.log("\uD83D\uDD27 Input ".concat(index + 1, " maskito options:"), maskitoOptions);
+            if (!maskitoOptions) {
+                console.log("\uD83D\uDD27 Input ".concat(index + 1, " failed to create Maskito options"));
                 return;
+            }
             // Initialize Maskito on the input
+            console.log("\uD83D\uDD27 Input ".concat(index + 1, " initializing Maskito..."));
             var maskito = new core_1.Maskito(input, maskitoOptions);
+            console.log("\uD83D\uDD27 Input ".concat(index + 1, " Maskito initialized successfully:"), maskito);
             // Dispatch bound event
             input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
+            console.log("\uD83D\uDD27 Input ".concat(index + 1, " bound event dispatched"));
             // Track changes for event dispatch
             var previousValue = input.value;
             input.addEventListener('input', function () {

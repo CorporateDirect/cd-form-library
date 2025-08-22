@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "None",
+    "moduleResolution": "node",
+    "declaration": false,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["DOM", "ES6"],
+    "noImplicitAny": false
+  },
+  "include": ["src/browser.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}

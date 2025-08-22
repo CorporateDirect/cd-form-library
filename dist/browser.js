@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.27';
+    const VERSION = '0.1.28';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -364,8 +364,10 @@
         const newRow = template.cloneNode(true);
         const newIndex = wrappers.length;
         
-        // Clear values and update names in the new row
+        // Clear values and update names/IDs in the new row
         const inputs = newRow.querySelectorAll('input, select, textarea');
+        const labels = newRow.querySelectorAll('label');
+        
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
             
@@ -382,6 +384,23 @@
                 const indexedName = groupName + '[' + newIndex + '][' + repeatName + ']';
                 input.setAttribute('name', indexedName);
                 console.log('🔧 Updated new row input: ' + repeatName + ' -> ' + indexedName);
+                
+                // Update ID to be unique
+                const originalId = input.getAttribute('id');
+                if (originalId) {
+                    const newId = originalId + '-' + newIndex;
+                    input.setAttribute('id', newId);
+                    
+                    // Find corresponding label and update its 'for' attribute
+                    for (let j = 0; j < labels.length; j++) {
+                        const label = labels[j];
+                        if (label.getAttribute('for') === originalId) {
+                            label.setAttribute('for', newId);
+                            console.log('🔧 Updated label for: ' + originalId + ' -> ' + newId);
+                            break;
+                        }
+                    }
+                }
             }
         }
         
@@ -439,6 +458,7 @@
         for (let i = targetIndex; i < wrappers.length; i++) {
             const wrapper = wrappers[i];
             const inputs = wrapper.querySelectorAll('input, select, textarea');
+            const labels = wrapper.querySelectorAll('label');
             
             for (let j = 0; j < inputs.length; j++) {
                 const input = inputs[j];
@@ -447,6 +467,25 @@
                     const indexedName = groupName + '[' + i + '][' + repeatName + ']';
                     input.setAttribute('name', indexedName);
                     console.log('🔧 Reindexed input: ' + repeatName + ' -> ' + indexedName);
+                    
+                    // Update ID and corresponding label
+                    const currentId = input.getAttribute('id');
+                    if (currentId) {
+                        // Extract base ID (remove any existing index suffix)
+                        const baseId = currentId.replace(/-\d+$/, '');
+                        const newId = baseId + '-' + i;
+                        input.setAttribute('id', newId);
+                        
+                        // Find corresponding label and update its 'for' attribute
+                        for (let k = 0; k < labels.length; k++) {
+                            const label = labels[k];
+                            if (label.getAttribute('for') === currentId) {
+                                label.setAttribute('for', newId);
+                                console.log('🔧 Reindexed label for: ' + currentId + ' -> ' + newId);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }

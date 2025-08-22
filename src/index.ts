@@ -4,7 +4,7 @@
 import { initInputFormatting } from './features/inputFormatting';
 import { initFormWrapperVisibility } from './features/formWrapperVisibility';
 
-const VERSION = '0.1.27';
+const VERSION = '0.1.28';
 
 function initializeLibrary() {
   console.log('🚀 CD Form Library v' + VERSION + ' initializing...');
