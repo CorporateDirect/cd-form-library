@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.31';
+    const VERSION = '0.1.32';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -539,24 +539,40 @@
     }
     
     function updateSummaryForGroup(groupName, wrappers) {
-        console.log('🔧 Updating summary for group "' + groupName + '"');
+        console.log('📊 === SUMMARY UPDATE DEBUG START ===');
+        console.log('📊 Updating summary for group "' + groupName + '" with ' + wrappers.length + ' data rows');
         
         // Find summary container using data-summary-for attribute
         const summaryContainer = document.querySelector('[data-summary-for="' + groupName + '"]');
         if (!summaryContainer) {
-            console.log('🔧 No summary container found for group "' + groupName + '"');
+            console.log('❌ No summary container found for group "' + groupName + '"');
             return;
         }
+        console.log('✅ Found summary container:', summaryContainer);
         
         // Find summary template
         const template = summaryContainer.querySelector('[data-summary-template]');
         if (!template) {
-            console.log('🔧 No summary template found for group "' + groupName + '"');
+            console.log('❌ No summary template found for group "' + groupName + '"');
             return;
+        }
+        console.log('✅ Found summary template:', template);
+        
+        // Log current form input values
+        console.log('📊 Current form input values:');
+        for (let i = 0; i < wrappers.length; i++) {
+            const wrapper = wrappers[i];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            console.log('📊 Row ' + i + ' inputs:');
+            for (let j = 0; j < inputs.length; j++) {
+                const input = inputs[j];
+                console.log('  📊 Input name="' + input.name + '" value="' + input.value + '" data-repeat-name="' + input.getAttribute('data-repeat-name') + '"');
+            }
         }
         
         // Clear existing summary rows (but keep the template)
         const existingSummaryRows = summaryContainer.querySelectorAll('[data-summary-row]');
+        console.log('📊 Removing ' + existingSummaryRows.length + ' existing summary rows');
         for (let i = 0; i < existingSummaryRows.length; i++) {
             existingSummaryRows[i].parentNode.removeChild(existingSummaryRows[i]);
         }
@@ -564,12 +580,14 @@
         // Generate summary rows for each data row and collect them
         const summaryRowsToInsert = [];
         for (let i = 0; i < wrappers.length; i++) {
+            console.log('📊 Generating summary row ' + i);
             const summaryRow = template.cloneNode(true);
             summaryRow.removeAttribute('data-summary-template');
             summaryRow.setAttribute('data-summary-row', 'true');
             
             // Update data-input-field attributes to match row index
             const inputFields = summaryRow.querySelectorAll('[data-input-field]');
+            console.log('📊 Processing ' + inputFields.length + ' input fields for row ' + i);
             for (let j = 0; j < inputFields.length; j++) {
                 const field = inputFields[j];
                 const fieldTemplate = field.getAttribute('data-input-field');
@@ -580,6 +598,8 @@
                 
                 // Make summary fields visible by removing display:none
                 field.style.display = '';
+                
+                console.log('📊   Field ' + j + ': ' + fieldTemplate + ' → ' + indexedField);
             }
             
             summaryRowsToInsert.push(summaryRow);
@@ -591,24 +611,54 @@
             insertAfter.parentNode.insertBefore(summaryRowsToInsert[i], insertAfter.nextSibling);
             insertAfter = summaryRowsToInsert[i];
         }
+        console.log('📊 Inserted ' + summaryRowsToInsert.length + ' summary rows');
+        
+        // Wait a moment then check TryFormly status
+        setTimeout(function() {
+            console.log('📊 === TRYFORMLY INTEGRATION CHECK ===');
+            console.log('📊 window.TryFormly exists:', typeof window.TryFormly !== 'undefined');
+            console.log('📊 window.TryFormly object:', window.TryFormly);
+            
+            if (typeof window.TryFormly !== 'undefined') {
+                console.log('📊 TryFormly.refresh function:', typeof window.TryFormly.refresh);
+                console.log('📊 TryFormly methods:', Object.keys(window.TryFormly || {}));
+            }
+            
+            // Check if summary fields now have values
+            console.log('📊 === SUMMARY FIELD VALUES CHECK ===');
+            const allSummaryFields = summaryContainer.querySelectorAll('[data-input-field]');
+            for (let k = 0; k < allSummaryFields.length; k++) {
+                const summaryField = allSummaryFields[k];
+                const fieldName = summaryField.getAttribute('data-input-field');
+                const fieldValue = summaryField.textContent || summaryField.innerText;
+                console.log('📊 Summary field "' + fieldName + '" = "' + fieldValue + '"');
+            }
+        }, 100);
         
         // Dispatch input events on all form inputs to trigger TryFormly updates
+        console.log('📊 Dispatching input events to trigger TryFormly...');
         for (let i = 0; i < wrappers.length; i++) {
             const wrapper = wrappers[i];
             const inputs = wrapper.querySelectorAll('input, select, textarea');
             for (let j = 0; j < inputs.length; j++) {
                 const input = inputs[j];
+                console.log('📊 Dispatching input event for: ' + input.name + ' (value: "' + input.value + '")');
                 input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
         
-        console.log('🔧 Summary updated for group "' + groupName + '" with ' + wrappers.length + ' rows');
+        console.log('📊 Summary updated for group "' + groupName + '" with ' + wrappers.length + ' rows');
         
         // Trigger TryFormly refresh if available
         if (typeof window.TryFormly !== 'undefined' && window.TryFormly.refresh) {
             window.TryFormly.refresh();
-            console.log('🔧 TryFormly.refresh() called');
+            console.log('✅ TryFormly.refresh() called successfully');
+        } else {
+            console.log('❌ TryFormly.refresh() not available');
         }
+        
+        console.log('📊 === SUMMARY UPDATE DEBUG END ===');
     }
     
     function initializeLibrary() {
