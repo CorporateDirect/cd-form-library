@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.33';
+    const VERSION = '0.1.34';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -645,6 +645,29 @@
                 console.log('📊 Dispatching input event for: ' + input.name + ' (value: "' + input.value + '")');
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
+        // Manual summary population as fallback when TryFormly is not available
+        console.log('📊 Manually populating summary fields as fallback...');
+        for (let i = 0; i < wrappers.length; i++) {
+            const wrapper = wrappers[i];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            
+            for (let j = 0; j < inputs.length; j++) {
+                const input = inputs[j];
+                const inputName = input.getAttribute('name');
+                const inputValue = input.value;
+                
+                if (inputName && inputValue) {
+                    // Find corresponding summary field
+                    const summaryField = summaryContainer.querySelector('[data-input-field="' + inputName + '"]');
+                    if (summaryField) {
+                        summaryField.textContent = inputValue;
+                        summaryField.style.display = '';
+                        console.log('📊 Manual summary update: ' + inputName + ' = "' + inputValue + '"');
+                    }
+                }
             }
         }
         
