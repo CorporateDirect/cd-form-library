@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.37';
+    const VERSION = '0.1.38';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -360,8 +360,29 @@
         if (wrappers.length === 0) return;
         
         // Get fresh wrappers from DOM to avoid stale references
+        console.log('🔧 === DOM QUERY DEBUG ===');
+        console.log('🔧 Group element:', groupElement);
+        console.log('🔧 Query selector: [data-repeat-row="' + groupName + '"]');
+        
         const currentWrappers = groupElement.querySelectorAll('[data-repeat-row="' + groupName + '"]');
         console.log('🔧 Fresh DOM query found ' + currentWrappers.length + ' current rows');
+        
+        // DEBUG: Compare with passed wrappers array
+        console.log('🔧 Passed wrappers array length:', wrappers.length);
+        console.log('🔧 DOM query vs passed array match:', currentWrappers.length === wrappers.length);
+        
+        // DEBUG: Examine all rows in the DOM
+        for (let i = 0; i < currentWrappers.length; i++) {
+            const wrapper = currentWrappers[i];
+            console.log('🔧 DOM Row ' + i + ':', wrapper);
+            console.log('🔧   data-repeat-row:', '"' + wrapper.getAttribute('data-repeat-row') + '"');
+            const inputs = wrapper.querySelectorAll('input[data-repeat-name]');
+            console.log('🔧   inputs found:', inputs.length);
+            for (let j = 0; j < inputs.length; j++) {
+                console.log('🔧     input[' + j + '] name="' + inputs[j].name + '" value="' + inputs[j].value + '"');
+            }
+        }
+        console.log('🔧 === END DOM QUERY DEBUG ===');
         
         // Store current values from all existing rows before adding new row
         console.log('🔧 Preserving values from existing rows...');
@@ -594,6 +615,16 @@
         console.log('📊 === SUMMARY UPDATE DEBUG START ===');
         console.log('📊 Updating summary for group "' + groupName + '" with ' + wrappers.length + ' data rows');
         
+        // DEBUG: Implementation approach analysis
+        console.log('📊 === IMPLEMENTATION ANALYSIS ===');
+        console.log('📊 TryFormly available:', typeof window.TryFormly !== 'undefined');
+        console.log('📊 Using custom summary implementation: YES (manual DOM manipulation)');
+        console.log('📊 Data attributes in use:');
+        console.log('  📊 data-summary-for (our custom)');
+        console.log('  📊 data-summary-template (our custom)');
+        console.log('  📊 data-input-field (POTENTIAL CONFLICT with TryFormly)');
+        console.log('📊 === END IMPLEMENTATION ANALYSIS ===');
+        
         // Find summary container using data-summary-for attribute
         const summaryContainer = document.querySelector('[data-summary-for="' + groupName + '"]');
         if (!summaryContainer) {
@@ -664,6 +695,25 @@
             insertAfter = summaryRowsToInsert[i];
         }
         console.log('📊 Inserted ' + summaryRowsToInsert.length + ' summary rows');
+        
+        // DEBUG: Examine all created summary fields after insertion
+        console.log('📊 === POST-INSERTION SUMMARY FIELD DEBUG ===');
+        const allInsertedFields = summaryContainer.querySelectorAll('[data-input-field]:not([data-summary-template] [data-input-field])');
+        console.log('📊 Found ' + allInsertedFields.length + ' inserted summary fields');
+        for (let i = 0; i < allInsertedFields.length; i++) {
+            const field = allInsertedFields[i];
+            console.log('📊 Field ' + i + ':');
+            console.log('  📊 data-input-field: "' + field.getAttribute('data-input-field') + '"');
+            console.log('  📊 textContent: "' + field.textContent + '"');
+            console.log('  📊 innerHTML: "' + field.innerHTML + '"');
+            console.log('  📊 computed display: ' + window.getComputedStyle(field).display);
+            console.log('  📊 computed visibility: ' + window.getComputedStyle(field).visibility);
+            console.log('  📊 computed opacity: ' + window.getComputedStyle(field).opacity);
+            console.log('  📊 element classes: "' + field.className + '"');
+            console.log('  📊 parent element: ', field.parentNode);
+            console.log('  📊 offsetHeight: ' + field.offsetHeight);
+            console.log('  📊 offsetWidth: ' + field.offsetWidth);
+        }
         
         // Wait a moment then check TryFormly status
         setTimeout(function() {
