@@ -675,6 +675,12 @@
             summaryRow.removeAttribute('data-summary-template');
             summaryRow.setAttribute('data-summary-row', 'true');
             
+            // Reset any template positioning styles to make cloned row visible
+            summaryRow.style.position = '';
+            summaryRow.style.left = '';
+            summaryRow.style.top = '';
+            summaryRow.removeAttribute('aria-hidden');
+            
             // Update data-input-field attributes to match row index
             const inputFields = summaryRow.querySelectorAll('[data-input-field]');
             console.log('📊 Processing ' + inputFields.length + ' input fields for row ' + i);
