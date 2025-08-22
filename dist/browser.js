@@ -641,11 +641,12 @@
         }
         console.log('✅ Found summary template:', template);
         
-        // Ensure template is hidden from display
-        template.style.display = 'none';
-        template.style.visibility = 'hidden';
+        // Ensure template is hidden from display but don't affect cloned rows
+        template.style.position = 'absolute';
+        template.style.left = '-9999px';
+        template.style.top = '-9999px';
         template.setAttribute('aria-hidden', 'true');
-        console.log('📊 Template row hidden from display');
+        console.log('📊 Template row moved off-screen (but still cloneable)');
         
         // Log current form input values
         console.log('📊 Current form input values:');
