@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.32';
+    const VERSION = '0.1.33';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -650,13 +650,22 @@
         
         console.log('📊 Summary updated for group "' + groupName + '" with ' + wrappers.length + ' rows');
         
-        // Trigger TryFormly refresh if available
-        if (typeof window.TryFormly !== 'undefined' && window.TryFormly.refresh) {
-            window.TryFormly.refresh();
-            console.log('✅ TryFormly.refresh() called successfully');
-        } else {
-            console.log('❌ TryFormly.refresh() not available');
+        // Trigger TryFormly refresh if available, with retry logic
+        function tryTryFormlyRefresh(attempts) {
+            if (typeof window.TryFormly !== 'undefined' && window.TryFormly.refresh) {
+                window.TryFormly.refresh();
+                console.log('✅ TryFormly.refresh() called successfully');
+            } else if (attempts > 0) {
+                console.log('⏳ TryFormly not ready, retrying in 500ms... (attempts left: ' + attempts + ')');
+                setTimeout(function() {
+                    tryTryFormlyRefresh(attempts - 1);
+                }, 500);
+            } else {
+                console.log('❌ TryFormly.refresh() not available after retries');
+            }
         }
+        
+        tryTryFormlyRefresh(10); // Try 10 times over 5 seconds
         
         console.log('📊 === SUMMARY UPDATE DEBUG END ===');
     }
