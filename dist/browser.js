@@ -617,16 +617,15 @@
         
         // DEBUG: Implementation approach analysis
         console.log('📊 === IMPLEMENTATION ANALYSIS ===');
-        console.log('📊 TryFormly available:', typeof window.TryFormly !== 'undefined');
-        console.log('📊 Using custom summary implementation: YES (manual DOM manipulation)');
+        console.log('📊 Using pure custom summary implementation (no TryFormly integration)');
         console.log('📊 Data attributes in use:');
-        console.log('  📊 data-summary-for (our custom)');
-        console.log('  📊 data-summary-template (our custom)');
-        console.log('  📊 data-input-field (POTENTIAL CONFLICT with TryFormly)');
+        console.log('  📊 data-cd-summary-for (our custom)');
+        console.log('  📊 data-cd-summary-template (our custom)');
+        console.log('  📊 data-cd-input-field (custom implementation)');
         console.log('📊 === END IMPLEMENTATION ANALYSIS ===');
         
-        // Find summary container using data-summary-for attribute
-        const summaryContainer = document.querySelector('[data-summary-for="' + groupName + '"]');
+        // Find summary container using data-cd-summary-for attribute
+        const summaryContainer = document.querySelector('[data-cd-summary-for="' + groupName + '"]');
         if (!summaryContainer) {
             console.log('❌ No summary container found for group "' + groupName + '"');
             return;
@@ -634,7 +633,7 @@
         console.log('✅ Found summary container:', summaryContainer);
         
         // Find summary template
-        const template = summaryContainer.querySelector('[data-summary-template]');
+        const template = summaryContainer.querySelector('[data-cd-summary-template]');
         if (!template) {
             console.log('❌ No summary template found for group "' + groupName + '"');
             return;
@@ -661,7 +660,7 @@
         }
         
         // Clear existing summary rows (but keep the template)
-        const existingSummaryRows = summaryContainer.querySelectorAll('[data-summary-row]');
+        const existingSummaryRows = summaryContainer.querySelectorAll('[data-cd-summary-row]');
         console.log('📊 Removing ' + existingSummaryRows.length + ' existing summary rows');
         for (let i = 0; i < existingSummaryRows.length; i++) {
             existingSummaryRows[i].parentNode.removeChild(existingSummaryRows[i]);
@@ -672,8 +671,8 @@
         for (let i = 0; i < wrappers.length; i++) {
             console.log('📊 Generating summary row ' + i);
             const summaryRow = template.cloneNode(true);
-            summaryRow.removeAttribute('data-summary-template');
-            summaryRow.setAttribute('data-summary-row', 'true');
+            summaryRow.removeAttribute('data-cd-summary-template');
+            summaryRow.setAttribute('data-cd-summary-row', 'true');
             
             // Reset any template positioning styles to make cloned row visible
             summaryRow.style.position = '';
@@ -681,25 +680,24 @@
             summaryRow.style.top = '';
             summaryRow.removeAttribute('aria-hidden');
             
-            // Update data-input-field attributes to match row index
-            const inputFields = summaryRow.querySelectorAll('[data-input-field]');
+            // Update data-cd-input-field attributes to match row index
+            const inputFields = summaryRow.querySelectorAll('[data-cd-input-field]');
             console.log('📊 Processing ' + inputFields.length + ' input fields for row ' + i);
             for (let j = 0; j < inputFields.length; j++) {
                 const field = inputFields[j];
-                const fieldTemplate = field.getAttribute('data-input-field');
+                const fieldTemplate = field.getAttribute('data-cd-input-field');
                 
                 // Replace {i} token with actual index
                 const indexedField = fieldTemplate.replace(/\{i\}/g, i);
-                field.setAttribute('data-input-field', indexedField);
+                field.setAttribute('data-cd-input-field', indexedField);
                 
-                // Make summary fields visible and force proper CSS rendering
-                field.style.setProperty('display', 'block', 'important');
-                field.style.setProperty('visibility', 'visible', 'important');
-                field.style.setProperty('opacity', '1', 'important');
-                field.style.setProperty('height', 'auto', 'important');
-                field.style.setProperty('width', 'auto', 'important');
-                field.style.setProperty('min-height', '1em', 'important');
-                field.style.setProperty('min-width', '1ch', 'important');
+                // Reset any inherited styles from template
+                field.style.display = '';
+                field.style.visibility = '';
+                field.style.opacity = '';
+                field.style.position = '';
+                field.style.left = '';
+                field.style.top = '';
                 
                 console.log('📊   Field ' + j + ': ' + fieldTemplate + ' → ' + indexedField);
             }
@@ -717,12 +715,12 @@
         
         // DEBUG: Examine all created summary fields after insertion
         console.log('📊 === POST-INSERTION SUMMARY FIELD DEBUG ===');
-        const allInsertedFields = summaryContainer.querySelectorAll('[data-input-field]:not([data-summary-template] [data-input-field])');
+        const allInsertedFields = summaryContainer.querySelectorAll('[data-cd-input-field]:not([data-cd-summary-template] [data-cd-input-field])');
         console.log('📊 Found ' + allInsertedFields.length + ' inserted summary fields');
         for (let i = 0; i < allInsertedFields.length; i++) {
             const field = allInsertedFields[i];
             console.log('📊 Field ' + i + ':');
-            console.log('  📊 data-input-field: "' + field.getAttribute('data-input-field') + '"');
+            console.log('  📊 data-cd-input-field: "' + field.getAttribute('data-cd-input-field') + '"');
             console.log('  📊 textContent: "' + field.textContent + '"');
             console.log('  📊 innerHTML: "' + field.innerHTML + '"');
             console.log('  📊 computed display: ' + window.getComputedStyle(field).display);
@@ -734,27 +732,6 @@
             console.log('  📊 offsetWidth: ' + field.offsetWidth);
         }
         
-        // Wait a moment then check TryFormly status
-        setTimeout(function() {
-            console.log('📊 === TRYFORMLY INTEGRATION CHECK ===');
-            console.log('📊 window.TryFormly exists:', typeof window.TryFormly !== 'undefined');
-            console.log('📊 window.TryFormly object:', window.TryFormly);
-            
-            if (typeof window.TryFormly !== 'undefined') {
-                console.log('📊 TryFormly.refresh function:', typeof window.TryFormly.refresh);
-                console.log('📊 TryFormly methods:', Object.keys(window.TryFormly || {}));
-            }
-            
-            // Check if summary fields now have values
-            console.log('📊 === SUMMARY FIELD VALUES CHECK ===');
-            const allSummaryFields = summaryContainer.querySelectorAll('[data-input-field]');
-            for (let k = 0; k < allSummaryFields.length; k++) {
-                const summaryField = allSummaryFields[k];
-                const fieldName = summaryField.getAttribute('data-input-field');
-                const fieldValue = summaryField.textContent || summaryField.innerText;
-                console.log('📊 Summary field "' + fieldName + '" = "' + fieldValue + '"');
-            }
-        }, 100);
         
         // Dispatch input events on all form inputs to trigger TryFormly updates
         console.log('📊 Dispatching input events to trigger TryFormly...');
@@ -782,7 +759,7 @@
                 
                 if (inputName && inputValue) {
                     // Find corresponding summary field
-                    const summaryField = summaryContainer.querySelector('[data-input-field="' + inputName + '"]');
+                    const summaryField = summaryContainer.querySelector('[data-cd-input-field="' + inputName + '"]');
                     if (summaryField) {
                         // Debug current field state
                         console.log('📊 DEBUG: Before update - field:', summaryField);
@@ -817,10 +794,10 @@
                     } else {
                         console.log('📊 WARNING: No summary field found for input name: ' + inputName);
                         // Debug available summary fields
-                        const allSummaryFields = summaryContainer.querySelectorAll('[data-input-field]');
+                        const allSummaryFields = summaryContainer.querySelectorAll('[data-cd-input-field]');
                         console.log('📊 DEBUG: Available summary fields:');
                         for (let k = 0; k < allSummaryFields.length; k++) {
-                            console.log('  📊 Field ' + k + ': data-input-field="' + allSummaryFields[k].getAttribute('data-input-field') + '"');
+                            console.log('  📊 Field ' + k + ': data-cd-input-field="' + allSummaryFields[k].getAttribute('data-cd-input-field') + '"');
                         }
                     }
                 }
@@ -829,22 +806,7 @@
         
         console.log('📊 Summary updated for group "' + groupName + '" with ' + wrappers.length + ' rows');
         
-        // Trigger TryFormly refresh if available, with retry logic
-        function tryTryFormlyRefresh(attempts) {
-            if (typeof window.TryFormly !== 'undefined' && window.TryFormly.refresh) {
-                window.TryFormly.refresh();
-                console.log('✅ TryFormly.refresh() called successfully');
-            } else if (attempts > 0) {
-                console.log('⏳ TryFormly not ready, retrying in 500ms... (attempts left: ' + attempts + ')');
-                setTimeout(function() {
-                    tryTryFormlyRefresh(attempts - 1);
-                }, 500);
-            } else {
-                console.log('❌ TryFormly.refresh() not available after retries');
-            }
-        }
-        
-        tryTryFormlyRefresh(10); // Try 10 times over 5 seconds
+        // Pure custom implementation - no external refresh needed
         
         console.log('📊 === SUMMARY UPDATE DEBUG END ===');
     }
