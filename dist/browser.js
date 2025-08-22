@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.47';
+    const VERSION = '0.1.48';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -288,7 +288,44 @@
                 continue;
             }
             
-            console.log('🔧 Processing repeater group "' + groupName + '"');
+            // Enhanced debugging for multiple groups with same name
+            console.log('🔧 === REPEATER GROUP DEBUG ===');
+            console.log('🔧 Processing repeater group "' + groupName + '" (' + (i + 1) + '/' + repeaterGroups.length + ')');
+            console.log('🔧 Group element:', group);
+            
+            // Check visibility of the group and its parents
+            const groupRect = group.getBoundingClientRect();
+            const isVisible = groupRect.width > 0 && groupRect.height > 0 && window.getComputedStyle(group).display !== 'none';
+            const computedStyle = window.getComputedStyle(group);
+            
+            console.log('🔧 Group visibility check:');
+            console.log('  🔧 Display:', computedStyle.display);
+            console.log('  🔧 Visibility:', computedStyle.visibility);
+            console.log('  🔧 Opacity:', computedStyle.opacity);
+            console.log('  🔧 BoundingRect:', groupRect.width + 'x' + groupRect.height);
+            console.log('  🔧 Is visible:', isVisible);
+            
+            // Check parent wrapper visibility
+            let parentWrapper = group.closest('[data-show-when]');
+            if (parentWrapper) {
+                const parentRect = parentWrapper.getBoundingClientRect();
+                const parentVisible = parentRect.width > 0 && parentRect.height > 0 && window.getComputedStyle(parentWrapper).display !== 'none';
+                console.log('🔧 Parent wrapper with data-show-when found:');
+                console.log('  🔧 data-show-when:', parentWrapper.getAttribute('data-show-when'));
+                console.log('  🔧 Parent visible:', parentVisible);
+                
+                if (!parentVisible) {
+                    console.log('🔧 ⚠️ SKIPPING hidden repeater group "' + groupName + '"');
+                    continue;
+                }
+            }
+            
+            if (!isVisible) {
+                console.log('🔧 ⚠️ SKIPPING invisible repeater group "' + groupName + '"');
+                continue;
+            }
+            
+            console.log('🔧 ✅ Processing visible repeater group "' + groupName + '"');
             
             // Find all rows within this group using data-cd-repeat-row attribute
             const rows = group.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
