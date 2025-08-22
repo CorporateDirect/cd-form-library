@@ -693,13 +693,13 @@
                 field.setAttribute('data-input-field', indexedField);
                 
                 // Make summary fields visible and force proper CSS rendering
-                field.style.display = 'block !important';
-                field.style.visibility = 'visible !important';
-                field.style.opacity = '1 !important';
-                field.style.height = 'auto !important';
-                field.style.width = 'auto !important';
-                field.style.minHeight = '1em !important';
-                field.style.minWidth = '1ch !important';
+                field.style.setProperty('display', 'block', 'important');
+                field.style.setProperty('visibility', 'visible', 'important');
+                field.style.setProperty('opacity', '1', 'important');
+                field.style.setProperty('height', 'auto', 'important');
+                field.style.setProperty('width', 'auto', 'important');
+                field.style.setProperty('min-height', '1em', 'important');
+                field.style.setProperty('min-width', '1ch', 'important');
                 
                 console.log('📊   Field ' + j + ': ' + fieldTemplate + ' → ' + indexedField);
             }
