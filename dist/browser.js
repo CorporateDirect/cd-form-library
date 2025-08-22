@@ -275,23 +275,23 @@
     function initDynamicRows() {
         console.log('🔧 initDynamicRows called');
         
-        // Find all row repeater groups using data-repeat-group attribute
-        const repeaterGroups = document.querySelectorAll('[data-repeat-group]');
+        // Find all row repeater groups using data-cd-repeat-group attribute
+        const repeaterGroups = document.querySelectorAll('[data-cd-repeat-group]');
         console.log('🔧 Found ' + repeaterGroups.length + ' repeater groups');
         
         for (let i = 0; i < repeaterGroups.length; i++) {
             const group = repeaterGroups[i];
-            const groupName = group.getAttribute('data-repeat-group');
+            const groupName = group.getAttribute('data-cd-repeat-group');
             
             if (!groupName) {
-                console.log('🔧 Skipping group without data-repeat-group value');
+                console.log('🔧 Skipping group without data-cd-repeat-group value');
                 continue;
             }
             
             console.log('🔧 Processing repeater group "' + groupName + '"');
             
-            // Find all rows within this group using data-repeat-row attribute
-            const rows = group.querySelectorAll('[data-repeat-row="' + groupName + '"]');
+            // Find all rows within this group using data-cd-repeat-row attribute
+            const rows = group.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
             console.log('🔧 Found ' + rows.length + ' rows for group "' + groupName + '"');
             
             // Convert NodeList to Array for easier manipulation
@@ -328,8 +328,8 @@
         console.log('🔧 Setting up buttons for group "' + groupName + '"');
         
         // Find add and remove buttons using data attributes
-        const addButtons = document.querySelectorAll('[data-repeat-add="' + groupName + '"]');
-        const removeButtons = document.querySelectorAll('[data-repeat-remove="' + groupName + '"]');
+        const addButtons = document.querySelectorAll('[data-cd-repeat-add="' + groupName + '"]');
+        const removeButtons = document.querySelectorAll('[data-cd-repeat-remove="' + groupName + '"]');
         
         console.log('🔧 Found ' + addButtons.length + ' add buttons and ' + removeButtons.length + ' remove buttons for group "' + groupName + '"');
         
@@ -362,9 +362,9 @@
         // Get fresh wrappers from DOM to avoid stale references
         console.log('🔧 === DOM QUERY DEBUG ===');
         console.log('🔧 Group element:', groupElement);
-        console.log('🔧 Query selector: [data-repeat-row="' + groupName + '"]');
+        console.log('🔧 Query selector: [data-cd-repeat-row="' + groupName + '"]');
         
-        const currentWrappers = groupElement.querySelectorAll('[data-repeat-row="' + groupName + '"]');
+        const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
         console.log('🔧 Fresh DOM query found ' + currentWrappers.length + ' current rows');
         
         // DEBUG: Compare with passed wrappers array
@@ -375,7 +375,7 @@
         for (let i = 0; i < currentWrappers.length; i++) {
             const wrapper = currentWrappers[i];
             console.log('🔧 DOM Row ' + i + ':', wrapper);
-            console.log('🔧   data-repeat-row:', '"' + wrapper.getAttribute('data-repeat-row') + '"');
+            console.log('🔧   data-cd-repeat-row:', '"' + wrapper.getAttribute('data-cd-repeat-row') + '"');
             const inputs = wrapper.querySelectorAll('input[data-repeat-name]');
             console.log('🔧   inputs found:', inputs.length);
             for (let j = 0; j < inputs.length; j++) {
@@ -460,7 +460,7 @@
         wrappers.push(newRow);
         
         // Get updated wrapper list after DOM insertion
-        const updatedWrappers = groupElement.querySelectorAll('[data-repeat-row="' + groupName + '"]');
+        const updatedWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
         console.log('🔧 After insertion, found ' + updatedWrappers.length + ' total rows');
         
         // Restore preserved values to existing rows (they may have been cleared during DOM manipulation)
@@ -510,7 +510,7 @@
         
         // Initialize remove button for the new row
         console.log('🔧 Initializing remove button for new row');
-        const newRemoveButtons = newRow.querySelectorAll('[data-repeat-remove="' + groupName + '"]');
+        const newRemoveButtons = newRow.querySelectorAll('[data-cd-repeat-remove="' + groupName + '"]');
         for (let i = 0; i < newRemoveButtons.length; i++) {
             const button = newRemoveButtons[i];
             button.addEventListener('click', function(e) {
