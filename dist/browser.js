@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.34';
+    const VERSION = '0.1.37';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -359,10 +359,37 @@
         
         if (wrappers.length === 0) return;
         
+        // Get fresh wrappers from DOM to avoid stale references
+        const currentWrappers = groupElement.querySelectorAll('[data-repeat-row="' + groupName + '"]');
+        console.log('🔧 Fresh DOM query found ' + currentWrappers.length + ' current rows');
+        
+        // Store current values from all existing rows before adding new row
+        console.log('🔧 Preserving values from existing rows...');
+        const preservedValues = [];
+        for (let rowIndex = 0; rowIndex < currentWrappers.length; rowIndex++) {
+            const wrapper = currentWrappers[rowIndex];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            const rowValues = {};
+            
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                const repeatName = input.getAttribute('data-repeat-name');
+                if (repeatName) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        rowValues[repeatName] = input.checked;
+                    } else {
+                        rowValues[repeatName] = input.value;
+                    }
+                    console.log('🔧 Preserved row ' + rowIndex + ' field "' + repeatName + '" = "' + rowValues[repeatName] + '"');
+                }
+            }
+            preservedValues.push(rowValues);
+        }
+        
         // Clone the first wrapper as template
-        const template = wrappers[0];
+        const template = currentWrappers[0];
         const newRow = template.cloneNode(true);
-        const newIndex = wrappers.length;
+        const newIndex = currentWrappers.length;
         
         // Clear values and update names/IDs in the new row
         const inputs = newRow.querySelectorAll('input, select, textarea');
@@ -405,11 +432,36 @@
         }
         
         // Insert the new row after the last existing row
-        const lastWrapper = wrappers[wrappers.length - 1];
+        const lastWrapper = currentWrappers[currentWrappers.length - 1];
         lastWrapper.parentNode.insertBefore(newRow, lastWrapper.nextSibling);
         
         // Add the new wrapper to our tracking array
         wrappers.push(newRow);
+        
+        // Get updated wrapper list after DOM insertion
+        const updatedWrappers = groupElement.querySelectorAll('[data-repeat-row="' + groupName + '"]');
+        console.log('🔧 After insertion, found ' + updatedWrappers.length + ' total rows');
+        
+        // Restore preserved values to existing rows (they may have been cleared during DOM manipulation)
+        console.log('🔧 Restoring preserved values to existing rows...');
+        for (let rowIndex = 0; rowIndex < preservedValues.length; rowIndex++) {
+            const wrapper = updatedWrappers[rowIndex];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            const rowValues = preservedValues[rowIndex];
+            
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                const repeatName = input.getAttribute('data-repeat-name');
+                if (repeatName && rowValues.hasOwnProperty(repeatName)) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = rowValues[repeatName];
+                    } else {
+                        input.value = rowValues[repeatName];
+                    }
+                    console.log('🔧 Restored row ' + rowIndex + ' field "' + repeatName + '" = "' + rowValues[repeatName] + '"');
+                }
+            }
+        }
         
         // Initialize input formatting for the new row inputs
         console.log('🔧 Initializing input formatting for new row inputs');
@@ -447,8 +499,8 @@
             console.log('🔧 Remove button listener attached for new row in group "' + groupName + '"');
         }
         
-        // Update summary if present
-        updateSummaryForGroup(groupName, wrappers);
+        // Update summary if present using fresh wrapper list
+        updateSummaryForGroup(groupName, updatedWrappers);
         
         // Dispatch custom event
         newRow.dispatchEvent(new CustomEvent('dynamic-rows:added', { 
@@ -456,7 +508,7 @@
             detail: { groupName: groupName, rowIndex: newIndex }
         }));
         
-        console.log('🔧 Row added to group "' + groupName + '", new total: ' + wrappers.length);
+        console.log('🔧 Row added to group "' + groupName + '", new total: ' + updatedWrappers.length);
     }
     
     function removeRow(groupName, wrappers, clickedButton, groupElement) {
@@ -663,9 +715,40 @@
                     // Find corresponding summary field
                     const summaryField = summaryContainer.querySelector('[data-input-field="' + inputName + '"]');
                     if (summaryField) {
+                        // Debug current field state
+                        console.log('📊 DEBUG: Before update - field:', summaryField);
+                        console.log('📊 DEBUG: Current textContent:', '"' + summaryField.textContent + '"');
+                        console.log('📊 DEBUG: Current innerHTML:', '"' + summaryField.innerHTML + '"');
+                        console.log('📊 DEBUG: Current style.display:', '"' + summaryField.style.display + '"');
+                        console.log('📊 DEBUG: Current style.visibility:', '"' + summaryField.style.visibility + '"');
+                        console.log('📊 DEBUG: Computed display:', window.getComputedStyle(summaryField).display);
+                        console.log('📊 DEBUG: Computed visibility:', window.getComputedStyle(summaryField).visibility);
+                        
+                        // Try multiple methods to set content
                         summaryField.textContent = inputValue;
+                        summaryField.innerHTML = inputValue;
+                        summaryField.innerText = inputValue;
+                        
+                        // Try multiple methods to ensure visibility
                         summaryField.style.display = '';
+                        summaryField.style.visibility = '';
+                        summaryField.style.opacity = '1';
+                        summaryField.removeAttribute('hidden');
+                        
+                        // Debug after update
+                        console.log('📊 DEBUG: After update - textContent:', '"' + summaryField.textContent + '"');
+                        console.log('📊 DEBUG: After update - innerHTML:', '"' + summaryField.innerHTML + '"');
+                        console.log('📊 DEBUG: After update - style.display:', '"' + summaryField.style.display + '"');
+                        
                         console.log('📊 Manual summary update: ' + inputName + ' = "' + inputValue + '"');
+                    } else {
+                        console.log('📊 WARNING: No summary field found for input name: ' + inputName);
+                        // Debug available summary fields
+                        const allSummaryFields = summaryContainer.querySelectorAll('[data-input-field]');
+                        console.log('📊 DEBUG: Available summary fields:');
+                        for (let k = 0; k < allSummaryFields.length; k++) {
+                            console.log('  📊 Field ' + k + ': data-input-field="' + allSummaryFields[k].getAttribute('data-input-field') + '"');
+                        }
                     }
                 }
             }
