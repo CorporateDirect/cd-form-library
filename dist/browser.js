@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.38';
+    const VERSION = '0.1.39';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -641,6 +641,12 @@
         }
         console.log('✅ Found summary template:', template);
         
+        // Ensure template is hidden from display
+        template.style.display = 'none';
+        template.style.visibility = 'hidden';
+        template.setAttribute('aria-hidden', 'true');
+        console.log('📊 Template row hidden from display');
+        
         // Log current form input values
         console.log('📊 Current form input values:');
         for (let i = 0; i < wrappers.length; i++) {
@@ -679,8 +685,14 @@
                 const indexedField = fieldTemplate.replace(/\{i\}/g, i);
                 field.setAttribute('data-input-field', indexedField);
                 
-                // Make summary fields visible by removing display:none
-                field.style.display = '';
+                // Make summary fields visible and force proper CSS rendering
+                field.style.display = 'block !important';
+                field.style.visibility = 'visible !important';
+                field.style.opacity = '1 !important';
+                field.style.height = 'auto !important';
+                field.style.width = 'auto !important';
+                field.style.minHeight = '1em !important';
+                field.style.minWidth = '1ch !important';
                 
                 console.log('📊   Field ' + j + ': ' + fieldTemplate + ' → ' + indexedField);
             }
@@ -779,10 +791,14 @@
                         summaryField.innerHTML = inputValue;
                         summaryField.innerText = inputValue;
                         
-                        // Try multiple methods to ensure visibility
-                        summaryField.style.display = '';
-                        summaryField.style.visibility = '';
-                        summaryField.style.opacity = '1';
+                        // Try multiple methods to ensure visibility and force CSS rendering
+                        summaryField.style.display = 'block !important';
+                        summaryField.style.visibility = 'visible !important';
+                        summaryField.style.opacity = '1 !important';
+                        summaryField.style.height = 'auto !important';
+                        summaryField.style.width = 'auto !important';
+                        summaryField.style.minHeight = '1em !important';
+                        summaryField.style.minWidth = '1ch !important';
                         summaryField.removeAttribute('hidden');
                         
                         // Debug after update
