@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.50';
+  const VERSION = '0.1.51';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -697,6 +697,22 @@
         console.log('📊 === SUMMARY UPDATE DEBUG START ===');
         console.log('📊 Updating summary for group "' + groupName + '" with ' + wrappers.length + ' data rows');
         
+        // CRITICAL: Immediately capture all current input values before ANY other processing
+        const currentInputValues = [];
+        for (let i = 0; i < wrappers.length; i++) {
+            const wrapper = wrappers[i];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            const rowValues = {};
+            
+            for (let j = 0; j < inputs.length; j++) {
+                const input = inputs[j];
+                const name = input.name || input.getAttribute('data-repeat-name') || ('field_' + j);
+                rowValues[name] = input.value;
+            }
+            currentInputValues.push(rowValues);
+        }
+        console.log('📊 CAPTURED INPUT VALUES:', currentInputValues);
+        
         // DEBUG: Implementation approach analysis
         console.log('📊 === IMPLEMENTATION ANALYSIS ===');
         console.log('📊 Using pure custom summary implementation (no TryFormly integration)');
@@ -828,18 +844,18 @@
             }
         }
         
-        // Manual summary population as fallback when TryFormly is not available
-        console.log('📊 Manually populating summary fields as fallback...');
+        // Manual summary population using captured values (prevents DOM timing issues)
+        console.log('📊 Manually populating summary fields using captured values...');
         for (let i = 0; i < wrappers.length; i++) {
             const wrapper = wrappers[i];
-            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            const capturedRowValues = currentInputValues[i] || {};
             
-            console.log('📊 WRAPPER ' + i + ' INPUTS:');
-            for (let j = 0; j < inputs.length; j++) {
-                const input = inputs[j];
-                const inputName = input.getAttribute('name');
-                const inputValue = input.value;
-                console.log('  📊 Input ' + j + ': name="' + inputName + '", value="' + inputValue + '"');
+            console.log('📊 WRAPPER ' + i + ' USING CAPTURED VALUES:', capturedRowValues);
+            
+            // Use captured values instead of reading from DOM
+            for (const inputName in capturedRowValues) {
+                const inputValue = capturedRowValues[inputName];
+                console.log('  📊 Processing: name="' + inputName + '", value="' + inputValue + '"');
                 
                 if (inputName && inputValue) {
                     // Find corresponding summary field with exact attribute selector
@@ -876,10 +892,26 @@
                         summaryField.style.minWidth = '1ch !important';
                         summaryField.removeAttribute('hidden');
                         
-                        // Debug after update
+                        // Debug after update - DOM vs Visual comparison
                         console.log('📊 DEBUG: After update - textContent:', '"' + summaryField.textContent + '"');
                         console.log('📊 DEBUG: After update - innerHTML:', '"' + summaryField.innerHTML + '"');
                         console.log('📊 DEBUG: After update - style.display:', '"' + summaryField.style.display + '"');
+                        
+                        // DIAGNOSTIC: Check what's actually visible vs what we set
+                        setTimeout(function() {
+                            console.log('🔍 DIAGNOSTIC CHECK (100ms later):');
+                            console.log('🔍   Field selector: [data-cd-input-field="' + inputName + '"]');
+                            console.log('🔍   DOM textContent now: "' + summaryField.textContent + '"');
+                            console.log('🔍   DOM innerHTML now: "' + summaryField.innerHTML + '"');
+                            console.log('🔍   DOM innerText now: "' + summaryField.innerText + '"');
+                            console.log('🔍   Visual offsetHeight: ' + summaryField.offsetHeight);
+                            console.log('🔍   Visual offsetWidth: ' + summaryField.offsetWidth);
+                            console.log('🔍   Computed display: ' + window.getComputedStyle(summaryField).display);
+                            console.log('🔍   Computed visibility: ' + window.getComputedStyle(summaryField).visibility);
+                            console.log('🔍   Computed opacity: ' + window.getComputedStyle(summaryField).opacity);
+                            console.log('🔍   Parent element: ', summaryField.parentElement);
+                            console.log('🔍   All classes: "' + summaryField.className + '"');
+                        }, 100);
                         
                         console.log('📊 Manual summary update: ' + inputName + ' = "' + inputValue + '"');
                     } else {
