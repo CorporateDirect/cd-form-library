@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.51';
+  const VERSION = '0.1.52';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -279,6 +279,15 @@
         const repeaterGroups = document.querySelectorAll('[data-cd-repeat-group]');
         console.log('🔧 Found ' + repeaterGroups.length + ' repeater groups');
         
+        // Log all discovered group names for branch isolation verification
+        console.log('🔧 === BRANCH ISOLATION CHECK ===');
+        for (let i = 0; i < repeaterGroups.length; i++) {
+            const group = repeaterGroups[i];
+            const groupName = group.getAttribute('data-cd-repeat-group');
+            console.log('🔧 Group ' + (i + 1) + ': "' + groupName + '" (visible: ' + (window.getComputedStyle(group).display !== 'none') + ')');
+        }
+        console.log('🔧 === END BRANCH ISOLATION CHECK ===');
+        
         for (let i = 0; i < repeaterGroups.length; i++) {
             const group = repeaterGroups[i];
             const groupName = group.getAttribute('data-cd-repeat-group');
@@ -396,6 +405,16 @@
         const removeButtons = document.querySelectorAll('[data-cd-repeat-remove="' + groupName + '"]');
         
         console.log('🔧 Found ' + addButtons.length + ' add buttons and ' + removeButtons.length + ' remove buttons for group "' + groupName + '"');
+        
+        // Log button attribute verification for branch isolation
+        console.log('🔧 === BUTTON ISOLATION CHECK FOR "' + groupName + '" ===');
+        for (let i = 0; i < addButtons.length; i++) {
+            console.log('🔧 Add button ' + i + ' data-cd-repeat-add: "' + addButtons[i].getAttribute('data-cd-repeat-add') + '"');
+        }
+        for (let i = 0; i < removeButtons.length; i++) {
+            console.log('🔧 Remove button ' + i + ' data-cd-repeat-remove: "' + removeButtons[i].getAttribute('data-cd-repeat-remove') + '"');
+        }
+        console.log('🔧 === END BUTTON ISOLATION CHECK ===');
         
         // Add event listeners to add buttons
         for (let i = 0; i < addButtons.length; i++) {
@@ -723,12 +742,26 @@
         console.log('📊 === END IMPLEMENTATION ANALYSIS ===');
         
         // Find summary container using data-cd-summary-for attribute
+        console.log('🔍 === SUMMARY CONTAINER ISOLATION CHECK ===');
+        console.log('🔍 Looking for summary container with data-cd-summary-for="' + groupName + '"');
+        
+        const allSummaryContainers = document.querySelectorAll('[data-cd-summary-for]');
+        console.log('🔍 Found ' + allSummaryContainers.length + ' total summary containers:');
+        for (let i = 0; i < allSummaryContainers.length; i++) {
+            const container = allSummaryContainers[i];
+            const containerGroupName = container.getAttribute('data-cd-summary-for');
+            const isMatch = containerGroupName === groupName;
+            const isVisible = window.getComputedStyle(container).display !== 'none';
+            console.log('🔍   Container ' + i + ': data-cd-summary-for="' + containerGroupName + '" (match: ' + isMatch + ', visible: ' + isVisible + ')');
+        }
+        console.log('🔍 === END SUMMARY CONTAINER ISOLATION CHECK ===');
+        
         const summaryContainer = document.querySelector('[data-cd-summary-for="' + groupName + '"]');
         if (!summaryContainer) {
             console.log('❌ No summary container found for group "' + groupName + '"');
             return;
         }
-        console.log('✅ Found summary container:', summaryContainer);
+        console.log('✅ Found summary container for "' + groupName + '":', summaryContainer);
         
         // Find summary template
         const template = summaryContainer.querySelector('[data-cd-summary-template]');
