@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.49';
+  const VERSION = '0.1.50';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -857,10 +857,14 @@
                         console.log('📊 DEBUG: Computed display:', window.getComputedStyle(summaryField).display);
                         console.log('📊 DEBUG: Computed visibility:', window.getComputedStyle(summaryField).visibility);
                         
-                        // Try multiple methods to set content
-                        summaryField.textContent = inputValue;
-                        summaryField.innerHTML = inputValue;
-                        summaryField.innerText = inputValue;
+                        // Replace [Value] placeholder with actual value
+                        const displayValue = inputValue || '';
+                        console.log('📊 DEBUG: Setting value "' + displayValue + '" (replacing any [Value] placeholder)');
+                        
+                        // Clear existing content and set new value
+                        summaryField.innerHTML = '';
+                        summaryField.textContent = displayValue;
+                        summaryField.innerText = displayValue;
                         
                         // Try multiple methods to ensure visibility and force CSS rendering
                         summaryField.style.display = 'block !important';
