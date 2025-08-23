@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-    const VERSION = '0.1.48';
+    const VERSION = '0.1.49';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -293,35 +293,47 @@
             console.log('🔧 Processing repeater group "' + groupName + '" (' + (i + 1) + '/' + repeaterGroups.length + ')');
             console.log('🔧 Group element:', group);
             
-            // Check visibility of the group and its parents
-            const groupRect = group.getBoundingClientRect();
-            const isVisible = groupRect.width > 0 && groupRect.height > 0 && window.getComputedStyle(group).display !== 'none';
+            // Check visibility using CSS properties instead of dimensions
             const computedStyle = window.getComputedStyle(group);
+            const groupRect = group.getBoundingClientRect();
+            
+            // Consider visible if CSS properties indicate visibility (ignore zero dimensions at init time)
+            const isVisible = computedStyle.display !== 'none' && 
+                             computedStyle.visibility !== 'hidden' && 
+                             parseFloat(computedStyle.opacity) > 0;
             
             console.log('🔧 Group visibility check:');
             console.log('  🔧 Display:', computedStyle.display);
             console.log('  🔧 Visibility:', computedStyle.visibility);
             console.log('  🔧 Opacity:', computedStyle.opacity);
             console.log('  🔧 BoundingRect:', groupRect.width + 'x' + groupRect.height);
-            console.log('  🔧 Is visible:', isVisible);
+            console.log('  🔧 Is visible (CSS-based):', isVisible);
             
-            // Check parent wrapper visibility
+            // Check parent wrapper visibility using CSS properties
             let parentWrapper = group.closest('[data-show-when]');
             if (parentWrapper) {
+                const parentStyle = window.getComputedStyle(parentWrapper);
                 const parentRect = parentWrapper.getBoundingClientRect();
-                const parentVisible = parentRect.width > 0 && parentRect.height > 0 && window.getComputedStyle(parentWrapper).display !== 'none';
+                const parentVisible = parentStyle.display !== 'none' && 
+                                    parentStyle.visibility !== 'hidden' && 
+                                    parseFloat(parentStyle.opacity) > 0;
+                
                 console.log('🔧 Parent wrapper with data-show-when found:');
                 console.log('  🔧 data-show-when:', parentWrapper.getAttribute('data-show-when'));
-                console.log('  🔧 Parent visible:', parentVisible);
+                console.log('  🔧 Parent display:', parentStyle.display);
+                console.log('  🔧 Parent visibility:', parentStyle.visibility);
+                console.log('  🔧 Parent opacity:', parentStyle.opacity);
+                console.log('  🔧 Parent BoundingRect:', parentRect.width + 'x' + parentRect.height);
+                console.log('  🔧 Parent visible (CSS-based):', parentVisible);
                 
                 if (!parentVisible) {
-                    console.log('🔧 ⚠️ SKIPPING hidden repeater group "' + groupName + '"');
+                    console.log('🔧 ⚠️ SKIPPING hidden repeater group "' + groupName + '" (parent hidden)');
                     continue;
                 }
             }
             
             if (!isVisible) {
-                console.log('🔧 ⚠️ SKIPPING invisible repeater group "' + groupName + '"');
+                console.log('🔧 ⚠️ SKIPPING invisible repeater group "' + groupName + '" (CSS hidden)');
                 continue;
             }
             
