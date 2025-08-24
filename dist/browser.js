@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.59';
+  const VERSION = '0.1.60';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -1210,6 +1210,168 @@
         console.log('📋 Summary update listeners attached');
     }
     
+    // Branch Management System - Complements TryFormly
+    // Store initial values for all form fields (global scope for branch management)
+    const initialFieldValues = new Map();
+    
+    function initBranchManagement() {
+        console.log('🌳 Branch Management: Initializing...');
+        
+        // Find all radio buttons with data-go-to attributes
+        const branchRadios = document.querySelectorAll('input[type="radio"][data-go-to]');
+        console.log('🌳 Found ' + branchRadios.length + ' branch radio buttons');
+        
+        if (branchRadios.length === 0) {
+            console.log('🌳 No branch radios found - branch management not needed');
+            return;
+        }
+        
+        // Capture initial field values
+        captureInitialFieldValues();
+        
+        // Add listeners to branch radio buttons
+        branchRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    const targetBranch = this.getAttribute('data-go-to');
+                    console.log('🌳 Branch selected:', targetBranch);
+                    switchToBranch(targetBranch);
+                }
+            });
+        });
+        
+        console.log('🌳 Branch Management: Initialization complete');
+    }
+    
+    function captureInitialFieldValues() {
+        console.log('🌳 Capturing initial field values...');
+        
+        const allFields = document.querySelectorAll('input, select, textarea');
+        allFields.forEach(function(field) {
+            const fieldName = field.name || field.id;
+            if (fieldName) {
+                let initialValue = '';
+                if (field.type === 'checkbox' || field.type === 'radio') {
+                    initialValue = field.checked;
+                } else {
+                    initialValue = field.value;
+                }
+                
+                if (!initialFieldValues.has(fieldName)) {
+                    initialFieldValues.set(fieldName, initialValue);
+                }
+            }
+        });
+        
+        console.log('🌳 Captured initial values for ' + initialFieldValues.size + ' fields');
+    }
+    
+    function switchToBranch(targetBranch) {
+        console.log('🌳 Switching to branch:', targetBranch);
+        
+        // Clear data from all form fields first
+        clearAllFormData();
+        
+        // Enable the target branch
+        enableBranch(targetBranch);
+        
+        // Disable all other branches
+        disableOtherBranches(targetBranch);
+        
+        // Update summary sections visibility
+        updateBranchSummarySections(targetBranch);
+        
+        // Update all summary fields after branch switch
+        setTimeout(function() {
+            updateAllSummaryFields();
+        }, 100);
+        
+        console.log('🌳 Branch switch complete:', targetBranch);
+    }
+    
+    function clearAllFormData() {
+        console.log('🌳 Clearing all form data...');
+        
+        const allFields = document.querySelectorAll('input:not([type="radio"]):not([data-go-to]), select, textarea');
+        allFields.forEach(function(field) {
+            if (field.type === 'checkbox') {
+                field.checked = false;
+            } else {
+                field.value = '';
+            }
+        });
+        
+        console.log('🌳 Form data cleared');
+    }
+    
+    function enableBranch(branchName) {
+        console.log('🌳 Enabling branch:', branchName);
+        
+        // Find elements with data-answer matching the branch
+        const branchElements = document.querySelectorAll('[data-answer="' + branchName + '"]');
+        
+        branchElements.forEach(function(element) {
+            element.style.display = '';
+            
+            // Enable all form fields within this branch
+            const fields = element.querySelectorAll('input, select, textarea');
+            fields.forEach(function(field) {
+                field.disabled = false;
+            });
+        });
+        
+        console.log('🌳 Enabled ' + branchElements.length + ' elements for branch:', branchName);
+    }
+    
+    function disableOtherBranches(activeBranch) {
+        console.log('🌳 Disabling other branches (keeping active:', activeBranch + ')');
+        
+        // Find all elements with data-answer that don't match the active branch
+        const allBranchElements = document.querySelectorAll('[data-answer]');
+        
+        allBranchElements.forEach(function(element) {
+            const elementBranch = element.getAttribute('data-answer');
+            
+            if (elementBranch !== activeBranch) {
+                element.style.display = 'none';
+                
+                // Disable all form fields within this branch
+                const fields = element.querySelectorAll('input, select, textarea');
+                fields.forEach(function(field) {
+                    field.disabled = true;
+                    
+                    // Clear values from disabled fields
+                    if (field.type === 'checkbox' || field.type === 'radio') {
+                        field.checked = false;
+                    } else {
+                        field.value = '';
+                    }
+                });
+            }
+        });
+        
+        console.log('🌳 Other branches disabled');
+    }
+    
+    function updateBranchSummarySections(activeBranch) {
+        console.log('🌳 Updating summary sections for branch:', activeBranch);
+        
+        // Find all summary sections
+        const summarySections = document.querySelectorAll('[data-cd-summary-section]');
+        
+        summarySections.forEach(function(section) {
+            const sectionBranch = section.getAttribute('data-cd-summary-section');
+            
+            if (sectionBranch === activeBranch) {
+                section.style.display = '';
+                console.log('🌳 Showing summary section for branch:', sectionBranch);
+            } else if (sectionBranch && sectionBranch !== activeBranch) {
+                section.style.display = 'none';
+                console.log('🌳 Hiding summary section for branch:', sectionBranch);
+            }
+        });
+    }
+    
     function initializeLibrary() {
         console.log('🚀 CD Form Library v' + VERSION + ' initializing...');
         console.log('🚀 Document ready state:', document.readyState);
@@ -1258,6 +1420,9 @@
         
         // Update all static summary fields on initialization
         updateAllSummaryFields();
+        
+        // Initialize branch management system
+        initBranchManagement();
     }
     
     // Auto-initialize on DOM ready
