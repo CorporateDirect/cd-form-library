@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.61';
+  const VERSION = '0.1.62';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -1210,6 +1210,68 @@
         console.log('📋 Summary update listeners attached');
     }
     
+    // Simplified Branch Summary Visibility - Works with TryFormly
+    function initBranchSummaryVisibility() {
+        console.log('📊 Branch Summary Visibility: Initializing...');
+        
+        // Find all radio buttons with data-go-to attributes (TryFormly branch radios)
+        const branchRadios = document.querySelectorAll('input[type="radio"][data-go-to]');
+        console.log('📊 Found ' + branchRadios.length + ' branch radio buttons');
+        
+        if (branchRadios.length === 0) {
+            console.log('📊 No branch radios found - using existing summary visibility logic');
+            return;
+        }
+        
+        // Add change listeners to branch radio buttons
+        branchRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    const selectedBranch = this.getAttribute('data-go-to');
+                    console.log('📊 Branch selected:', selectedBranch);
+                    updateBranchSummaryVisibility(selectedBranch);
+                }
+            });
+        });
+        
+        // Check for initially selected radio button
+        const checkedRadio = document.querySelector('input[type="radio"][data-go-to]:checked');
+        if (checkedRadio) {
+            const initialBranch = checkedRadio.getAttribute('data-go-to');
+            console.log('📊 Initial branch detected:', initialBranch);
+            updateBranchSummaryVisibility(initialBranch);
+        }
+        
+        console.log('📊 Branch Summary Visibility: Initialization complete');
+    }
+    
+    function updateBranchSummaryVisibility(activeBranch) {
+        console.log('📊 Updating summary visibility for branch:', activeBranch);
+        
+        // Find all summary sections with data-cd-summary-section
+        const summarySections = document.querySelectorAll('[data-cd-summary-section]');
+        
+        summarySections.forEach(function(section) {
+            const sectionBranch = section.getAttribute('data-cd-summary-section');
+            
+            if (sectionBranch === activeBranch) {
+                // Show summary for active branch
+                section.style.display = '';
+                console.log('📊 Showing summary section:', sectionBranch);
+            } else if (sectionBranch && sectionBranch !== activeBranch) {
+                // Hide summary for inactive branches
+                section.style.display = 'none';
+                console.log('📊 Hiding summary section:', sectionBranch);
+            }
+            // Leave sections without data-cd-summary-section unchanged
+        });
+        
+        // Update all summary fields after visibility change
+        setTimeout(function() {
+            updateAllSummaryFields();
+        }, 50);
+    }
+    
     function initializeLibrary() {
         console.log('🚀 CD Form Library v' + VERSION + ' initializing...');
         console.log('🚀 Document ready state:', document.readyState);
@@ -1258,6 +1320,9 @@
         
         // Update all static summary fields on initialization
         updateAllSummaryFields();
+        
+        // Initialize simplified branch summary visibility
+        initBranchSummaryVisibility();
     }
     
     // Auto-initialize on DOM ready
