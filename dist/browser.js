@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.59';
+  const VERSION = '0.1.61';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
