@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.58';
+  const VERSION = '0.1.59';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -1029,6 +1029,9 @@
         
         // Update conditional section visibility after summary update
         manageSummarySectionVisibility();
+        
+        // Also update static summary fields after dynamic row changes
+        updateAllSummaryFields();
     }
     
     function manageSummarySectionVisibility() {
@@ -1108,6 +1111,105 @@
         section.setAttribute('aria-hidden', 'true');
     }
     
+    function updateAllSummaryFields() {
+        console.log('📋 Updating all summary fields...');
+        
+        // Find all summary fields (excluding those in dynamic row templates)
+        const summaryFields = document.querySelectorAll('[data-cd-input-field]:not([data-cd-summary-template] [data-cd-input-field])');
+        console.log('📋 Found ' + summaryFields.length + ' summary fields to update');
+        
+        summaryFields.forEach(function(summaryField, index) {
+            const fieldName = summaryField.getAttribute('data-cd-input-field');
+            if (!fieldName) return;
+            
+            console.log('📋 Processing summary field ' + (index + 1) + ': "' + fieldName + '"');
+            
+            // Find corresponding form input by name
+            const formInput = document.querySelector('input[name="' + fieldName + '"], select[name="' + fieldName + '"], textarea[name="' + fieldName + '"]');
+            
+            if (!formInput) {
+                console.log('📋 No form input found for: ' + fieldName);
+                return;
+            }
+            
+            // Get value based on input type
+            let value = '';
+            if (formInput.type === 'radio') {
+                const checkedRadio = document.querySelector('input[name="' + fieldName + '"]:checked');
+                value = checkedRadio ? checkedRadio.value : '';
+            } else if (formInput.type === 'checkbox') {
+                if (formInput.checked) {
+                    value = formInput.value || 'Yes';
+                }
+                // For multiple checkboxes with same name, collect all checked values
+                const checkboxes = document.querySelectorAll('input[name="' + fieldName + '"]:checked');
+                if (checkboxes.length > 1) {
+                    const values = [];
+                    checkboxes.forEach(function(cb) {
+                        values.push(cb.value);
+                    });
+                    value = values.join(', ');
+                } else if (checkboxes.length === 1) {
+                    value = checkboxes[0].value || 'Yes';
+                }
+            } else {
+                value = formInput.value || '';
+            }
+            
+            console.log('📋 Field "' + fieldName + '" value: "' + value + '"');
+            
+            // Update summary field (only if has content)
+            if (value && value.trim()) {
+                summaryField.textContent = value;
+                console.log('📋 Updated summary field: ' + fieldName + ' = "' + value + '"');
+            } else {
+                // Clear field if no value (don't show [Value] placeholder for empty fields)
+                summaryField.textContent = '';
+                console.log('📋 Cleared summary field: ' + fieldName + ' (no value)');
+            }
+        });
+        
+        console.log('📋 All summary fields updated');
+    }
+    
+    function attachSummaryUpdateListeners() {
+        console.log('📋 Attaching summary update listeners to form inputs...');
+        
+        // Find all form inputs that might have corresponding summary fields
+        const formInputs = document.querySelectorAll('input, select, textarea');
+        console.log('📋 Found ' + formInputs.length + ' form inputs');
+        
+        formInputs.forEach(function(input) {
+            const inputName = input.getAttribute('name');
+            if (!inputName) return;
+            
+            // Check if there's a corresponding summary field
+            const summaryField = document.querySelector('[data-cd-input-field="' + inputName + '"]:not([data-cd-summary-template] [data-cd-input-field])');
+            if (!summaryField) return;
+            
+            // Add event listeners if not already added
+            if (!input.__cdSummaryListenerStatic) {
+                input.__cdSummaryListenerStatic = true;
+                
+                // Update on blur (when user finishes editing)
+                input.addEventListener('blur', function() {
+                    console.log('📋 Input blur event for: ' + inputName);
+                    updateAllSummaryFields();
+                });
+                
+                // Update on change (for radios, checkboxes, selects)
+                input.addEventListener('change', function() {
+                    console.log('📋 Input change event for: ' + inputName);
+                    updateAllSummaryFields();
+                });
+                
+                console.log('📋 Added summary update listeners to: ' + inputName);
+            }
+        });
+        
+        console.log('📋 Summary update listeners attached');
+    }
+    
     function initializeLibrary() {
         console.log('🚀 CD Form Library v' + VERSION + ' initializing...');
         console.log('🚀 Document ready state:', document.readyState);
@@ -1150,6 +1252,12 @@
         
         // Initialize conditional summary section visibility
         manageSummarySectionVisibility();
+        
+        // Attach summary update listeners to form inputs
+        attachSummaryUpdateListeners();
+        
+        // Update all static summary fields on initialization
+        updateAllSummaryFields();
     }
     
     // Auto-initialize on DOM ready
