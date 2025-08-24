@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.62';
+  const VERSION = '0.1.63';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -1167,9 +1167,46 @@
                 summaryField.textContent = '';
                 console.log('📋 Cleared summary field: ' + fieldName + ' (no value)');
             }
+            
+            // Manage visibility of summary field wrapper based on content
+            manageSummaryFieldWrapperVisibility(summaryField, value);
         });
         
         console.log('📋 All summary fields updated');
+    }
+    
+    function manageSummaryFieldWrapperVisibility(summaryField, fieldValue) {
+        // Find the parent wrapper (.summary_field-wrapper)
+        const wrapper = summaryField.closest('.summary_field-wrapper');
+        if (!wrapper) {
+            return; // No wrapper found, nothing to manage
+        }
+        
+        const fieldName = summaryField.getAttribute('data-cd-input-field');
+        
+        // Check if this appears to be a detail field (common detail field patterns)
+        const isDetailField = fieldName && (
+            fieldName.toLowerCase().includes('details') ||
+            fieldName.toLowerCase().includes('description') ||
+            fieldName.toLowerCase().includes('explain') ||
+            fieldName.toLowerCase().includes('specify') ||
+            fieldName.toLowerCase().includes('other') ||
+            fieldName.toLowerCase().includes('additional') ||
+            fieldName.toLowerCase().includes('comment')
+        );
+        
+        if (isDetailField) {
+            if (fieldValue && fieldValue.trim()) {
+                // Show wrapper if detail field has content
+                wrapper.style.display = '';
+                console.log('📋 Showing detail wrapper for: ' + fieldName);
+            } else {
+                // Hide wrapper if detail field is empty
+                wrapper.style.display = 'none';
+                console.log('📋 Hiding detail wrapper for: ' + fieldName + ' (no content)');
+            }
+        }
+        // For non-detail fields, leave wrapper visibility unchanged
     }
     
     function attachSummaryUpdateListeners() {
