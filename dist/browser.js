@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.52';
+  const VERSION = '0.1.53';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -443,16 +443,26 @@
         if (wrappers.length === 0) return;
         
         // Get fresh wrappers from DOM to avoid stale references
-        console.log('🔧 === DOM QUERY DEBUG ===');
-        console.log('🔧 Group element:', groupElement);
-        console.log('🔧 Query selector: [data-cd-repeat-row="' + groupName + '"]');
-        
-        const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
-        console.log('🔧 Fresh DOM query found ' + currentWrappers.length + ' current rows');
-        
-        // DEBUG: Compare with passed wrappers array
-        console.log('🔧 Passed wrappers array length:', wrappers.length);
-        console.log('🔧 DOM query vs passed array match:', currentWrappers.length === wrappers.length);
+        // Use setTimeout to ensure DOM has fully updated before querying
+        setTimeout(function() {
+            console.log('🔧 === DOM QUERY DEBUG (after DOM settle) ===');
+            console.log('🔧 Group element:', groupElement);
+            console.log('🔧 Query selector: [data-cd-repeat-row="' + groupName + '"]');
+            
+            const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
+            console.log('🔧 Fresh DOM query found ' + currentWrappers.length + ' current rows');
+            
+            // DEBUG: Compare with passed wrappers array
+            console.log('🔧 Passed wrappers array length:', wrappers.length);
+            console.log('🔧 DOM query vs passed array match:', currentWrappers.length === wrappers.length);
+            
+            // Continue with the actual add row logic
+            continueAddRow(groupName, currentWrappers, groupElement, wrappers);
+        }, 10);
+    }
+    
+    function continueAddRow(groupName, currentWrappers, groupElement, wrappers) {
+        console.log('🔧 === CONTINUING ADD ROW LOGIC ===');
         
         // DEBUG: Examine all rows in the DOM
         for (let i = 0; i < currentWrappers.length; i++) {
