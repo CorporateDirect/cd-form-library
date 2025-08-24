@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.55';
+  const VERSION = '0.1.56';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -449,20 +449,21 @@
             console.log('🔧 Remove button listener attached for group "' + groupName + '"');
         }
         
-        // Add debounced input event listeners to all existing inputs to trigger summary updates
+        // Add blur event listeners to existing inputs for summary updates
         for (let i = 0; i < wrappers.length; i++) {
             const wrapper = wrappers[i];
             const inputs = wrapper.querySelectorAll('input, select, textarea');
             for (let j = 0; j < inputs.length; j++) {
                 const input = inputs[j];
-                // Prevent duplicate listeners by checking for existing flag
-                if (!input.__cdSummaryListenerAdded) {
-                    input.__cdSummaryListenerAdded = true;
-                    input.addEventListener('input', debounce(function() {
-                        const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
-                        updateSummaryForGroup(groupName, currentWrappers);
-                    }, 300));
-                    console.log('🔧 Added debounced summary update listener to existing input in row ' + i);
+                if (!input.__cdSummaryBlurAdded) {
+                    input.__cdSummaryBlurAdded = true;
+                    input.addEventListener('blur', function() {
+                        // Update summary when user finishes editing (blur)
+                        setTimeout(function() {
+                            const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
+                            updateSummaryForGroup(groupName, currentWrappers);
+                        }, 100);
+                    });
                 }
             }
         }
@@ -650,17 +651,20 @@
             console.log('🔧 Input formatting applied to new row input');
         }
         
-        // Add debounced input event listeners to all inputs in new row to trigger summary updates
+        // Add blur event listeners to update summary when user finishes editing a field
         const allNewRowInputs = newRow.querySelectorAll('input, select, textarea');
         for (let i = 0; i < allNewRowInputs.length; i++) {
             const input = allNewRowInputs[i];
-            // Mark to prevent duplicate listeners
-            input.__cdSummaryListenerAdded = true;
-            input.addEventListener('input', debounce(function() {
-                const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
-                updateSummaryForGroup(groupName, currentWrappers);
-            }, 300));
-            console.log('🔧 Added debounced summary update listener to new row input');
+            if (!input.__cdSummaryBlurAdded) {
+                input.__cdSummaryBlurAdded = true;
+                input.addEventListener('blur', function() {
+                    // Update summary when user finishes editing (blur)
+                    setTimeout(function() {
+                        const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
+                        updateSummaryForGroup(groupName, currentWrappers);
+                    }, 100);
+                });
+            }
         }
         
         // Initialize remove button for the new row
