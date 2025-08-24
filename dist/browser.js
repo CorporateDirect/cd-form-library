@@ -4,9 +4,22 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.54';
+  const VERSION = '0.1.55';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
+    
+    // Debounce utility to prevent excessive function calls
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction() {
+            const later = function() {
+                clearTimeout(timeout);
+                func.apply(this, arguments);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
     
     function parseFormat(attr) {
         console.log('🔧 parseFormat called with attr:', JSON.stringify(attr));
@@ -436,20 +449,21 @@
             console.log('🔧 Remove button listener attached for group "' + groupName + '"');
         }
         
-        // Add input event listeners to all existing inputs to trigger summary updates
+        // Add debounced input event listeners to all existing inputs to trigger summary updates
         for (let i = 0; i < wrappers.length; i++) {
             const wrapper = wrappers[i];
             const inputs = wrapper.querySelectorAll('input, select, textarea');
             for (let j = 0; j < inputs.length; j++) {
                 const input = inputs[j];
-                input.addEventListener('input', function() {
-                    // Update summary when input value changes
-                    setTimeout(function() {
+                // Prevent duplicate listeners by checking for existing flag
+                if (!input.__cdSummaryListenerAdded) {
+                    input.__cdSummaryListenerAdded = true;
+                    input.addEventListener('input', debounce(function() {
                         const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
                         updateSummaryForGroup(groupName, currentWrappers);
-                    }, 50);
-                });
-                console.log('🔧 Added summary update listener to existing input in row ' + i);
+                    }, 300));
+                    console.log('🔧 Added debounced summary update listener to existing input in row ' + i);
+                }
             }
         }
     }
@@ -636,18 +650,17 @@
             console.log('🔧 Input formatting applied to new row input');
         }
         
-        // Add input event listeners to all inputs in new row to trigger summary updates
+        // Add debounced input event listeners to all inputs in new row to trigger summary updates
         const allNewRowInputs = newRow.querySelectorAll('input, select, textarea');
         for (let i = 0; i < allNewRowInputs.length; i++) {
             const input = allNewRowInputs[i];
-            input.addEventListener('input', function() {
-                // Update summary when input value changes
-                setTimeout(function() {
-                    const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
-                    updateSummaryForGroup(groupName, currentWrappers);
-                }, 50);
-            });
-            console.log('🔧 Added summary update listener to new row input');
+            // Mark to prevent duplicate listeners
+            input.__cdSummaryListenerAdded = true;
+            input.addEventListener('input', debounce(function() {
+                const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
+                updateSummaryForGroup(groupName, currentWrappers);
+            }, 300));
+            console.log('🔧 Added debounced summary update listener to new row input');
         }
         
         // Initialize remove button for the new row
