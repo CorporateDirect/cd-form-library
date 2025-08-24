@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.63';
+  const VERSION = '0.1.64';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -1184,29 +1184,56 @@
         
         const fieldName = summaryField.getAttribute('data-cd-input-field');
         
-        // Check if this appears to be a detail field (common detail field patterns)
-        const isDetailField = fieldName && (
-            fieldName.toLowerCase().includes('details') ||
-            fieldName.toLowerCase().includes('description') ||
-            fieldName.toLowerCase().includes('explain') ||
-            fieldName.toLowerCase().includes('specify') ||
-            fieldName.toLowerCase().includes('other') ||
-            fieldName.toLowerCase().includes('additional') ||
-            fieldName.toLowerCase().includes('comment')
-        );
+        // Check if this field corresponds to a conditional form field (has data-show-when)
+        const conditionalFormField = document.querySelector('[name="' + fieldName + '"][data-show-when]');
         
-        if (isDetailField) {
-            if (fieldValue && fieldValue.trim()) {
-                // Show wrapper if detail field has content
-                wrapper.style.display = '';
-                console.log('📋 Showing detail wrapper for: ' + fieldName);
+        if (conditionalFormField) {
+            const showWhenCondition = conditionalFormField.getAttribute('data-show-when');
+            console.log('📋 Found conditional field:', fieldName, 'with condition:', showWhenCondition);
+            
+            // Check if the condition is currently met
+            const isConditionMet = checkShowWhenCondition(showWhenCondition);
+            
+            if (isConditionMet) {
+                if (fieldValue && fieldValue.trim()) {
+                    // Show wrapper if conditional field is visible AND has content
+                    wrapper.style.display = '';
+                    console.log('📋 Showing conditional wrapper for: ' + fieldName + ' (condition met + has content)');
+                } else {
+                    // Hide wrapper if conditional field is visible but empty
+                    wrapper.style.display = 'none';
+                    console.log('📋 Hiding conditional wrapper for: ' + fieldName + ' (condition met but no content)');
+                }
             } else {
-                // Hide wrapper if detail field is empty
+                // Hide wrapper if condition is not met (field not visible)
                 wrapper.style.display = 'none';
-                console.log('📋 Hiding detail wrapper for: ' + fieldName + ' (no content)');
+                console.log('📋 Hiding conditional wrapper for: ' + fieldName + ' (condition not met)');
             }
         }
-        // For non-detail fields, leave wrapper visibility unchanged
+        // For non-conditional fields, leave wrapper visibility unchanged
+    }
+    
+    function checkShowWhenCondition(condition) {
+        // Parse condition like "Changed-registered-agent-in-the-last-year=Yes"
+        const parts = condition.split('=');
+        if (parts.length !== 2) {
+            return false;
+        }
+        
+        const triggerFieldName = parts[0].trim();
+        const expectedValue = parts[1].trim();
+        
+        // Find the triggering field (radio button, select, etc.)
+        const triggerField = document.querySelector('input[name="' + triggerFieldName + '"]:checked, select[name="' + triggerFieldName + '"]');
+        
+        if (triggerField) {
+            const currentValue = triggerField.value || '';
+            const conditionMet = currentValue === expectedValue;
+            console.log('📋 Condition check:', triggerFieldName, '=', currentValue, 'expected:', expectedValue, 'met:', conditionMet);
+            return conditionMet;
+        }
+        
+        return false;
     }
     
     function attachSummaryUpdateListeners() {
