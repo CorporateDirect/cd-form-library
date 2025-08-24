@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.57';
+  const VERSION = '0.1.58';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -1026,6 +1026,86 @@
         // Pure custom implementation - no external refresh needed
         
         console.log('📊 === SUMMARY UPDATE DEBUG END ===');
+        
+        // Update conditional section visibility after summary update
+        manageSummarySectionVisibility();
+    }
+    
+    function manageSummarySectionVisibility() {
+        console.log('👁️ Managing summary section visibility...');
+        
+        // Find all summary sections with conditional visibility
+        const sections = document.querySelectorAll('[data-cd-summary-section]');
+        console.log('👁️ Found ' + sections.length + ' conditional summary sections');
+        
+        sections.forEach(function(section, index) {
+            const sectionName = section.getAttribute('data-cd-summary-section');
+            const defaultState = section.getAttribute('data-cd-default');
+            
+            console.log('👁️ Processing section ' + (index + 1) + ': "' + sectionName + '"');
+            
+            // Check if section has any content
+            const hasContent = checkSectionHasContent(section);
+            console.log('👁️ Section "' + sectionName + '" has content: ' + hasContent);
+            
+            // Determine visibility
+            let shouldShow = hasContent;
+            
+            // Apply visibility
+            if (shouldShow) {
+                showSection(section, sectionName);
+            } else if (defaultState === 'hidden' || (defaultState === 'visible' && !hasContent)) {
+                hideSection(section, sectionName);
+            }
+            // If no default specified and no content, preserve existing state
+        });
+    }
+    
+    function checkSectionHasContent(section) {
+        // Check 1: Any data-cd-input-field elements have non-empty content
+        const inputFields = section.querySelectorAll('[data-cd-input-field]');
+        for (let i = 0; i < inputFields.length; i++) {
+            const field = inputFields[i];
+            const content = field.textContent || field.innerText || field.innerHTML;
+            if (content && content.trim() && content.trim() !== '[Value]') {
+                console.log('👁️ Found content in input field: "' + content.trim() + '"');
+                return true;
+            }
+        }
+        
+        // Check 2: Any dynamic summary rows exist (data-cd-summary-row)
+        const dynamicRows = section.querySelectorAll('[data-cd-summary-row="true"]');
+        if (dynamicRows.length > 0) {
+            console.log('👁️ Found ' + dynamicRows.length + ' dynamic rows');
+            return true;
+        }
+        
+        // Check 3: Any data-cd-summary-for containers have visible rows
+        const summaryContainers = section.querySelectorAll('[data-cd-summary-for]');
+        for (let i = 0; i < summaryContainers.length; i++) {
+            const container = summaryContainers[i];
+            const rows = container.querySelectorAll('[data-cd-summary-row="true"]');
+            if (rows.length > 0) {
+                console.log('👁️ Found summary container with ' + rows.length + ' rows');
+                return true;
+            }
+        }
+        
+        console.log('👁️ No content found in section');
+        return false;
+    }
+    
+    function showSection(section, sectionName) {
+        console.log('👁️ Showing section: ' + sectionName);
+        section.style.display = '';
+        section.removeAttribute('aria-hidden');
+        section.removeAttribute('hidden');
+    }
+    
+    function hideSection(section, sectionName) {
+        console.log('👁️ Hiding section: ' + sectionName);
+        section.style.display = 'none';
+        section.setAttribute('aria-hidden', 'true');
     }
     
     function initializeLibrary() {
@@ -1067,6 +1147,9 @@
         }
         
         console.log('🚀 Library initialization complete - enhanced ' + forms.length + ' forms');
+        
+        // Initialize conditional summary section visibility
+        manageSummarySectionVisibility();
     }
     
     // Auto-initialize on DOM ready
