@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.53';
+  const VERSION = '0.1.54';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -435,6 +435,23 @@
             });
             console.log('🔧 Remove button listener attached for group "' + groupName + '"');
         }
+        
+        // Add input event listeners to all existing inputs to trigger summary updates
+        for (let i = 0; i < wrappers.length; i++) {
+            const wrapper = wrappers[i];
+            const inputs = wrapper.querySelectorAll('input, select, textarea');
+            for (let j = 0; j < inputs.length; j++) {
+                const input = inputs[j];
+                input.addEventListener('input', function() {
+                    // Update summary when input value changes
+                    setTimeout(function() {
+                        const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
+                        updateSummaryForGroup(groupName, currentWrappers);
+                    }, 50);
+                });
+                console.log('🔧 Added summary update listener to existing input in row ' + i);
+            }
+        }
     }
     
     function addRow(groupName, wrappers, groupElement) {
@@ -617,6 +634,20 @@
             // Dispatch bound event
             input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
             console.log('🔧 Input formatting applied to new row input');
+        }
+        
+        // Add input event listeners to all inputs in new row to trigger summary updates
+        const allNewRowInputs = newRow.querySelectorAll('input, select, textarea');
+        for (let i = 0; i < allNewRowInputs.length; i++) {
+            const input = allNewRowInputs[i];
+            input.addEventListener('input', function() {
+                // Update summary when input value changes
+                setTimeout(function() {
+                    const currentWrappers = groupElement.querySelectorAll('[data-cd-repeat-row="' + groupName + '"]');
+                    updateSummaryForGroup(groupName, currentWrappers);
+                }, 50);
+            });
+            console.log('🔧 Added summary update listener to new row input');
         }
         
         // Initialize remove button for the new row
