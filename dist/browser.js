@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.56';
+  const VERSION = '0.1.57';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -113,8 +113,8 @@
                             value = parts[0] + '.' + parts.slice(1).join('');
                         }
                         
-                        // Add % symbol if there are digits
-                        if (value && !this.value.endsWith('%')) {
+                        // Add % symbol if there are digits and it doesn't already have one
+                        if (value && !value.endsWith('%')) {
                             value += '%';
                         }
                         
@@ -124,7 +124,8 @@
                     
                     // Handle backspace to remove % if needed
                     input.addEventListener('keydown', function(e) {
-                        if (e.key === 'Backspace' && this.value.endsWith('%') && this.value.length === 1) {
+                        if (e.key === 'Backspace' && this.value === '%') {
+                            e.preventDefault();
                             this.value = '';
                         }
                     });
