@@ -4,7 +4,7 @@
 (function() {
     'use strict';
     
-  const VERSION = '0.1.66';
+  const VERSION = '0.1.68';
     
     console.log('🚀 CD Form Library Browser v' + VERSION + ' loading...');
     
@@ -430,24 +430,38 @@
         }
         console.log('🔧 === END BUTTON ISOLATION CHECK ===');
         
-        // Add event listeners to add buttons
+        // Add event listeners to add buttons (prevent duplicates)
         for (let i = 0; i < addButtons.length; i++) {
             const button = addButtons[i];
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                addRow(groupName, wrappers, groupElement);
-            });
-            console.log('🔧 Add button listener attached for group "' + groupName + '"');
+            
+            // Check if listener already attached to prevent duplicates
+            if (!button.__cdAddListenerAttached) {
+                button.__cdAddListenerAttached = true;
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    addRow(groupName, wrappers, groupElement);
+                });
+                console.log('🔧 Add button listener attached for group "' + groupName + '"');
+            } else {
+                console.log('🔧 Add button listener already exists for group "' + groupName + '", skipping');
+            }
         }
         
-        // Add event listeners to remove buttons
+        // Add event listeners to remove buttons (prevent duplicates)
         for (let i = 0; i < removeButtons.length; i++) {
             const button = removeButtons[i];
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                removeRow(groupName, wrappers, this, groupElement);
-            });
-            console.log('🔧 Remove button listener attached for group "' + groupName + '"');
+            
+            // Check if listener already attached to prevent duplicates
+            if (!button.__cdRemoveListenerAttached) {
+                button.__cdRemoveListenerAttached = true;
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    removeRow(groupName, wrappers, this, groupElement);
+                });
+                console.log('🔧 Remove button listener attached for group "' + groupName + '"');
+            } else {
+                console.log('🔧 Remove button listener already exists for group "' + groupName + '", skipping');
+            }
         }
         
         // Add blur event listeners to existing inputs for summary updates
