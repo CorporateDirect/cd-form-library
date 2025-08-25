@@ -15,7 +15,7 @@
     var kit_1 = require("@maskito/kit");
     var dynamicRows_1 = require("./features/dynamicRows");
     var formWrapperVisibility_1 = require("./features/formWrapperVisibility");
-    var VERSION = '0.1.23';
+    var VERSION = '0.1.65';
     function parseFormat(attr) {
         var normalized = attr.toLowerCase().trim().replace(/\s+/g, ' ');
         if (normalized === 'date:mmddyyyy') {

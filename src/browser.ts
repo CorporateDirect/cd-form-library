@@ -6,7 +6,7 @@ import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maski
 import { initDynamicRows } from './features/dynamicRows';
 import { initFormWrapperVisibility } from './features/formWrapperVisibility';
 
-const VERSION = '0.1.23';
+const VERSION = '0.1.65';
 
 interface FormatConfig {
   type: 'date' | 'time';
