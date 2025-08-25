@@ -14,7 +14,7 @@
     exports.initializeLibrary = initializeLibrary;
     var inputFormatting_1 = require("./features/inputFormatting");
     var formWrapperVisibility_1 = require("./features/formWrapperVisibility");
-    var VERSION = '0.1.64';
+    var VERSION = '0.1.36';
     function initializeLibrary() {
         console.log('🚀 CD Form Library v' + VERSION + ' initializing...');
         console.log('🚀 Document ready state:', document.readyState);
