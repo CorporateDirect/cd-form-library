@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.66';
+const VERSION = '0.1.69';
 
 interface FormatConfig {
   type: 'date' | 'time';
@@ -220,6 +220,9 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
   const namePattern = container.getAttribute('data-cd-name-pattern') || `${groupName}[{i}]`;
   
   if (!template) return;
+
+  // Hide the template
+  (template as HTMLElement).style.display = 'none';
   
   // Get existing rows
   const existingRows = Array.from(container.querySelectorAll('[data-cd-repeat-row]'));
@@ -242,6 +245,14 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     addButton.removeEventListener('click', handleAddRow);
     addButton.addEventListener('click', handleAddRow);
   }
+
+  // Attach remove button listeners
+  const removeButtons = container.querySelectorAll('[data-cd-remove-row]');
+  removeButtons.forEach((removeButton) => {
+    // Remove any existing listeners
+    removeButton.removeEventListener('click', handleRemoveRow);
+    removeButton.addEventListener('click', handleRemoveRow);
+  });
   
   // Reindex existing rows
   reindexRows(group);
@@ -265,7 +276,28 @@ function handleAddRow(event: Event) {
   addNewRow(group);
 }
 
+function handleRemoveRow(event: Event) {
+  event.preventDefault();
+  const button = event.target as Element;
+  const container = button.closest('[data-cd-repeat-group]');
+  if (!container) return;
+  
+  const groupName = container.getAttribute('data-cd-repeat-group');
+  if (!groupName) return;
+  
+  const group = activeGroups.get(groupName);
+  if (!group) return;
+  
+  // Find which row contains the clicked button
+  const rowInfo = findRowContainingElement(group, button);
+  if (!rowInfo) return;
+  
+  removeRow(group, rowInfo.row);
+}
+
 function addNewRow(group: DynamicRowGroup) {
+  console.log(`➕ Adding new row to group "${group.groupName}" (currently ${group.rows.length} rows)`);
+  
   // Clone the template
   const newRow = group.template.cloneNode(true) as Element;
   
@@ -278,12 +310,21 @@ function addNewRow(group: DynamicRowGroup) {
   
   // Add to rows array
   group.rows.push(newRow);
+
+  // Attach remove button listeners to the new row
+  const removeButtons = newRow.querySelectorAll('[data-cd-remove-row]');
+  console.log(`➕ Attaching ${removeButtons.length} remove button listeners to new row`);
+  removeButtons.forEach((removeButton) => {
+    removeButton.addEventListener('click', handleRemoveRow);
+  });
   
   // Reindex all rows
   reindexRows(group);
   
   // Update summaries
   updateSummaries(group);
+  
+  console.log(`➕ Row added successfully, new total: ${group.rows.length} rows`);
   
   // Dispatch event
   newRow.dispatchEvent(new CustomEvent('cd:row:added', {
@@ -345,18 +386,26 @@ function reindexRows(group: DynamicRowGroup) {
 }
 
 function updateSummaries(group: DynamicRowGroup) {
+  console.log(`📊 Updating summaries for group "${group.groupName}" (${group.rows.length} rows)`);
+  
   // Find summary containers for this group
   const summaryContainers = document.querySelectorAll(`[data-summary-for="${group.groupName}"]`);
+  console.log(`📊 Found ${summaryContainers.length} summary container(s) for group "${group.groupName}"`);
   
-  summaryContainers.forEach((summaryContainer) => {
+  summaryContainers.forEach((summaryContainer, containerIndex) => {
     const template = summaryContainer.querySelector('[data-summary-template]');
-    if (!template) return;
+    if (!template) {
+      console.warn(`📊 No template found in summary container ${containerIndex} for group "${group.groupName}"`);
+      return;
+    }
     
     // Remove existing summary rows
     const existingSummaryRows = summaryContainer.querySelectorAll('[data-summary-row]');
+    console.log(`📊 Removing ${existingSummaryRows.length} existing summary rows from container ${containerIndex}`);
     existingSummaryRows.forEach(row => row.remove());
     
     // Create summary rows for each data row
+    console.log(`📊 Creating ${group.rows.length} new summary rows for container ${containerIndex}`);
     group.rows.forEach((dataRow, index) => {
       const rowIndex = index + 1;
       const summaryRow = template.cloneNode(true) as Element;
@@ -367,11 +416,13 @@ function updateSummaries(group: DynamicRowGroup) {
       
       // Update data-input-field attributes
       const fieldElements = summaryRow.querySelectorAll('[data-input-field]');
+      console.log(`📊 Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
       fieldElements.forEach((element) => {
         const fieldPattern = element.getAttribute('data-input-field');
         if (fieldPattern) {
           const finalFieldName = fieldPattern.replace('{i}', rowIndex.toString());
           element.setAttribute('data-input-field', finalFieldName);
+          console.log(`📊 Updated field: ${fieldPattern} → ${finalFieldName}`);
         }
       });
       
@@ -382,8 +433,61 @@ function updateSummaries(group: DynamicRowGroup) {
   
   // Trigger TryFormly refresh if available
   if (typeof (window as any).TryFormly?.refresh === 'function') {
+    console.log('📊 Triggering TryFormly.refresh()');
     (window as any).TryFormly.refresh();
+  } else {
+    console.log('📊 TryFormly.refresh() not available');
   }
+}
+
+// Utility function to find row containing an element
+function findRowContainingElement(group: DynamicRowGroup, element: Element): {row: Element, index: number} | null {
+  for (let i = 0; i < group.rows.length; i++) {
+    const row = group.rows[i];
+    if (row.contains(element)) {
+      return { row, index: i };
+    }
+  }
+  return null;
+}
+
+function removeRow(group: DynamicRowGroup, targetRow: Element) {
+  console.log(`➖ Removing row from group "${group.groupName}" (currently ${group.rows.length} rows)`);
+  
+  // Validate minimum row count - prevent removing last row
+  if (group.rows.length <= 1) {
+    console.warn('Cannot remove last row from group:', group.groupName);
+    return;
+  }
+  
+  // Find the target row index
+  const targetIndex = group.rows.indexOf(targetRow);
+  if (targetIndex === -1) {
+    console.warn('Target row not found in group:', group.groupName);
+    return;
+  }
+  
+  console.log(`➖ Removing row at index ${targetIndex}`);
+  
+  // Remove the row from DOM
+  targetRow.remove();
+  
+  // Remove from tracking array
+  group.rows.splice(targetIndex, 1);
+  
+  // Reindex remaining rows
+  reindexRows(group);
+  
+  // Update summaries
+  updateSummaries(group);
+  
+  console.log(`➖ Row removed successfully, new total: ${group.rows.length} rows`);
+  
+  // Dispatch event
+  targetRow.dispatchEvent(new CustomEvent('cd:row:removed', {
+    bubbles: true,
+    detail: { groupName: group.groupName, rowIndex: targetIndex, removedRow: targetRow }
+  }));
 }
 
 // Export function for reinitializing when containers become visible
