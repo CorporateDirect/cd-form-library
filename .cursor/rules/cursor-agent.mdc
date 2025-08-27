@@ -32,6 +32,7 @@ alwaysApply: true
 - Always follow the most recent instructions from the user.
 - If any ambiguity exists, **pause and ask for clarification** before acting.
 - The default behavior is compliance with instructions, not improvisation.
+- DO NOT attribute code on git commit. 
 
 ## 6. Collaboration & Transparency
 - Treat the user as a **collaborator, not just a requester**.
