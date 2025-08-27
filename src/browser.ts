@@ -1059,8 +1059,7 @@ function initializeLibrary() {
       // Initialize dynamic rows for repeatable sections
       initDynamicRows();
       
-      // Initialize summary field synchronization
-      syncAllSummaryFields();
+      // Summary field synchronization is handled within initDynamicRows()
       
       // Dispatch custom event for form enhancement completion
       formElement.dispatchEvent(new CustomEvent('cdForm:validated', { bubbles: true }));
