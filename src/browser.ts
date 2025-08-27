@@ -79,27 +79,20 @@ function createMaskitoOptions(config: FormatConfig) {
 
 function initInputFormatting(form: HTMLFormElement) {
   const inputs = form.querySelectorAll('input[data-input]');
-  console.log(`📝 Found ${inputs.length} inputs with data-input attributes`);
-  
   inputs.forEach((el, index) => {
     const input = el as HTMLInputElement;
     const attr = input.getAttribute('data-input');
     
-    console.log(`📝 Input ${index + 1}: ${input.id || input.name} - data-input="${attr}"`);
-    
     if (!attr) return;
 
     const config = parseFormat(attr);
-    console.log(`📝 Config for ${input.id}:`, config);
     if (!config) return;
 
     const maskitoOptions = createMaskitoOptions(config);
-    console.log(`📝 Maskito options created for ${input.id}:`, !!maskitoOptions);
     if (!maskitoOptions) return;
     
     // Initialize Maskito on the input
     const maskito = new Maskito(input, maskitoOptions);
-    console.log(`✅ Maskito initialized for ${input.id}`);
     
     // Dispatch bound event
     input.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
@@ -135,7 +128,6 @@ function initInputFormatting(form: HTMLFormElement) {
 // Form wrapper visibility implementation
 function initFormWrapperVisibility() {
   const wrappers = document.querySelectorAll('[data-show-when]');
-  console.log(`👁️ Found ${wrappers.length} elements with data-show-when`);
   
   // Track all input groups that wrappers are listening to
   const groupListeners = new Map<string, Set<Element>>();
@@ -146,8 +138,6 @@ function initFormWrapperVisibility() {
     
     const [group, value] = condition.split('=').map(s => s.trim());
     if (!group || value === undefined) return;
-    
-    console.log(`👁️ Wrapper ${index + 1}: "${condition}" - Looking for input group "${group}" with value "${value}"`);
     
     // Track this wrapper as listening to this group
     if (!groupListeners.has(group)) {
@@ -179,7 +169,6 @@ function initFormWrapperVisibility() {
 
 function updateWrapperVisibility(wrapper: Element, group: string, targetValue: string) {
   const inputs = document.querySelectorAll(`input[name="${group}"], select[name="${group}"], textarea[name="${group}"]`);
-  console.log(`🔍 Checking visibility for group "${group}": found ${inputs.length} inputs`);
   let currentValue = '';
   
   // Get current value from inputs
@@ -197,7 +186,6 @@ function updateWrapperVisibility(wrapper: Element, group: string, targetValue: s
   });
   
   const shouldShow = currentValue === targetValue;
-  console.log(`👁️ Group "${group}": current="${currentValue}", target="${targetValue}", shouldShow=${shouldShow}`);
   const htmlWrapper = wrapper as HTMLElement;
   
   if (shouldShow) {
@@ -323,7 +311,7 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     }
   }
   
-  const namePattern = container.getAttribute('data-cd-name-pattern') || `${groupName}[{i}]`;
+  const namePattern = container.getAttribute('data-cd-name-pattern') || `${groupName}[{i}][{field}]`;
   
   console.log(`\n🔧 === INITIALIZING GROUP: "${groupName}" ===`);
   console.log('🔍 Container:', container.tagName, container.className);
@@ -660,11 +648,14 @@ function addNewRow(group: DynamicRowGroup) {
 }
 
 function reindexRows(group: DynamicRowGroup) {
+  console.log(`🔢 DYNAMIC: Reindexing ${group.rows.length} rows for group "${group.groupName}"`);
+  
   group.rows.forEach((row, index) => {
     const rowIndex = index + 1; // 1-based indexing
     
     // Update input names
     const inputs = row.querySelectorAll('[data-repeat-name]');
+    console.log(`🔢 DYNAMIC: Row ${rowIndex}: found ${inputs.length} inputs with data-repeat-name`);
     inputs.forEach((input) => {
       const fieldName = input.getAttribute('data-repeat-name');
       if (fieldName) {
@@ -672,6 +663,7 @@ function reindexRows(group: DynamicRowGroup) {
           .replace('{i}', rowIndex.toString())
           .replace('{field}', fieldName);
         (input as HTMLInputElement).name = finalName;
+        console.log(`🔢 DYNAMIC: Row ${rowIndex}: Updated input name: ${fieldName} → ${finalName}`);
       }
     });
     
@@ -703,38 +695,41 @@ function reindexRows(group: DynamicRowGroup) {
   });
   
   // Dispatch synthetic input events to trigger summary updates
-  group.rows.forEach((row) => {
+  console.log(`🔢 DYNAMIC: Dispatching input events to trigger summary updates`);
+  group.rows.forEach((row, index) => {
     const inputs = row.querySelectorAll('input, select, textarea');
+    console.log(`🔢 DYNAMIC: Row ${index + 1}: dispatching events for ${inputs.length} inputs`);
     inputs.forEach((input) => {
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
   });
   
   // Sync summary fields after reindexing
+  console.log(`🔢 DYNAMIC: Syncing summary fields after reindexing`);
   syncAllSummaryFields();
 }
 
 function updateSummaries(group: DynamicRowGroup) {
-  console.log(`📊 Updating summaries for group "${group.groupName}" (${group.rows.length} rows)`);
+  console.log(`📊 SUMMARY: Updating summaries for group "${group.groupName}" (${group.rows.length} rows)`);
   
   // Find summary containers for this group
   const summaryContainers = document.querySelectorAll(`[data-summary-for="${group.groupName}"]`);
-  console.log(`📊 Found ${summaryContainers.length} summary container(s) for group "${group.groupName}"`);
+  console.log(`📊 SUMMARY: Found ${summaryContainers.length} summary container(s) for group "${group.groupName}"`);
   
   summaryContainers.forEach((summaryContainer, containerIndex) => {
     const template = summaryContainer.querySelector('[data-summary-template]');
     if (!template) {
-      console.warn(`📊 No template found in summary container ${containerIndex} for group "${group.groupName}"`);
+      console.warn(`📊 SUMMARY: No template found in summary container ${containerIndex} for group "${group.groupName}"`);
       return;
     }
     
     // Remove existing summary rows
     const existingSummaryRows = summaryContainer.querySelectorAll('[data-summary-row]');
-    console.log(`📊 Removing ${existingSummaryRows.length} existing summary rows from container ${containerIndex}`);
+    console.log(`📊 SUMMARY: Removing ${existingSummaryRows.length} existing summary rows from container ${containerIndex}`);
     existingSummaryRows.forEach(row => row.remove());
     
     // Create summary rows for each data row
-    console.log(`📊 Creating ${group.rows.length} new summary rows for container ${containerIndex}`);
+    console.log(`📊 SUMMARY: Creating ${group.rows.length} new summary rows for container ${containerIndex}`);
     group.rows.forEach((dataRow, index) => {
       const rowIndex = index + 1;
       const summaryRow = template.cloneNode(true) as Element;
@@ -743,15 +738,15 @@ function updateSummaries(group: DynamicRowGroup) {
       summaryRow.removeAttribute('data-summary-template');
       summaryRow.setAttribute('data-summary-row', '');
       
-      // Update data-input-field attributes
-      const fieldElements = summaryRow.querySelectorAll('[data-input-field]');
-      console.log(`📊 Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
+      // Update data-cd-input-field attributes (not data-input-field)
+      const fieldElements = summaryRow.querySelectorAll('[data-cd-input-field]');
+      console.log(`📊 SUMMARY: Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
       fieldElements.forEach((element) => {
-        const fieldPattern = element.getAttribute('data-input-field');
+        const fieldPattern = element.getAttribute('data-cd-input-field');
         if (fieldPattern) {
           const finalFieldName = fieldPattern.replace('{i}', rowIndex.toString());
-          element.setAttribute('data-input-field', finalFieldName);
-          console.log(`📊 Updated field: ${fieldPattern} → ${finalFieldName}`);
+          element.setAttribute('data-cd-input-field', finalFieldName);
+          console.log(`📊 SUMMARY: Updated field: ${fieldPattern} → ${finalFieldName}`);
         }
       });
       
@@ -765,26 +760,26 @@ function updateSummaries(group: DynamicRowGroup) {
   
   // Trigger TryFormly refresh if available
   if (typeof (window as any).TryFormly?.refresh === 'function') {
-    console.log('📊 Triggering TryFormly.refresh()');
+    console.log('📊 SUMMARY: Triggering TryFormly.refresh()');
     (window as any).TryFormly.refresh();
   } else {
-    console.log('📊 TryFormly.refresh() not available');
+    console.log('📊 SUMMARY: TryFormly.refresh() not available');
   }
 }
 
 // Summary field synchronization functions
 function syncAllSummaryFields() {
-  console.log('🔄 Syncing all summary fields...');
+  console.log('🔄 SUMMARY: Syncing all summary fields...');
   
   // Find all summary output elements
   const summaryElements = document.querySelectorAll('[data-cd-input-field]');
-  console.log(`🔄 Found ${summaryElements.length} summary field elements`);
+  console.log(`🔄 SUMMARY: Found ${summaryElements.length} summary field elements`);
   
   summaryElements.forEach((summaryElement, index) => {
     const fieldName = summaryElement.getAttribute('data-cd-input-field');
     if (!fieldName) return;
     
-    console.log(`🔄 Syncing field ${index + 1}: "${fieldName}"`);
+    console.log(`🔄 SUMMARY: Syncing field ${index + 1}: "${fieldName}"`);
     syncSummaryField(summaryElement as HTMLElement, fieldName);
   });
 }
@@ -793,11 +788,11 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   // Find the corresponding input/select/textarea element
   let sourceElement: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null = null;
   
-  console.log(`🔍 Syncing summary field: "${fieldName}"`);
+  console.log(`🔍 SUMMARY: Syncing summary field: "${fieldName}"`);
   
   // Check if this is a templated field name with {i} placeholder
   if (fieldName.includes('{i}')) {
-    console.log(`🔍 Templated field detected: "${fieldName}"`);
+    console.log(`🔍 SUMMARY: Templated field detected: "${fieldName}"`);
     
     // Extract the row number from the summary element's context
     const summaryRow = summaryElement.closest('[data-summary-row]');
@@ -809,12 +804,12 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       
       // Replace {i} with the actual row index
       const resolvedFieldName = fieldName.replace('{i}', rowIndex.toString());
-      console.log(`🔍 Resolved templated field: "${fieldName}" → "${resolvedFieldName}"`);
+      console.log(`🔍 SUMMARY: Resolved templated field: "${fieldName}" → "${resolvedFieldName}"`);
       
       // Use the resolved field name for lookup
       fieldName = resolvedFieldName;
     } else {
-      console.log(`🔍 Could not resolve templated field "${fieldName}" - no summary row context found`);
+      console.log(`🔍 SUMMARY: Could not resolve templated field "${fieldName}" - no summary row context found`);
       return;
     }
   }
@@ -838,17 +833,21 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   }
   
   if (!sourceElement) {
-    console.log(`🔍 Direct match failed for field: "${fieldName}"`);
+    console.log(`🔍 SUMMARY: Direct match failed for field: "${fieldName}"`);
     
-    // Debug: Log a few available input names to understand the pattern
+    // Debug: Log all available dynamic row input names to understand the pattern
     const allInputs = Array.from(document.querySelectorAll('input[name], select[name], textarea[name]'));
-    const sampleNames = allInputs.slice(0, 5).map(el => el.getAttribute('name'));
-    console.log(`🔍 Sample available input names:`, sampleNames);
+    const dynamicInputs = allInputs.filter(el => {
+      const name = el.getAttribute('name');
+      return name && (name.includes('[') || name.includes('corporation-members') || name.includes('llc-members') || name.includes('partnership-members'));
+    });
+    const dynamicNames = dynamicInputs.map(el => el.getAttribute('name'));
+    console.log(`🔍 SUMMARY: Available dynamic input names:`, dynamicNames);
     
     return;
   }
   
-  console.log(`🔍 Found source element for "${fieldName}":`, sourceElement.tagName, sourceElement.type || '');
+  console.log(`🔍 SUMMARY: Found source element for "${fieldName}":`, sourceElement.tagName, sourceElement.type || '');
   
   // Get and set the current value
   let displayValue = '';
@@ -867,14 +866,14 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   
   // Update the summary element
   summaryElement.textContent = displayValue || '[Not specified]';
-  console.log(`✅ Updated summary for "${fieldName}": "${displayValue}"`);
+  console.log(`✅ SUMMARY: Updated summary for "${fieldName}": "${displayValue}"`);
   
   // Add event listener for future changes if not already added
   if (!(sourceElement as any).__summaryListenerAdded) {
     const eventType = sourceElement.type === 'radio' || sourceElement.type === 'checkbox' ? 'change' : 'input';
     
     sourceElement.addEventListener(eventType, () => {
-      console.log(`🔄 Field "${fieldName}" changed, updating summary...`);
+      console.log(`🔄 SUMMARY: Field "${fieldName}" changed, updating summary...`);
       syncSummaryField(summaryElement, fieldName);
     });
     
@@ -884,7 +883,7 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       allRadios.forEach(radio => {
         if (!(radio as any).__summaryListenerAdded) {
           radio.addEventListener('change', () => {
-            console.log(`🔄 Radio "${fieldName}" changed, updating summary...`);
+            console.log(`🔄 SUMMARY: Radio "${fieldName}" changed, updating summary...`);
             syncSummaryField(summaryElement, fieldName);
           });
           (radio as any).__summaryListenerAdded = true;
@@ -893,7 +892,7 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
     }
     
     (sourceElement as any).__summaryListenerAdded = true;
-    console.log(`🎧 Added ${eventType} listener for field "${fieldName}"`);
+    console.log(`🎧 SUMMARY: Added ${eventType} listener for field "${fieldName}"`);
   }
 }
 
@@ -973,61 +972,37 @@ document.addEventListener('form-wrapper-visibility:shown', (event) => {
 });
 
 function initializeLibrary() {
-  console.log('🚀 CDFormLibrary Initialize Starting...');
-  console.log('🔍 VERSION:', VERSION);
-  console.log('🔍 DOM Ready State:', document.readyState);
-  console.log('🔍 Document Title:', document.title);
-  console.log('🔍 Current URL:', window.location.href);
   
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
-  console.log('🔍 Found forms with data-cd-form="true":', forms.length);
   
   if (forms.length === 0) {
-    console.warn('⚠️ No forms found with data-cd-form="true"');
-    const allForms = document.querySelectorAll('form');
-    console.log('🔍 Total forms on page:', allForms.length);
-    if (allForms.length > 0) {
-      console.log('🔍 First form element:', allForms[0]);
-      console.log('🔍 First form attributes:', Array.from(allForms[0].attributes).map(attr => `${attr.name}="${attr.value}"`));
-    }
     return;
   }
   
   forms.forEach((form, index) => {
     const formElement = form as HTMLFormElement;
-    console.log(`\n📋 Processing Form ${index + 1}:`, formElement);
-    console.log(`📋 Form ID:`, formElement.id || 'NO ID');
-    console.log(`📋 Form Classes:`, formElement.className || 'NO CLASSES');
     
     try {
       // Initialize input formatting for inputs with data-input attribute
-      console.log('🎯 Step 1: Initializing input formatting...');
       initInputFormatting(formElement);
       
       // Initialize form wrapper visibility for elements with data-show-when
-      console.log('🎯 Step 2: Initializing form wrapper visibility...');
       initFormWrapperVisibility();
       
       // Initialize dynamic rows for repeatable sections
-      console.log('🎯 Step 3: Initializing dynamic rows...');
       initDynamicRows();
       
       // Initialize summary field synchronization
-      console.log('🎯 Step 4: Initializing summary field synchronization...');
       syncAllSummaryFields();
       
       // Dispatch custom event for form enhancement completion
-      console.log('🎯 Step 5: Dispatching validation event...');
       formElement.dispatchEvent(new CustomEvent('cdForm:validated', { bubbles: true }));
       
-      console.log('✅ Form initialization completed successfully');
     } catch (error) {
       console.error('❌ Error enhancing form:', error);
       console.error('❌ Stack trace:', error.stack);
     }
   });
-  
-  console.log('🏁 CDFormLibrary Initialize Complete');
 }
 
 // Auto-initialize on DOM ready
