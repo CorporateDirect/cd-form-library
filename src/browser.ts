@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.97';
+const VERSION = '0.1.98';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -611,16 +611,18 @@ function addNewRow(group: DynamicRowGroup) {
     return;
   }
   
-  // Clone the first visible row instead of the template
-  const firstVisibleRow = Array.from(group.container.querySelectorAll('[data-cd-repeat-row]:not([data-cd-repeat-template])'))
-    .find(row => (row as HTMLElement).style.display !== 'none');
+  // Clone from the template instead of visible rows to avoid copying user data
+  const template = group.container.querySelector('[data-cd-repeat-template]');
   
-  if (!firstVisibleRow) {
-    console.error('❌ No visible row found to clone');
+  if (!template) {
+    console.error('❌ No template found to clone');
     return;
   }
   
-  const newRow = firstVisibleRow.cloneNode(true) as Element;
+  const newRow = template.cloneNode(true) as Element;
+  
+  // Remove template attribute from cloned row
+  newRow.removeAttribute('data-cd-repeat-template');
   
   // Clear input values in the cloned row and apply formatting
   const inputs = newRow.querySelectorAll('input, select, textarea');
