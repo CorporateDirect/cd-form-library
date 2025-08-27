@@ -633,10 +633,10 @@ function reindexRows(group: DynamicRowGroup) {
     const rowIndex = index + 1; // 1-based indexing
     
     // Update input names
-    const inputs = row.querySelectorAll('[data-repeat-name]');
-    console.log(`🔢 DYNAMIC: Row ${rowIndex}: found ${inputs.length} inputs with data-repeat-name`);
+    const inputs = row.querySelectorAll('[data-cd-repeat-name]');
+    console.log(`🔢 DYNAMIC: Row ${rowIndex}: found ${inputs.length} inputs with data-cd-repeat-name`);
     inputs.forEach((input) => {
-      const fieldName = input.getAttribute('data-repeat-name');
+      const fieldName = input.getAttribute('data-cd-repeat-name');
       if (fieldName) {
         const finalName = group.namePattern
           .replace('{i}', rowIndex.toString())
