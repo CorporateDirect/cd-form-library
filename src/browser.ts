@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.87';
+const VERSION = '0.1.88';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -692,11 +692,11 @@ function updateSummaries(group: DynamicRowGroup) {
   console.log(`📊 SUMMARY: Updating summaries for group "${group.groupName}" (${group.rows.length} rows)`);
   
   // Find summary containers for this group
-  const summaryContainers = document.querySelectorAll(`[data-summary-for="${group.groupName}"]`);
+  const summaryContainers = document.querySelectorAll(`[data-cd-summary-for="${group.groupName}"]`);
   console.log(`📊 SUMMARY: Found ${summaryContainers.length} summary container(s) for group "${group.groupName}"`);
   
   summaryContainers.forEach((summaryContainer, containerIndex) => {
-    const template = summaryContainer.querySelector('[data-summary-template]');
+    const template = summaryContainer.querySelector('[data-cd-summary-template]');
     if (!template) {
       console.warn(`📊 SUMMARY: No template found in summary container ${containerIndex} for group "${group.groupName}"`);
       return;
@@ -714,7 +714,7 @@ function updateSummaries(group: DynamicRowGroup) {
       const summaryRow = template.cloneNode(true) as Element;
       
       // Mark as summary row instead of template
-      summaryRow.removeAttribute('data-summary-template');
+      summaryRow.removeAttribute('data-cd-summary-template');
       summaryRow.setAttribute('data-summary-row', '');
       
       // Update data-cd-input-field attributes (not data-input-field)
