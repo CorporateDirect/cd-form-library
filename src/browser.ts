@@ -385,9 +385,9 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     return;
   }
 
-  // Hide the template
-  console.log('🔍 Hiding template...');
-  (template as HTMLElement).style.display = 'none';
+  // Keep template visible as it serves as the first functional row
+  console.log('🔍 Template will serve as first functional row (keeping visible)');
+  // Note: Do not hide the template since it's the first data row
   
   // Get existing rows
   const existingRows = Array.from(container.querySelectorAll('[data-cd-repeat-row]'));
@@ -732,6 +732,12 @@ function updateSummaries(group: DynamicRowGroup) {
       // Insert the summary row
       summaryContainer.appendChild(summaryRow);
     });
+    
+    // Hide the summary template after creating all summary rows
+    if (template) {
+      (template as HTMLElement).style.display = 'none';
+      console.log(`📊 SUMMARY: Summary template hidden for container ${containerIndex}`);
+    }
   });
   
   // Sync field values after creating summary rows
