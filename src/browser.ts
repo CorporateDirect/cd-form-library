@@ -855,7 +855,21 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       const rowIndex = allSummaryRows.indexOf(summaryRow) + 1; // 1-based indexing
       
       // Replace {i} with the actual row index
-      const resolvedFieldName = fieldName.replace('{i}', rowIndex.toString());
+      let resolvedFieldName = fieldName.replace('{i}', rowIndex.toString());
+      
+      // Check if this is a bracket pattern that needs to be mapped to suffix pattern
+      if (resolvedFieldName.includes('[') && resolvedFieldName.includes(']')) {
+        // Convert bracket pattern to suffix pattern
+        // e.g., "members[1][person_entity_name]" → "person_entity_name-1"
+        const bracketMatch = resolvedFieldName.match(/\[(\d+)\]\[([^\]]+)\]/);
+        if (bracketMatch) {
+          const rowNum = bracketMatch[1];
+          const baseFieldName = bracketMatch[2];
+          resolvedFieldName = `${baseFieldName}-${rowNum}`;
+          console.log(`🔍 SUMMARY: Converted bracket pattern: "${fieldName}" → "${resolvedFieldName}"`);
+        }
+      }
+      
       console.log(`🔍 SUMMARY: Resolved templated field: "${fieldName}" → "${resolvedFieldName}"`);
       
       // Use the resolved field name for lookup
@@ -887,14 +901,15 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   if (!sourceElement) {
     console.log(`🔍 SUMMARY: Direct match failed for field: "${fieldName}"`);
     
-    // Debug: Log all available dynamic row input names to understand the pattern
+    // Debug: Log all available dynamic row input names with the new suffix pattern
     const allInputs = Array.from(document.querySelectorAll('input[name], select[name], textarea[name]'));
     const dynamicInputs = allInputs.filter(el => {
       const name = el.getAttribute('name');
-      return name && (name.includes('[') || name.includes('corporation-members') || name.includes('llc-members') || name.includes('partnership-members'));
+      return name && name.includes('-'); // New pattern uses hyphens
     });
     const dynamicNames = dynamicInputs.map(el => el.getAttribute('name'));
-    console.log(`🔍 SUMMARY: Available dynamic input names:`, dynamicNames);
+    console.log(`🔍 SUMMARY: Available dynamic input names (with suffix pattern):`, dynamicNames);
+    console.log(`🔍 SUMMARY: Looking for field name: "${fieldName}"`);
     
     return;
   }
