@@ -695,15 +695,14 @@ function reindexRows(group: DynamicRowGroup) {
   group.rows.forEach((row, index) => {
     const rowIndex = index + 1; // 1-based indexing
     
-    // Update input names
+    // Update input names with row suffix for unique field names
     const inputs = row.querySelectorAll('[data-cd-repeat-name]');
     console.log(`🔢 DYNAMIC: Row ${rowIndex}: found ${inputs.length} inputs with data-cd-repeat-name`);
     inputs.forEach((input) => {
       const fieldName = input.getAttribute('data-cd-repeat-name');
       if (fieldName) {
-        const finalName = group.namePattern
-          .replace('{i}', rowIndex.toString())
-          .replace('{field}', fieldName);
+        // Use simple suffix pattern: {field}-{i} for unique field names
+        const finalName = `${fieldName}-${rowIndex}`;
         (input as HTMLInputElement).name = finalName;
         console.log(`🔢 DYNAMIC: Row ${rowIndex}: Updated input name: ${fieldName} → ${finalName}`);
       }
@@ -783,12 +782,14 @@ function updateSummaries(group: DynamicRowGroup) {
       // Ensure the cloned summary row is visible (template may be hidden)
       (summaryRow as HTMLElement).style.display = '';
       
-      // Update data-cd-input-field attributes (not data-input-field)
+      // Update data-cd-input-field attributes to match new naming pattern
       const fieldElements = summaryRow.querySelectorAll('[data-cd-input-field]');
       console.log(`📊 SUMMARY: Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
       fieldElements.forEach((element) => {
         const fieldPattern = element.getAttribute('data-cd-input-field');
         if (fieldPattern) {
+          // Convert from template pattern to actual field name with suffix
+          // e.g., "person-entity-name-{i}" → "person-entity-name-1"
           const finalFieldName = fieldPattern.replace('{i}', rowIndex.toString());
           element.setAttribute('data-cd-input-field', finalFieldName);
           console.log(`📊 SUMMARY: Updated field: ${fieldPattern} → ${finalFieldName}`);
