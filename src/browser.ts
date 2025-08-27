@@ -365,8 +365,10 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
         (input as HTMLInputElement).value = '';
       });
       
+      // Hide the template and insert it at the beginning
+      (template as HTMLElement).style.display = 'none';
       container.insertBefore(template, firstRow);
-      debugLog(`✅ Created template from first row for group "${groupName}"`);
+      debugLog(`✅ Created and hid template from first row for group "${groupName}"`);
     } else {
       console.log('🔍 Searching for any elements that might be rows...');
       const possibleRows = container.querySelectorAll('[data*="repeat-row"], [data*="cd-repeat"]');
@@ -378,6 +380,8 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     }
   } else {
     console.log('✅ Template found:', template.tagName, template.className);
+    // Hide the template since it's just for cloning
+    (template as HTMLElement).style.display = 'none';
   }
   
   if (!template) {
@@ -385,13 +389,9 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     return;
   }
 
-  // Keep template visible as it serves as the first functional row
-  console.log('🔍 Template will serve as first functional row (keeping visible)');
-  // Note: Do not hide the template since it's the first data row
-  
-  // Get existing rows
-  const existingRows = Array.from(container.querySelectorAll('[data-cd-repeat-row]'));
-  console.log('🔍 Found existing rows:', existingRows.length);
+  // Get existing rows (excluding template)
+  const existingRows = Array.from(container.querySelectorAll('[data-cd-repeat-row]:not([data-cd-repeat-template])'));
+  console.log('🔍 Found existing data rows:', existingRows.length);
   
   existingRows.forEach((row, index) => {
     console.log(`🔍 Existing row ${index + 1}:`, {
@@ -401,14 +401,36 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     });
   });
   
-  // Ensure at least one row is visible (first non-template row)
-  const nonTemplateRows = existingRows.filter(row => !row.hasAttribute('data-cd-repeat-template'));
-  if (nonTemplateRows.length > 0) {
-    const firstRow = nonTemplateRows[0] as HTMLElement;
-    if (firstRow.style.display === 'none') {
-      console.log('🔍 Making first row visible...');
-      firstRow.style.display = '';
-      firstRow.removeAttribute('aria-hidden');
+  // Ensure exactly one row is visible
+  if (existingRows.length === 0) {
+    console.log('🔍 No existing data rows, creating first row from template...');
+    const firstRow = template.cloneNode(true) as Element;
+    firstRow.removeAttribute('data-cd-repeat-template');
+    (firstRow as HTMLElement).style.display = '';
+    container.appendChild(firstRow);
+    existingRows.push(firstRow);
+  } else {
+    // Make sure only the first row is visible, hide any extra rows
+    existingRows.forEach((row, index) => {
+      const htmlRow = row as HTMLElement;
+      if (index === 0) {
+        htmlRow.style.display = '';
+        htmlRow.removeAttribute('aria-hidden');
+        console.log(`🔍 Keeping first row visible: row ${index + 1}`);
+      } else {
+        htmlRow.style.display = 'none';
+        htmlRow.setAttribute('aria-hidden', 'true');
+        console.log(`🔍 Hiding extra row: row ${index + 1}`);
+      }
+    });
+    
+    // Keep only the first row in the array
+    if (existingRows.length > 1) {
+      console.log(`🔍 Removing ${existingRows.length - 1} extra rows from DOM`);
+      for (let i = 1; i < existingRows.length; i++) {
+        existingRows[i].remove();
+      }
+      existingRows.splice(1); // Keep only first row
     }
   }
   
@@ -447,11 +469,52 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     removeButton.addEventListener('click', handleRemoveRow);
   });
   
+  // Apply input formatting to existing rows
+  applyFormattingToRows(group);
+  
   // Reindex existing rows
   reindexRows(group);
   
   // Update summaries
   updateSummaries(group);
+}
+
+function applyFormattingToRows(group: DynamicRowGroup) {
+  console.log(`🎨 Applying formatting to ${group.rows.length} existing rows in group "${group.groupName}"`);
+  
+  group.rows.forEach((row, index) => {
+    const inputs = row.querySelectorAll('input[data-input]');
+    console.log(`🎨 Row ${index + 1}: found ${inputs.length} inputs with data-input attribute`);
+    
+    inputs.forEach((input) => {
+      const inputElement = input as HTMLInputElement;
+      const attr = inputElement.getAttribute('data-input');
+      
+      if (!attr) return;
+      
+      console.log(`🎨 Applying formatting to input: data-input="${attr}"`);
+      
+      const config = parseFormat(attr);
+      if (config) {
+        const maskitoOptions = createMaskitoOptions(config);
+        if (maskitoOptions) {
+          // Clean up any existing maskito instance first
+          if ((inputElement as any).__maskito) {
+            (inputElement as any).__maskito.destroy();
+          }
+          
+          // Initialize new Maskito instance
+          const maskito = new Maskito(inputElement, maskitoOptions);
+          (inputElement as any).__maskito = maskito;
+          
+          // Dispatch bound event
+          inputElement.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
+          
+          console.log(`✅ Maskito applied to existing input with data-input="${attr}"`);
+        }
+      }
+    });
+  });
 }
 
 function handleAddRow(event: Event) {
