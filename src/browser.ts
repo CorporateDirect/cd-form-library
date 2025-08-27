@@ -717,6 +717,9 @@ function updateSummaries(group: DynamicRowGroup) {
       summaryRow.removeAttribute('data-cd-summary-template');
       summaryRow.setAttribute('data-summary-row', '');
       
+      // Ensure the cloned summary row is visible (template may be hidden)
+      (summaryRow as HTMLElement).style.display = '';
+      
       // Update data-cd-input-field attributes (not data-input-field)
       const fieldElements = summaryRow.querySelectorAll('[data-cd-input-field]');
       console.log(`📊 SUMMARY: Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
