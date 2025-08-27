@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.86';
+const VERSION = '0.1.87';
 
 interface FormatConfig {
   type: 'date' | 'time' | 'percent';
