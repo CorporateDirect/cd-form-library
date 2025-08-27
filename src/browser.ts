@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.96';
+const VERSION = '0.1.97';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -745,9 +745,8 @@ function reindexRows(group: DynamicRowGroup) {
     });
   });
   
-  // Sync summary fields after reindexing
-  console.log(`🔢 DYNAMIC: Syncing summary fields after reindexing`);
-  syncAllSummaryFields();
+  // Summary field syncing will be handled by updateSummaries() call
+  console.log(`🔢 DYNAMIC: Summary fields will be synced by updateSummaries()`);
 }
 
 function updateSummaries(group: DynamicRowGroup) {
