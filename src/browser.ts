@@ -6,6 +6,28 @@ import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maski
 
 const VERSION = '0.1.87';
 
+// Debug mode configuration - can be controlled via URL param or localStorage
+const DEBUG_MODE = (() => {
+  // Check URL parameter first: ?cd-debug=true
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('cd-debug')) {
+    return urlParams.get('cd-debug') === 'true';
+  }
+  
+  // Check localStorage: localStorage.setItem('cd-debug', 'true')
+  try {
+    return localStorage.getItem('cd-debug') === 'true';
+  } catch {
+    return false; // Default to false if localStorage unavailable
+  }
+})();
+
+// Debug logging helpers
+const debugLog = (...args: any[]) => DEBUG_MODE && console.log(...args);
+const debugWarn = (...args: any[]) => DEBUG_MODE && console.warn(...args);
+const infoLog = (...args: any[]) => console.log(...args); // Always show important info
+const errorLog = (...args: any[]) => console.error(...args); // Always show errors
+
 interface FormatConfig {
   type: 'date' | 'time' | 'percent';
   pattern: string;
@@ -228,51 +250,49 @@ interface DynamicRowGroup {
 const activeGroups = new Map<string, DynamicRowGroup>();
 
 function initDynamicRows() {
-  console.log('\n🔄 === DYNAMIC ROWS INITIALIZATION ===');
+  infoLog('🔄 Initializing Dynamic Rows...');
   
   const repeaterGroups = document.querySelectorAll('[data-cd-repeat-group]');
-  console.log('🔍 Found repeat groups:', repeaterGroups.length);
+  debugLog('🔍 Found repeat groups:', repeaterGroups.length);
   
   if (repeaterGroups.length === 0) {
-    console.warn('⚠️ No elements found with data-cd-repeat-group attribute');
+    debugWarn('⚠️ No elements found with data-cd-repeat-group attribute');
     // Check for any elements that might be close
     const possibleGroups = document.querySelectorAll('[data*="repeat"], [data*="cd-repeat"]');
-    console.log('🔍 Found elements with "repeat" in attributes:', possibleGroups.length);
+    debugLog('🔍 Found elements with "repeat" in attributes:', possibleGroups.length);
     if (possibleGroups.length > 0) {
-      console.log('🔍 First possible group:', possibleGroups[0]);
-      console.log('🔍 Its attributes:', Array.from(possibleGroups[0].attributes).map(attr => `${attr.name}="${attr.value}"`));
+      debugLog('🔍 First possible group:', possibleGroups[0]);
+      debugLog('🔍 Its attributes:', Array.from(possibleGroups[0].attributes).map(attr => `${attr.name}="${attr.value}"`));
     }
     return;
   }
   
   repeaterGroups.forEach((container, index) => {
-    console.log(`\n🎯 Processing Group ${index + 1}:`);
-    console.log('🔍 Container element:', container.tagName, container.className);
+    debugLog(`🎯 Processing Group ${index + 1}:`, container.tagName, container.className);
     
     const groupName = container.getAttribute('data-cd-repeat-group');
-    console.log('🔍 Group name:', groupName);
+    debugLog('🔍 Group name:', groupName);
     
     if (!groupName) {
-      console.error('❌ No group name found, skipping');
+      errorLog('❌ No group name found, skipping');
       return;
     }
     
     // Skip if container is hidden (will be reinitialized when shown)
     const computedStyle = window.getComputedStyle(container);
     const isHidden = computedStyle.display === 'none';
-    console.log('🔍 Container display style:', computedStyle.display);
-    console.log('🔍 Is hidden?', isHidden);
+    debugLog('🔍 Container display/hidden:', computedStyle.display, isHidden);
     
     if (isHidden) {
-      console.log('⏭️ Skipping hidden container (will reinitialize when shown)');
+      debugLog('⏭️ Skipping hidden container (will reinitialize when shown)');
       return;
     }
     
-    console.log('✅ Proceeding to initialize group:', groupName);
+    debugLog('✅ Proceeding to initialize group:', groupName);
     initializeDynamicRowGroup(groupName, container);
   });
   
-  console.log('\n🏁 Dynamic rows initialization complete');
+  infoLog('✅ Dynamic rows initialization complete');
 }
 
 function initializeDynamicRowGroup(groupName: string, container: Element) {
@@ -313,81 +333,40 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
   
   const namePattern = container.getAttribute('data-cd-name-pattern') || `${groupName}[{i}][{field}]`;
   
-  console.log(`\n🔧 === INITIALIZING GROUP: "${groupName}" ===`);
-  console.log('🔍 Container:', container.tagName, container.className);
-  console.log('🔍 Template found:', !!template);
-  console.log('🔍 Add button found:', !!addButton);
+  debugLog(`🔧 Initializing group: "${groupName}"`, container.tagName, !!template, !!addButton);
   
-  if (addButton) {
-    console.log('🔍 Add button details:', {
-      tag: addButton.tagName,
-      class: addButton.className,
-      'data-cd-repeat-add': addButton.getAttribute('data-cd-repeat-add'),
-      'data-cd-add-row': addButton.getAttribute('data-cd-add-row'),
-      href: addButton.getAttribute('href')
-    });
-  } else {
-    console.log('❌ Add button search failed. Detailed debugging:');
-    
-    // Check inside container
-    const addRowBtn = container.querySelector('[data-cd-add-row]');
-    const addRepeatBtn = container.querySelector(`[data-cd-repeat-add="${groupName}"]`);
-    console.log('🔍 Inside container [data-cd-add-row]:', !!addRowBtn);
-    console.log('🔍 Inside container [data-cd-repeat-add="' + groupName + '"]:', !!addRepeatBtn);
-    
-    // Check in parent
-    const parentAddRepeat = container.parentElement?.querySelector(`[data-cd-repeat-add="${groupName}"]`);
-    const parentAddRow = container.parentElement?.querySelector('[data-cd-add-row]');
-    console.log('🔍 In parent [data-cd-repeat-add="' + groupName + '"]:', !!parentAddRepeat);
-    console.log('🔍 In parent [data-cd-add-row]:', !!parentAddRow);
-    
-    // Check in document
-    const docAddRepeat = document.querySelector(`[data-cd-repeat-add="${groupName}"]`);
-    console.log('🔍 In document [data-cd-repeat-add="' + groupName + '"]:', !!docAddRepeat);
-    
-    // Check all buttons in document
+  if (!addButton) {
+    debugWarn(`❌ No add button found for group "${groupName}". Checked selectors: [data-cd-add-row], [data-cd-repeat-add="${groupName}"]`);
     const allAddButtons = document.querySelectorAll('[data-cd-add-row], [data-cd-repeat-add]');
-    console.log('🔍 Total add buttons in document:', allAddButtons.length);
-    
-    if (allAddButtons.length > 0) {
-      console.log('🔍 All add buttons found:');
+    debugLog('🔍 Total add buttons in document:', allAddButtons.length);
+    if (DEBUG_MODE && allAddButtons.length > 0) {
       allAddButtons.forEach((btn, i) => {
-        console.log(`  ${i + 1}. ${btn.tagName} - data-cd-repeat-add: "${btn.getAttribute('data-cd-repeat-add')}" - data-cd-add-row: "${btn.getAttribute('data-cd-add-row')}" - text: "${btn.textContent?.trim()}"`);
+        debugLog(`  ${i + 1}. ${btn.tagName} - data-cd-repeat-add: "${btn.getAttribute('data-cd-repeat-add')}" - data-cd-add-row: "${btn.getAttribute('data-cd-add-row')}"`);
       });
     }
-    
-    // Show container parent structure for debugging
-    console.log('🔍 Container parent structure:');
-    console.log('  Container:', container.tagName, container.className);
-    console.log('  Parent:', container.parentElement?.tagName, container.parentElement?.className);
-    console.log('  Grandparent:', container.parentElement?.parentElement?.tagName, container.parentElement?.parentElement?.className);
   }
   
   // If no template exists, create one from the first existing row
   if (!template) {
-    console.log('🔍 No template found, searching for existing rows...');
+    debugLog('🔍 No template found, searching for existing rows...');
     const firstRow = container.querySelector('[data-cd-repeat-row]');
-    console.log('🔍 First existing row found:', !!firstRow);
+    debugLog('🔍 First existing row found:', !!firstRow);
     
     if (firstRow) {
-      console.log('🔍 First row details:', {
-        tag: firstRow.tagName,
-        class: firstRow.className,
-        'data-cd-repeat-row': firstRow.getAttribute('data-cd-repeat-row')
-      });
+      debugLog('🔍 First row details:', firstRow.tagName, firstRow.className);
       
       template = firstRow.cloneNode(true) as Element;
       template.setAttribute('data-cd-repeat-template', '');
       
       // Clear input values in template
       const inputs = template.querySelectorAll('input, select, textarea');
-      console.log('🔍 Clearing', inputs.length, 'input values in template');
+      debugLog('🔍 Clearing', inputs.length, 'input values in template');
       inputs.forEach((input) => {
         (input as HTMLInputElement).value = '';
       });
       
       container.insertBefore(template, firstRow);
-      console.log(`✅ Created template from first row for group "${groupName}"`);
+      debugLog(`✅ Created template from first row for group "${groupName}"`);
     } else {
       console.log('🔍 Searching for any elements that might be rows...');
       const possibleRows = container.querySelectorAll('[data*="repeat-row"], [data*="cd-repeat"]');
