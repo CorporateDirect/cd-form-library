@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.106';
+const VERSION = '0.1.107';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -1077,41 +1077,51 @@ document.addEventListener('form-wrapper-visibility:shown', (event) => {
   });
 });
 
-// Summary Section Visibility (Tryformly Integration)
-function initSummaryVisibility() {
-  infoLog('🔍 Initializing Summary Section Visibility...');
+// Branch-Based Summary Visibility (Tryformly Integration)
+// This system detects when branch options are selected and persists the selection
+// to show appropriate summary sections throughout the form flow
+
+interface BranchSelection {
+  [branchGroup: string]: string;
+}
+
+// Store selected branches in memory
+const selectedBranches: BranchSelection = {};
+
+function initBranchVisibility() {
+  infoLog('🌿 Initializing Branch-Based Summary Visibility...');
   
   // First, hide all elements with data-cd-default="hidden"
   const hiddenByDefault = document.querySelectorAll('[data-cd-default="hidden"]');
-  debugLog(`🔍 Found ${hiddenByDefault.length} elements with data-cd-default="hidden"`);
+  debugLog(`🌿 Found ${hiddenByDefault.length} elements with data-cd-default="hidden"`);
   
   hiddenByDefault.forEach((element, index) => {
     const htmlElement = element as HTMLElement;
     htmlElement.style.display = 'none';
     htmlElement.setAttribute('aria-hidden', 'true');
-    debugLog(`🔍 Hidden element ${index + 1}: ${htmlElement.tagName}.${htmlElement.className}`);
+    debugLog(`🌿 Hidden element ${index + 1}: ${htmlElement.tagName}.${htmlElement.className}`);
   });
   
-  // Set up observer to watch for step wrapper visibility changes
+  // Set up observer to watch for branch wrapper visibility changes
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
         const target = mutation.target as HTMLElement;
         
-        // Check if this is a step wrapper with data-answer
-        if (target.matches('.step_wrapper[data-answer]')) {
-          handleStepVisibilityChange();
+        // Check if this is a branch wrapper with data-cd-branch
+        if (target.matches('.step_wrapper[data-cd-branch]')) {
+          handleBranchVisibilityChange();
         }
       }
     });
     
-    // Also check for added/removed nodes that might be step wrappers
+    // Also check for added/removed nodes that might be branch wrappers
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (node.nodeType === 1) { // Element node
           const element = node as HTMLElement;
-          if (element.matches && element.matches('.step_wrapper[data-answer]')) {
-            handleStepVisibilityChange();
+          if (element.matches && element.matches('.step_wrapper[data-cd-branch]')) {
+            handleBranchVisibilityChange();
           }
         }
       });
@@ -1126,53 +1136,60 @@ function initSummaryVisibility() {
     subtree: true
   });
   
-  // Initial check for visible step wrappers
-  handleStepVisibilityChange();
+  // Initial check for visible branch wrappers
+  handleBranchVisibilityChange();
   
-  infoLog('✅ Summary section visibility initialization complete');
+  // Update summary visibility based on any existing branch selections
+  updateAllSummaryVisibility();
+  
+  infoLog('✅ Branch-based summary visibility initialization complete');
 }
 
-function handleStepVisibilityChange() {
-  debugLog('🔄 SUMMARY VISIBILITY: Checking step wrapper visibility...');
+function handleBranchVisibilityChange() {
+  debugLog('🌿 BRANCH: Checking branch wrapper visibility...');
   
-  // Find currently visible step wrapper(s) with data-answer
-  const allStepWrappers = document.querySelectorAll('.step_wrapper[data-answer]');
-  let activeAnswerValue: string | null = null;
+  // Find all branch wrappers and check which ones are visible
+  const allBranchWrappers = document.querySelectorAll('.step_wrapper[data-cd-branch]');
   
-  for (const stepWrapper of allStepWrappers) {
-    const htmlElement = stepWrapper as HTMLElement;
+  allBranchWrappers.forEach((branchWrapper) => {
+    const htmlElement = branchWrapper as HTMLElement;
     const computedStyle = window.getComputedStyle(htmlElement);
     const isVisible = computedStyle.display !== 'none' && htmlElement.offsetParent !== null;
     
     if (isVisible) {
-      activeAnswerValue = stepWrapper.getAttribute('data-answer');
-      debugLog(`🔄 SUMMARY VISIBILITY: Found visible step with data-answer="${activeAnswerValue}"`);
-      break;
+      const branchGroup = branchWrapper.getAttribute('data-cd-branch');
+      const branchValue = branchWrapper.getAttribute('data-answer');
+      
+      if (branchGroup && branchValue) {
+        // Record this branch selection
+        selectedBranches[branchGroup] = branchValue;
+        debugLog(`🌿 BRANCH: Selected ${branchGroup} = ${branchValue}`);
+        
+        // Update summary visibility immediately
+        updateSummaryVisibilityForBranch(branchGroup, branchValue);
+      }
     }
-  }
-  
-  if (!activeAnswerValue) {
-    debugLog('🔄 SUMMARY VISIBILITY: No visible step wrapper found');
-    return;
-  }
-  
-  // Show/hide summary sections based on the active answer value
-  updateSummaryVisibility(activeAnswerValue);
+  });
 }
 
-function updateSummaryVisibility(activeValue: string) {
-  debugLog(`🔄 SUMMARY VISIBILITY: Updating visibility for active value: "${activeValue}"`);
+function updateSummaryVisibilityForBranch(branchGroup: string, branchValue: string) {
+  debugLog(`🌿 BRANCH: Updating summary visibility for ${branchGroup}:${branchValue}`);
   
-  // Find all summary sections with data-cd-summary-section attribute
-  const summaryElements = document.querySelectorAll('[data-cd-summary-section]');
-  debugLog(`🔄 SUMMARY VISIBILITY: Found ${summaryElements.length} summary sections`);
+  // Find all summary sections for this branch group
+  const summaryElements = document.querySelectorAll(`[data-cd-summary-branch^="${branchGroup}:"]`);
+  debugLog(`🌿 BRANCH: Found ${summaryElements.length} summary sections for branch group "${branchGroup}"`);
   
   summaryElements.forEach((element, index) => {
-    const sectionValue = element.getAttribute('data-cd-summary-section');
+    const summaryBranchAttr = element.getAttribute('data-cd-summary-branch');
     const htmlElement = element as HTMLElement;
-    const shouldShow = sectionValue === activeValue;
     
-    debugLog(`🔄 SUMMARY VISIBILITY: Section ${index + 1} (${sectionValue}): ${shouldShow ? 'SHOW' : 'HIDE'}`);
+    if (!summaryBranchAttr) return;
+    
+    // Parse "branchGroup:branchValue" format
+    const [summaryGroup, summaryValue] = summaryBranchAttr.split(':');
+    const shouldShow = summaryGroup === branchGroup && summaryValue === branchValue;
+    
+    debugLog(`🌿 BRANCH: Section ${index + 1} (${summaryBranchAttr}): ${shouldShow ? 'SHOW' : 'HIDE'}`);
     
     if (shouldShow) {
       // Show the section
@@ -1186,13 +1203,13 @@ function updateSummaryVisibility(activeValue: string) {
       });
       
       // Dispatch shown event
-      element.dispatchEvent(new CustomEvent('cd:summary-section:shown', { 
+      element.dispatchEvent(new CustomEvent('cd:branch-summary:shown', { 
         bubbles: true, 
-        detail: { sectionValue, activeValue } 
+        detail: { branchGroup, branchValue, summaryBranchAttr } 
       }));
       
-    } else {
-      // Hide the section
+    } else if (summaryGroup === branchGroup) {
+      // Hide sections from the same branch group that don't match
       htmlElement.style.display = 'none';
       htmlElement.setAttribute('aria-hidden', 'true');
       
@@ -1203,14 +1220,21 @@ function updateSummaryVisibility(activeValue: string) {
       });
       
       // Dispatch hidden event
-      element.dispatchEvent(new CustomEvent('cd:summary-section:hidden', { 
+      element.dispatchEvent(new CustomEvent('cd:branch-summary:hidden', { 
         bubbles: true, 
-        detail: { sectionValue, activeValue } 
+        detail: { branchGroup, branchValue, summaryBranchAttr } 
       }));
     }
   });
+}
+
+function updateAllSummaryVisibility() {
+  debugLog('🌿 BRANCH: Updating all summary visibility based on selected branches');
   
-  debugLog(`✅ SUMMARY VISIBILITY: Updated visibility for ${summaryElements.length} summary sections`);
+  // Update summary visibility for all selected branches
+  Object.entries(selectedBranches).forEach(([branchGroup, branchValue]) => {
+    updateSummaryVisibilityForBranch(branchGroup, branchValue);
+  });
 }
 
 function initializeLibrary() {
@@ -1234,8 +1258,8 @@ function initializeLibrary() {
       // Initialize dynamic rows for repeatable sections
       initDynamicRows();
       
-      // Initialize summary section visibility for Tryformly integration
-      initSummaryVisibility();
+      // Initialize branch-based summary visibility
+      initBranchVisibility();
       
       // Summary field synchronization is handled within initDynamicRows()
       
