@@ -1,6 +1,6 @@
 {
   "name": "cd-form-library",
-  "version": "0.1.105",
+  "version": "0.1.106",
   "description": "Webflow-native form enhancement library using Custom Attributes",
   "main": "dist/browser.js",
   "unpkg": "dist/browser.js",
