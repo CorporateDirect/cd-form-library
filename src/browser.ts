@@ -922,6 +922,13 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   // Get and set the current value
   let displayValue = '';
   
+  // Debug: Log the actual input value
+  if (sourceElement.tagName.toLowerCase() === 'input' || sourceElement.tagName.toLowerCase() === 'textarea') {
+    console.log(`🔍 SUMMARY DEBUG: Input element value: "${(sourceElement as HTMLInputElement).value}"`);
+    console.log(`🔍 SUMMARY DEBUG: Input element name: "${(sourceElement as HTMLInputElement).name}"`);
+    console.log(`🔍 SUMMARY DEBUG: Input element id: "${(sourceElement as HTMLInputElement).id}"`);
+  }
+  
   if (sourceElement.type === 'radio') {
     // For radio buttons, find the checked one
     const checkedRadio = document.querySelector(`input[name="${fieldName}"]:checked`) as HTMLInputElement;
