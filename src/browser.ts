@@ -657,11 +657,12 @@ function addNewRow(group: DynamicRowGroup) {
     }
   });
   
-  // Ensure the new row is visible
+  // Ensure the new row is visible by adding the visible class
   const htmlRow = newRow as HTMLElement;
-  htmlRow.style.display = '';
+  console.log(`➕ Before visibility fix - classes: ${htmlRow.className}, computed display: ${window.getComputedStyle(htmlRow).display}`);
+  htmlRow.classList.add('visible-row');
   htmlRow.removeAttribute('aria-hidden');
-  console.log(`➕ New row visibility: display="${htmlRow.style.display}"`);
+  console.log(`➕ After visibility fix - classes: ${htmlRow.className}, computed display: ${window.getComputedStyle(htmlRow).display}`);
   
   // Append to the end of the container (after the initial row)
   group.container.appendChild(newRow);
@@ -1082,5 +1083,6 @@ if (document.readyState === 'loading') {
 // Global exposure for browser environments
 (window as any).CDFormLibrary = {
   version: VERSION,
-  initialize: initializeLibrary
+  initialize: initializeLibrary,
+  dynamicRows: dynamicRows
 };
