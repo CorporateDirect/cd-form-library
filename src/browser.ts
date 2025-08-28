@@ -922,11 +922,24 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   // Get and set the current value
   let displayValue = '';
   
-  // Debug: Log the actual input value
+  // Debug: Log the actual input value and element details
   if (sourceElement.tagName.toLowerCase() === 'input' || sourceElement.tagName.toLowerCase() === 'textarea') {
-    console.log(`🔍 SUMMARY DEBUG: Input element value: "${(sourceElement as HTMLInputElement).value}"`);
-    console.log(`🔍 SUMMARY DEBUG: Input element name: "${(sourceElement as HTMLInputElement).name}"`);
-    console.log(`🔍 SUMMARY DEBUG: Input element id: "${(sourceElement as HTMLInputElement).id}"`);
+    const inputEl = sourceElement as HTMLInputElement;
+    console.log(`🔍 SUMMARY DEBUG: Input element value: "${inputEl.value}"`);
+    console.log(`🔍 SUMMARY DEBUG: Input element name: "${inputEl.name}"`);
+    console.log(`🔍 SUMMARY DEBUG: Input element id: "${inputEl.id}"`);
+    console.log(`🔍 SUMMARY DEBUG: Element visibility: display="${inputEl.style.display}", parent visible="${inputEl.offsetParent !== null}"`);
+    console.log(`🔍 SUMMARY DEBUG: Element classes: "${inputEl.className}"`);
+    
+    // Check if there are multiple elements with the same name
+    const allWithSameName = document.querySelectorAll(`[name="${fieldName}"]`);
+    console.log(`🔍 SUMMARY DEBUG: Found ${allWithSameName.length} elements with name="${fieldName}"`);
+    if (allWithSameName.length > 1) {
+      allWithSameName.forEach((el, idx) => {
+        const htmlEl = el as HTMLElement;
+        console.log(`🔍 SUMMARY DEBUG: Element ${idx + 1}: value="${(el as HTMLInputElement).value}", visible="${htmlEl.offsetParent !== null}", classes="${htmlEl.className}"`);
+      });
+    }
   }
   
   if (sourceElement.type === 'radio') {
