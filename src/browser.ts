@@ -883,8 +883,11 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
     }
   }
   
-  // Try different selectors to find the source element
+  // Try different selectors to find the source element, prioritizing visible elements
   const selectors = [
+    `input[name="${fieldName}"]:not([data-cd-repeat-template])`,
+    `select[name="${fieldName}"]:not([data-cd-repeat-template])`, 
+    `textarea[name="${fieldName}"]:not([data-cd-repeat-template])`,
     `input[name="${fieldName}"]`,
     `select[name="${fieldName}"]`, 
     `textarea[name="${fieldName}"]`,
@@ -894,9 +897,22 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   ];
   
   for (const selector of selectors) {
-    sourceElement = document.querySelector(selector);
-    if (sourceElement) {
-      console.log(`🔍 Found source using selector: ${selector}`);
+    const elements = document.querySelectorAll(selector);
+    // Find the first visible element
+    for (const element of elements) {
+      const htmlEl = element as HTMLElement;
+      if (htmlEl.offsetParent !== null) { // Element is visible
+        sourceElement = element;
+        console.log(`🔍 Found visible source using selector: ${selector}`);
+        break;
+      }
+    }
+    if (sourceElement) break;
+    
+    // If no visible elements found, try the first element as fallback
+    if (elements.length > 0 && !sourceElement) {
+      sourceElement = elements[0];
+      console.log(`🔍 Found source using selector (fallback): ${selector}`);
       break;
     }
   }
