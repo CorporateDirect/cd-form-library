@@ -76,8 +76,7 @@ After committing and pushing to GitHub, **always** follow these steps to make th
 
 1. **Update Version Numbers**
    - Increment version in `package.json`
-   - Update version constant in `src/index.ts`
-   - Update version in `dist/index.js` (if manually edited)
+   - Update version constant in `src/browser.ts`
 
 2. **Build & Publish to NPM**
    ```bash
@@ -93,7 +92,7 @@ After committing and pushing to GitHub, **always** follow these steps to make th
 4. **Generate UNPKG Script**
    After successful npm publish, provide the UNPKG script:
    ```html
-   <script src="https://unpkg.com/cd-form-library@x.y.z/dist/index.js"></script>
+   <script src="https://unpkg.com/cd-form-library@x.y.z/dist/browser.js"></script>
    ```
 
 ### Version Management
@@ -105,7 +104,7 @@ After committing and pushing to GitHub, **always** follow these steps to make th
 ### UNPKG Availability
 - UNPKG serves from npm registry, not GitHub
 - Allow 1-2 minutes for UNPKG cache to update after npm publish
-- Verify availability: `curl -I https://unpkg.com/cd-form-library@x.y.z/dist/index.js`
+- Verify availability: `curl -I https://unpkg.com/cd-form-library@x.y.z/dist/browser.js`
 
 ### Complete Agent Workflow Example
 ```bash
@@ -120,15 +119,15 @@ npm run build
 npm publish
 
 # 3. Provide UNPKG script
-echo "UNPKG Script: <script src=\"https://unpkg.com/cd-form-library@x.y.z/dist/index.js\"></script>"
+echo "UNPKG Script: <script src=\"https://unpkg.com/cd-form-library@x.y.z/dist/browser.js\"></script>"
 ```
 
 ### Acceptance Checklist (NPM & CDN)
-- [ ] Version updated in package.json, src/index.ts, and dist/index.js
+- [ ] Version updated in package.json and src/browser.ts
 - [ ] Code built successfully with `npm run build`
 - [ ] Published to npm with `npm publish`
 - [ ] NPM version verified with `npm view cd-form-library version`
-- [ ] UNPKG script provided with correct version number
+- [ ] UNPKG script provided with correct version number using dist/browser.js
 - [ ] UNPKG URL accessibility confirmed
 
  ### DO NOT INCLUDE CLAUDE CODE ATTRIBUTION WHEN COMMITTING!
