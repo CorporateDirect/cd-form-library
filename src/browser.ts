@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.98';
+const VERSION = '0.1.106';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -1077,6 +1077,142 @@ document.addEventListener('form-wrapper-visibility:shown', (event) => {
   });
 });
 
+// Summary Section Visibility (Tryformly Integration)
+function initSummaryVisibility() {
+  infoLog('🔍 Initializing Summary Section Visibility...');
+  
+  // First, hide all elements with data-cd-default="hidden"
+  const hiddenByDefault = document.querySelectorAll('[data-cd-default="hidden"]');
+  debugLog(`🔍 Found ${hiddenByDefault.length} elements with data-cd-default="hidden"`);
+  
+  hiddenByDefault.forEach((element, index) => {
+    const htmlElement = element as HTMLElement;
+    htmlElement.style.display = 'none';
+    htmlElement.setAttribute('aria-hidden', 'true');
+    debugLog(`🔍 Hidden element ${index + 1}: ${htmlElement.tagName}.${htmlElement.className}`);
+  });
+  
+  // Set up observer to watch for step wrapper visibility changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+        const target = mutation.target as HTMLElement;
+        
+        // Check if this is a step wrapper with data-answer
+        if (target.matches('.step_wrapper[data-answer]')) {
+          handleStepVisibilityChange();
+        }
+      }
+    });
+    
+    // Also check for added/removed nodes that might be step wrappers
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) { // Element node
+          const element = node as HTMLElement;
+          if (element.matches && element.matches('.step_wrapper[data-answer]')) {
+            handleStepVisibilityChange();
+          }
+        }
+      });
+    });
+  });
+  
+  // Start observing the document for changes
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['style'],
+    childList: true,
+    subtree: true
+  });
+  
+  // Initial check for visible step wrappers
+  handleStepVisibilityChange();
+  
+  infoLog('✅ Summary section visibility initialization complete');
+}
+
+function handleStepVisibilityChange() {
+  debugLog('🔄 SUMMARY VISIBILITY: Checking step wrapper visibility...');
+  
+  // Find currently visible step wrapper(s) with data-answer
+  const allStepWrappers = document.querySelectorAll('.step_wrapper[data-answer]');
+  let activeAnswerValue: string | null = null;
+  
+  for (const stepWrapper of allStepWrappers) {
+    const htmlElement = stepWrapper as HTMLElement;
+    const computedStyle = window.getComputedStyle(htmlElement);
+    const isVisible = computedStyle.display !== 'none' && htmlElement.offsetParent !== null;
+    
+    if (isVisible) {
+      activeAnswerValue = stepWrapper.getAttribute('data-answer');
+      debugLog(`🔄 SUMMARY VISIBILITY: Found visible step with data-answer="${activeAnswerValue}"`);
+      break;
+    }
+  }
+  
+  if (!activeAnswerValue) {
+    debugLog('🔄 SUMMARY VISIBILITY: No visible step wrapper found');
+    return;
+  }
+  
+  // Show/hide summary sections based on the active answer value
+  updateSummaryVisibility(activeAnswerValue);
+}
+
+function updateSummaryVisibility(activeValue: string) {
+  debugLog(`🔄 SUMMARY VISIBILITY: Updating visibility for active value: "${activeValue}"`);
+  
+  // Find all summary sections with data-cd-summary-section attribute
+  const summaryElements = document.querySelectorAll('[data-cd-summary-section]');
+  debugLog(`🔄 SUMMARY VISIBILITY: Found ${summaryElements.length} summary sections`);
+  
+  summaryElements.forEach((element, index) => {
+    const sectionValue = element.getAttribute('data-cd-summary-section');
+    const htmlElement = element as HTMLElement;
+    const shouldShow = sectionValue === activeValue;
+    
+    debugLog(`🔄 SUMMARY VISIBILITY: Section ${index + 1} (${sectionValue}): ${shouldShow ? 'SHOW' : 'HIDE'}`);
+    
+    if (shouldShow) {
+      // Show the section
+      htmlElement.style.display = '';
+      htmlElement.removeAttribute('aria-hidden');
+      
+      // Make focusable elements accessible again
+      const focusableElements = htmlElement.querySelectorAll('input, select, textarea, button, [tabindex]');
+      focusableElements.forEach((el) => {
+        (el as HTMLElement).removeAttribute('tabindex');
+      });
+      
+      // Dispatch shown event
+      element.dispatchEvent(new CustomEvent('cd:summary-section:shown', { 
+        bubbles: true, 
+        detail: { sectionValue, activeValue } 
+      }));
+      
+    } else {
+      // Hide the section
+      htmlElement.style.display = 'none';
+      htmlElement.setAttribute('aria-hidden', 'true');
+      
+      // Remove from tab order
+      const focusableElements = htmlElement.querySelectorAll('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+      focusableElements.forEach((el) => {
+        (el as HTMLElement).setAttribute('tabindex', '-1');
+      });
+      
+      // Dispatch hidden event
+      element.dispatchEvent(new CustomEvent('cd:summary-section:hidden', { 
+        bubbles: true, 
+        detail: { sectionValue, activeValue } 
+      }));
+    }
+  });
+  
+  debugLog(`✅ SUMMARY VISIBILITY: Updated visibility for ${summaryElements.length} summary sections`);
+}
+
 function initializeLibrary() {
   
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
@@ -1097,6 +1233,9 @@ function initializeLibrary() {
       
       // Initialize dynamic rows for repeatable sections
       initDynamicRows();
+      
+      // Initialize summary section visibility for Tryformly integration
+      initSummaryVisibility();
       
       // Summary field synchronization is handled within initDynamicRows()
       
