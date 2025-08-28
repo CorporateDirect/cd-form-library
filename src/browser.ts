@@ -657,12 +657,13 @@ function addNewRow(group: DynamicRowGroup) {
     }
   });
   
-  // Ensure the new row is visible by adding the visible class
+  // Ensure the new row is visible by adding the visible class and removing inline styles
   const htmlRow = newRow as HTMLElement;
-  console.log(`➕ Before visibility fix - classes: ${htmlRow.className}, computed display: ${window.getComputedStyle(htmlRow).display}`);
+  console.log(`➕ Before visibility fix - classes: ${htmlRow.className}, inline style: ${htmlRow.style.display}`);
   htmlRow.classList.add('visible-row');
+  htmlRow.style.display = ''; // Remove any inline display style
   htmlRow.removeAttribute('aria-hidden');
-  console.log(`➕ After visibility fix - classes: ${htmlRow.className}, computed display: ${window.getComputedStyle(htmlRow).display}`);
+  console.log(`➕ After visibility fix - classes: ${htmlRow.className}, inline style: ${htmlRow.style.display}`);
   
   // Append to the end of the container (after the initial row)
   group.container.appendChild(newRow);
