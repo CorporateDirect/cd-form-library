@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.107';
+const VERSION = '0.1.108';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -1091,15 +1091,15 @@ const selectedBranches: BranchSelection = {};
 function initBranchVisibility() {
   infoLog('🌿 Initializing Branch-Based Summary Visibility...');
   
-  // First, hide all elements with data-cd-default="hidden"
-  const hiddenByDefault = document.querySelectorAll('[data-cd-default="hidden"]');
-  debugLog(`🌿 Found ${hiddenByDefault.length} elements with data-cd-default="hidden"`);
+  // Hide all elements with data-cd-summary-branch by default
+  const branchSummaryElements = document.querySelectorAll('[data-cd-summary-branch]');
+  debugLog(`🌿 Found ${branchSummaryElements.length} branch summary elements to hide by default`);
   
-  hiddenByDefault.forEach((element, index) => {
+  branchSummaryElements.forEach((element, index) => {
     const htmlElement = element as HTMLElement;
     htmlElement.style.display = 'none';
     htmlElement.setAttribute('aria-hidden', 'true');
-    debugLog(`🌿 Hidden element ${index + 1}: ${htmlElement.tagName}.${htmlElement.className}`);
+    debugLog(`🌿 Hidden branch summary ${index + 1}: ${htmlElement.tagName}.${htmlElement.className}`);
   });
   
   // Set up observer to watch for branch wrapper visibility changes
