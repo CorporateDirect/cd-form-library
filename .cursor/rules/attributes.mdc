@@ -1,0 +1,7 @@
+---
+description: build scalable, versitile attributes for manipulating webflow elements using data-attributes. 
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
