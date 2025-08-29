@@ -686,6 +686,13 @@ function addNewRow(group: DynamicRowGroup) {
   
   console.log(`➕ Row added successfully, new total: ${group.rows.length} rows`);
   
+  // Check if we've reached the maximum of 5 total rows and disable the add button
+  if (group.rows.length >= 5 && group.addButton) {
+    (group.addButton as HTMLElement).style.opacity = '0.5';
+    (group.addButton as HTMLElement).style.pointerEvents = 'none';
+    console.log(`🚫 Add button disabled for group "${group.groupName}" after reaching maximum (${group.rows.length} rows)`);
+  }
+  
   // Dispatch event
   newRow.dispatchEvent(new CustomEvent('cd:row:added', {
     bubbles: true,
