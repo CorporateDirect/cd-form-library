@@ -72,9 +72,55 @@ function createMaskitoOptions(config: FormatConfig) {
     });
   } else if (config.type === 'time') {
     if (config.pattern === 'h:mm') {
-      // Simple flexible time format - just allow 1-2 digits for hour
+      // Flexible time format with auto-formatting
       return {
         mask: /^\d{1,2}:\d{2}$/,
+        preprocessors: [
+          ({ elementState, data }) => {
+            // Auto-format numeric input to time format
+            if (/^\d+$/.test(data)) {
+              const currentValue = elementState.value.replace(/\D/g, '');
+              const allDigits = currentValue + data;
+              
+              if (allDigits.length === 1) {
+                // Single digit: "1" -> "1:"
+                return { elementState, data: allDigits + ':' };
+              } else if (allDigits.length === 2) {
+                const hour = parseInt(allDigits);
+                if (hour > 23) {
+                  // Invalid hour, treat as H:M format
+                  return { elementState, data: allDigits[0] + ':' + allDigits[1] };
+                } else {
+                  // Valid hour: "12" -> "12:"
+                  return { elementState, data: allDigits + ':' };
+                }
+              } else if (allDigits.length === 3) {
+                // Three digits: "115" -> "1:15"
+                return { elementState, data: allDigits[0] + ':' + allDigits.slice(1) };
+              } else if (allDigits.length === 4) {
+                // Four digits: "1230" -> "12:30"
+                return { elementState, data: allDigits.slice(0, 2) + ':' + allDigits.slice(2) };
+              }
+            }
+            return { elementState, data };
+          }
+        ],
+        postprocessors: [
+          ({ value, selection }) => {
+            // Validate time ranges
+            const match = value.match(/^(\d{1,2}):(\d{2})$/);
+            if (match) {
+              const hour = parseInt(match[1]);
+              const minute = parseInt(match[2]);
+              
+              if (hour > 23 || minute > 59) {
+                // Invalid time - remove last character
+                return { value: value.slice(0, -1), selection };
+              }
+            }
+            return { value, selection };
+          }
+        ]
       };
     } else {
       // Traditional strict 2-digit hour format  
