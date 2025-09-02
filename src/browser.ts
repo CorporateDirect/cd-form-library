@@ -72,12 +72,12 @@ function createMaskitoOptions(config: FormatConfig) {
     });
   } else if (config.type === 'time') {
     if (config.pattern === 'h:mm') {
-      // Flexible single-digit hour format (1:30, 12:45)
-      return maskitoTimeOptionsGenerator({
-        mode: 'H:MM AA'
-      });
+      // Simple flexible time format - just allow 1-2 digits for hour
+      return {
+        mask: /^\d{1,2}:\d{2}$/,
+      };
     } else {
-      // Traditional strict 2-digit hour format (01:30, 12:45)  
+      // Traditional strict 2-digit hour format  
       return maskitoTimeOptionsGenerator({
         mode: 'HH:MM AA'
       });
