@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.110';
+const VERSION = '0.1.111';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
