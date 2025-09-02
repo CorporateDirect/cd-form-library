@@ -43,10 +43,18 @@ Add input masks for dates, times, and percentages using the `data-input` attribu
 ### Time Formatting
 
 ```html
-<!-- 12-hour format with AM/PM -->
+<!-- Flexible single-digit hour format (easier for users) -->
+<input type="text" data-input="time:h:mm am" placeholder="H:MM AM">
+<input type="text" data-input="time:h:mm pm" placeholder="H:MM PM">
+
+<!-- Traditional strict 2-digit hour format -->
 <input type="text" data-input="time:hhmm am" placeholder="HH:MM AM">
 <input type="text" data-input="time:hhmm pm" placeholder="HH:MM PM">
 ```
+
+**User Experience:**
+- `time:h:mm` - Users can type "1:30 PM" (single digit hours accepted)
+- `time:hhmm` - Users must type "01:30 PM" (requires leading zero)
 
 ### Percentage Formatting
 

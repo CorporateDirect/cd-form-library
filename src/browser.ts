@@ -34,6 +34,7 @@ interface FormatConfig {
   defaultMeridiem?: 'AM' | 'PM';
 }
 
+
 function parseFormat(attr: string): FormatConfig | null {
   const normalized = attr.toLowerCase().trim().replace(/\s+/g, ' ');
   
@@ -48,6 +49,12 @@ function parseFormat(attr: string): FormatConfig | null {
   }
   if (normalized === 'time:hhmm pm') {
     return { type: 'time', pattern: 'hhmm', defaultMeridiem: 'PM' };
+  }
+  if (normalized === 'time:h:mm am' || normalized === 'time:h:mm') {
+    return { type: 'time', pattern: 'h:mm', defaultMeridiem: 'AM' };
+  }
+  if (normalized === 'time:h:mm pm') {
+    return { type: 'time', pattern: 'h:mm', defaultMeridiem: 'PM' };
   }
   if (normalized === 'percent') {
     return { type: 'percent', pattern: 'percent' };
@@ -64,9 +71,17 @@ function createMaskitoOptions(config: FormatConfig) {
       separator: '/'
     });
   } else if (config.type === 'time') {
-    return maskitoTimeOptionsGenerator({
-      mode: 'HH:MM AA'
-    });
+    if (config.pattern === 'h:mm') {
+      // Flexible single-digit hour format (1:30, 12:45)
+      return maskitoTimeOptionsGenerator({
+        mode: 'H:MM AA'
+      });
+    } else {
+      // Traditional strict 2-digit hour format (01:30, 12:45)  
+      return maskitoTimeOptionsGenerator({
+        mode: 'HH:MM AA'
+      });
+    }
   } else if (config.type === 'percent') {
     // Simple percent mask: numbers + optional decimal + %
     return {
@@ -1244,6 +1259,7 @@ function updateAllSummaryVisibility() {
   });
 }
 
+
 function initializeLibrary() {
   
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
@@ -1291,5 +1307,5 @@ if (document.readyState === 'loading') {
 (window as any).CDFormLibrary = {
   version: VERSION,
   initialize: initializeLibrary,
-  dynamicRows: dynamicRows
+  dynamicRows: activeGroups
 };
