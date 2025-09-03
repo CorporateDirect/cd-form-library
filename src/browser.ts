@@ -72,56 +72,102 @@ function createMaskitoOptions(config: FormatConfig) {
     });
   } else if (config.type === 'time') {
     if (config.pattern === 'h:mm') {
-      // Flexible time format with auto-formatting
-      return {
-        mask: /^\d{1,2}:\d{2}$/,
-        preprocessors: [
-          ({ elementState, data }) => {
-            // Auto-format numeric input to time format
-            if (/^\d+$/.test(data)) {
-              const currentValue = elementState.value.replace(/\D/g, '');
-              const allDigits = currentValue + data;
+      // Check if this is AM/PM format
+      const hasAmPm = config.defaultMeridiem !== undefined;
+      
+      if (hasAmPm) {
+        // 12-hour format with AM/PM
+        return {
+          mask: [/\d/, /\d?/, ':', /\d/, /\d/, ' ', /[APap]/, /[Mm]/],
+          preprocessors: [
+            ({ elementState, data }) => {
+              // Auto-format time input
+              const currentDigits = elementState.value.replace(/[^\d]/g, '');
               
-              if (allDigits.length === 1) {
-                // Single digit: "1" -> "1:"
-                return { elementState, data: allDigits + ':' };
-              } else if (allDigits.length === 2) {
-                const hour = parseInt(allDigits);
-                if (hour > 23) {
-                  // Invalid hour, treat as H:M format
-                  return { elementState, data: allDigits[0] + ':' + allDigits[1] };
-                } else {
-                  // Valid hour: "12" -> "12:"
+              if (/^\d+$/.test(data)) {
+                const allDigits = currentDigits + data;
+                
+                if (allDigits.length === 1) {
+                  // "1" -> "1:"
                   return { elementState, data: allDigits + ':' };
+                } else if (allDigits.length === 2) {
+                  const hour = parseInt(allDigits);
+                  if (hour > 12) {
+                    // "15" -> "1:5"  
+                    return { elementState, data: allDigits[0] + ':' + allDigits[1] };
+                  } else {
+                    // "12" -> "12:"
+                    return { elementState, data: allDigits + ':' };
+                  }
+                } else if (allDigits.length === 3) {
+                  // "115" -> "1:15"
+                  return { elementState, data: allDigits[0] + ':' + allDigits.slice(1) + ' ' + config.defaultMeridiem };
+                } else if (allDigits.length === 4) {
+                  // "1230" -> "12:30" 
+                  return { elementState, data: allDigits.slice(0, 2) + ':' + allDigits.slice(2) + ' ' + config.defaultMeridiem };
                 }
-              } else if (allDigits.length === 3) {
-                // Three digits: "115" -> "1:15"
-                return { elementState, data: allDigits[0] + ':' + allDigits.slice(1) };
-              } else if (allDigits.length === 4) {
-                // Four digits: "1230" -> "12:30"
-                return { elementState, data: allDigits.slice(0, 2) + ':' + allDigits.slice(2) };
               }
-            }
-            return { elementState, data };
-          }
-        ],
-        postprocessors: [
-          ({ value, selection }) => {
-            // Validate time ranges
-            const match = value.match(/^(\d{1,2}):(\d{2})$/);
-            if (match) {
-              const hour = parseInt(match[1]);
-              const minute = parseInt(match[2]);
               
-              if (hour > 23 || minute > 59) {
-                // Invalid time - remove last character
-                return { value: value.slice(0, -1), selection };
+              // Handle AM/PM input
+              if (/[apAP]/i.test(data)) {
+                const upperData = data.toUpperCase();
+                if (upperData === 'A' || upperData === 'P') {
+                  return { elementState, data: ' ' + upperData + 'M' };
+                }
+                if (upperData === 'AM' || upperData === 'PM') {
+                  return { elementState, data: ' ' + upperData };
+                }
               }
+              
+              return { elementState, data };
             }
-            return { value, selection };
-          }
-        ]
-      };
+          ],
+          postprocessors: [
+            ({ value, selection }) => {
+              // Validate and clean up format
+              const match = value.match(/^(\d{1,2}):(\d{2})(\s+(AM|PM))?/i);
+              if (match) {
+                let hour = parseInt(match[1]);
+                const minute = parseInt(match[2]);
+                let ampm = match[4]?.toUpperCase() || config.defaultMeridiem;
+                
+                // Validate ranges
+                if (hour < 1 || hour > 12 || minute > 59) {
+                  return { value: value.slice(0, -1), selection };
+                }
+                
+                // Ensure proper format
+                const formattedTime = `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+                return { value: formattedTime, selection };
+              }
+              
+              return { value, selection };
+            }
+          ]
+        };
+      } else {
+        // 24-hour format without AM/PM
+        return {
+          mask: [/\d/, /\d?/, ':', /\d/, /\d/],
+          preprocessors: [
+            ({ elementState, data }) => {
+              if (/^\d+$/.test(data)) {
+                const currentDigits = elementState.value.replace(/[^\d]/g, '');
+                const allDigits = currentDigits + data;
+                
+                if (allDigits.length === 1) {
+                  return { elementState, data: allDigits + ':' };
+                } else if (allDigits.length === 3) {
+                  return { elementState, data: allDigits[0] + ':' + allDigits.slice(1) };
+                } else if (allDigits.length === 4) {
+                  return { elementState, data: allDigits.slice(0, 2) + ':' + allDigits.slice(2) };
+                }
+              }
+              return { elementState, data };
+            }
+          ]
+        };
+      }
     } else {
       // Traditional strict 2-digit hour format  
       return maskitoTimeOptionsGenerator({
