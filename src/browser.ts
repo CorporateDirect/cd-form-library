@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.116';
+const VERSION = '0.1.117';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -65,42 +65,11 @@ function parseFormat(attr: string): FormatConfig | null {
 
 function createMaskitoOptions(config: FormatConfig) {
   if (config.type === 'date') {
-    const isUS = config.pattern === 'mmddyyyy';
-    
-    return {
-      mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
-      preprocessors: [
-        ({ elementState, data }) => {
-          // Let the mask handle everything naturally - minimal intervention
-          return { elementState, data };
-        }
-      ],
-      postprocessors: [
-        ({ value, selection }) => {
-          // Only validate complete segments to avoid blocking partial input
-          const parts = value.split('/');
-          if (parts.length >= 2 && parts[0].length === 2 && parts[1].length === 2) {
-            const first = parseInt(parts[0]) || 0;
-            const second = parseInt(parts[1]) || 0;
-            
-            // Validate ranges based on US vs EU format - only when segments are complete
-            if (isUS) {
-              // MM/DD/YYYY - first is month (1-12), second is day (1-31)
-              if (first < 1 || first > 12 || second < 1 || second > 31) {
-                return { value: value.slice(0, -1), selection };
-              }
-            } else {
-              // DD/MM/YYYY - first is day (1-31), second is month (1-12)
-              if (first < 1 || first > 31 || second < 1 || second > 12) {
-                return { value: value.slice(0, -1), selection };
-              }
-            }
-          }
-          
-          return { value, selection };
-        }
-      ]
-    };
+    const mode = config.pattern === 'mmddyyyy' ? 'mm/dd/yyyy' : 'dd/mm/yyyy';
+    return maskitoDateOptionsGenerator({
+      mode,
+      separator: '/'
+    });
   } else if (config.type === 'time') {
     if (config.pattern === 'h:mm') {
       // Check if this is AM/PM format
