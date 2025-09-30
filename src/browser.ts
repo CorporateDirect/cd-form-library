@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.115';
+const VERSION = '0.1.116';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -71,39 +71,7 @@ function createMaskitoOptions(config: FormatConfig) {
       mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
       preprocessors: [
         ({ elementState, data }) => {
-          // Handle backspace/deletion more gracefully
-          if (data === '') {
-            return { elementState, data };
-          }
-          
-          // Handle numeric input with smart formatting
-          if (/^\d+$/.test(data)) {
-            const currentValue = elementState.value;
-            const currentDigits = currentValue.replace(/[^\d]/g, '');
-            
-            // If we're typing after existing content, let the mask handle it naturally
-            if (currentValue.length > 0 && elementState.selection[0] === currentValue.length) {
-              return { elementState, data };
-            }
-            
-            // For fresh input or replacement, use smart formatting
-            const allDigits = currentDigits + data;
-            
-            if (allDigits.length === 3 && !currentValue.includes('/')) {
-              // Auto-add first separator: "123" -> "12/3"
-              return { 
-                elementState: { ...elementState, value: '' }, 
-                data: `${allDigits.slice(0, 2)}/${allDigits[2]}` 
-              };
-            } else if (allDigits.length === 5 && currentValue.split('/').length === 2) {
-              // Auto-add second separator: "12/345" -> "12/34/5"
-              return { 
-                elementState: { ...elementState, value: '' }, 
-                data: `${allDigits.slice(0, 2)}/${allDigits.slice(2, 4)}/${allDigits[4]}` 
-              };
-            }
-          }
-          
+          // Let the mask handle everything naturally - minimal intervention
           return { elementState, data };
         }
       ],
