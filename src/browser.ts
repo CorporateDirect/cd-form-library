@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.118';
+const VERSION = '0.1.119';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -29,7 +29,7 @@ const infoLog = (...args: any[]) => console.log(...args); // Always show importa
 const errorLog = (...args: any[]) => console.error(...args); // Always show errors
 
 interface FormatConfig {
-  type: 'date' | 'time' | 'percent';
+  type: 'date' | 'time' | 'percent' | 'number';
   pattern: string;
   defaultMeridiem?: 'AM' | 'PM';
 }
@@ -61,6 +61,9 @@ function parseFormat(attr: string): FormatConfig | null {
   }
   if (normalized === 'time:hh:mm pm') {
     return { type: 'time', pattern: 'hh:mm', defaultMeridiem: 'PM' };
+  }
+  if (normalized === 'number') {
+    return { type: 'number', pattern: 'number' };
   }
   if (normalized === 'percent') {
     return { type: 'percent', pattern: 'percent' };
@@ -195,6 +198,44 @@ function createMaskitoOptions(config: FormatConfig) {
         mode: 'HH:MM AA'
       });
     }
+  } else if (config.type === 'number') {
+    // Number formatting with thousands separators
+    return {
+      mask: /^-?\d{1,3}(,\d{3})*(\.\d+)?$/,
+      preprocessors: [
+        ({ elementState, data }) => {
+          // Remove existing commas for processing
+          const cleanValue = elementState.value.replace(/,/g, '');
+          const cleanData = data.replace(/,/g, '');
+          return {
+            elementState: { ...elementState, value: cleanValue },
+            data: cleanData
+          };
+        }
+      ],
+      postprocessors: [
+        ({ value, selection }) => {
+          // Add thousands separators
+          if (value && /^-?\d+(\.\d*)?$/.test(value)) {
+            const parts = value.split('.');
+            const integerPart = parts[0];
+            const decimalPart = parts[1];
+            
+            // Add commas to integer part
+            const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            const formattedValue = decimalPart !== undefined 
+              ? `${formattedInteger}.${decimalPart}`
+              : formattedInteger;
+            
+            return {
+              value: formattedValue,
+              selection: [selection[0], selection[1]]
+            };
+          }
+          return { value, selection };
+        }
+      ]
+    };
   } else if (config.type === 'percent') {
     // Simple percent mask: numbers + optional decimal + %
     return {
