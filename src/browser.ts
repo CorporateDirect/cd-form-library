@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 
-const VERSION = '0.1.117';
+const VERSION = '0.1.118';
 
 // Debug mode configuration - can be controlled via URL param or localStorage
 const DEBUG_MODE = (() => {
@@ -55,6 +55,12 @@ function parseFormat(attr: string): FormatConfig | null {
   }
   if (normalized === 'time:h:mm pm') {
     return { type: 'time', pattern: 'h:mm', defaultMeridiem: 'PM' };
+  }
+  if (normalized === 'time:hh:mm' || normalized === 'time:hh:mm am') {
+    return { type: 'time', pattern: 'hh:mm', defaultMeridiem: 'AM' };
+  }
+  if (normalized === 'time:hh:mm pm') {
+    return { type: 'time', pattern: 'hh:mm', defaultMeridiem: 'PM' };
   }
   if (normalized === 'percent') {
     return { type: 'percent', pattern: 'percent' };
@@ -167,6 +173,21 @@ function createMaskitoOptions(config: FormatConfig) {
             }
           ]
         };
+      }
+    } else if (config.pattern === 'hh:mm') {
+      // 2-digit hour format (HH:MM)
+      const hasAmPm = config.defaultMeridiem !== undefined;
+      
+      if (hasAmPm) {
+        // 12-hour format with AM/PM
+        return maskitoTimeOptionsGenerator({
+          mode: 'HH:MM AA'
+        });
+      } else {
+        // 24-hour format
+        return maskitoTimeOptionsGenerator({
+          mode: 'HH:MM'
+        });
       }
     } else {
       // Traditional strict 2-digit hour format  
