@@ -65,11 +65,74 @@ function parseFormat(attr: string): FormatConfig | null {
 
 function createMaskitoOptions(config: FormatConfig) {
   if (config.type === 'date') {
-    const mode = config.pattern === 'mmddyyyy' ? 'mm/dd/yyyy' : 'dd/mm/yyyy';
-    return maskitoDateOptionsGenerator({
-      mode,
-      separator: '/'
-    });
+    const isUS = config.pattern === 'mmddyyyy';
+    
+    return {
+      mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
+      preprocessors: [
+        ({ elementState, data }) => {
+          // Handle backspace/deletion more gracefully
+          if (data === '') {
+            return { elementState, data };
+          }
+          
+          // Handle numeric input with smart formatting
+          if (/^\d+$/.test(data)) {
+            const currentValue = elementState.value;
+            const currentDigits = currentValue.replace(/[^\d]/g, '');
+            
+            // If we're typing after existing content, let the mask handle it naturally
+            if (currentValue.length > 0 && elementState.selection[0] === currentValue.length) {
+              return { elementState, data };
+            }
+            
+            // For fresh input or replacement, use smart formatting
+            const allDigits = currentDigits + data;
+            
+            if (allDigits.length === 3 && !currentValue.includes('/')) {
+              // Auto-add first separator: "123" -> "12/3"
+              return { 
+                elementState: { ...elementState, value: '' }, 
+                data: `${allDigits.slice(0, 2)}/${allDigits[2]}` 
+              };
+            } else if (allDigits.length === 5 && currentValue.split('/').length === 2) {
+              // Auto-add second separator: "12/345" -> "12/34/5"
+              return { 
+                elementState: { ...elementState, value: '' }, 
+                data: `${allDigits.slice(0, 2)}/${allDigits.slice(2, 4)}/${allDigits[4]}` 
+              };
+            }
+          }
+          
+          return { elementState, data };
+        }
+      ],
+      postprocessors: [
+        ({ value, selection }) => {
+          // Validate date segments
+          const parts = value.split('/');
+          if (parts.length >= 2) {
+            const first = parseInt(parts[0]) || 0;
+            const second = parseInt(parts[1]) || 0;
+            
+            // Validate ranges based on US vs EU format
+            if (isUS) {
+              // MM/DD/YYYY - first is month (1-12), second is day (1-31)
+              if (first > 12 || second > 31) {
+                return { value: value.slice(0, -1), selection };
+              }
+            } else {
+              // DD/MM/YYYY - first is day (1-31), second is month (1-12)
+              if (first > 31 || second > 12) {
+                return { value: value.slice(0, -1), selection };
+              }
+            }
+          }
+          
+          return { value, selection };
+        }
+      ]
+    };
   } else if (config.type === 'time') {
     if (config.pattern === 'h:mm') {
       // Check if this is AM/PM format
