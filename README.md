@@ -21,10 +21,11 @@ Then add `data-cd-form="true"` to your form element:
 ## Features
 
 - **Input Formatting**: Automatic date, time, and percentage formatting with masks
-- **Dynamic Form Visibility**: Show/hide form sections based on user selections  
+- **Dynamic Form Visibility**: Show/hide form sections based on user selections
 - **Dynamic Rows**: Add/remove repeatable form sections with automatic field naming
 - **Summary Fields**: Real-time summary display of form data
 - **Branch-Based Visibility**: Show different summary sections based on user choices
+- **Tooltips**: Accessible, smart-positioning tooltips with keyboard navigation
 
 ## Input Formatting
 
@@ -378,6 +379,98 @@ When using TryFormly, the library automatically detects step visibility changes 
   
 </form>
 ```
+
+## Tooltips
+
+Add accessible, smart-positioning tooltips to your forms with automatic viewport detection and keyboard navigation.
+
+### Standard Mode (Relume Pattern)
+
+When the tooltip component and trigger are together:
+
+```html
+<!-- Standard tooltip - trigger and panel are siblings in component -->
+<div class="tooltip_component">
+  <!-- Trigger element -->
+  <span class="tooltip_element-wrapper">
+    What does this mean?
+  </span>
+
+  <!-- Tooltip panel (hidden by default) -->
+  <div class="tooltip_tooltip-wrapper" style="display: none;">
+    <div class="tooltip_pointer is-top"></div>
+    <p>This is the tooltip content that explains the field.</p>
+  </div>
+</div>
+```
+
+### Split Mode (Inline Labels)
+
+When you want the trigger in a label but the tooltip component elsewhere (useful for inline help text):
+
+```html
+<!-- Group container (optional, helps organize related tooltips) -->
+<div data-tt-group>
+
+  <!-- Label with inline tooltip trigger -->
+  <label>
+    Company Name
+    <span class="tooltip_element-wrapper" data-tt="company-help">ℹ️</span>
+  </label>
+  <input type="text" name="company_name">
+
+  <!-- Tooltip component placed elsewhere, matched by data-tt -->
+  <div class="tooltip_component" data-tt-for="company-help">
+    <div class="tooltip_tooltip-wrapper" style="display: none;">
+      <div class="tooltip_pointer is-top"></div>
+      <p>Enter your company's legal name as it appears on official documents.</p>
+    </div>
+  </div>
+
+</div>
+```
+
+### Tooltip Positioning
+
+Control tooltip position with pointer classes:
+
+```html
+<!-- Top position (default) -->
+<div class="tooltip_pointer is-top"></div>
+
+<!-- Bottom position -->
+<div class="tooltip_pointer is-bottom"></div>
+
+<!-- Left position -->
+<div class="tooltip_pointer is-left"></div>
+
+<!-- Right position -->
+<div class="tooltip_pointer is-right"></div>
+```
+
+The library automatically flips the tooltip to the opposite side if there's not enough viewport space.
+
+### Keyboard Accessibility
+
+Tooltips are fully keyboard accessible:
+
+- **Tab**: Focus on tooltip trigger
+- **Enter/Space** (when focused): Show tooltip
+- **Escape**: Hide tooltip
+- **Tab away**: Hide tooltip
+
+### CSS Classes Required
+
+Your CSS should include these classes (typically from Relume components):
+
+- `.tooltip_component` - Main container
+- `.tooltip_element-wrapper` - Trigger element
+- `.tooltip_tooltip-wrapper` - Tooltip panel
+- `.tooltip_pointer` - Arrow pointer with position classes (`is-top`, `is-bottom`, `is-left`, `is-right`)
+
+### Dynamic Rows Compatibility
+
+Tooltips automatically reinitialize when new dynamic rows are added, so they work seamlessly with repeatable sections.
 
 ## Events
 

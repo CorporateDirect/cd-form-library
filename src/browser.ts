@@ -846,10 +846,13 @@ function addNewRow(group: DynamicRowGroup) {
   removeButtons.forEach((removeButton) => {
     removeButton.addEventListener('click', handleRemoveRow);
   });
-  
+
+  // Reinitialize tooltips in the new row
+  reinitializeTooltipsInRow(newRow);
+
   // Reindex all rows
   reindexRows(group);
-  
+
   // Update summaries
   updateSummaries(group);
   
@@ -1240,6 +1243,221 @@ function reinitializeDynamicRowGroup(groupName: string, container: Element) {
   initializeDynamicRowGroup(groupName, container);
 }
 
+// Tooltip System
+// Provides accessible tooltips with smart positioning that works in both standard and split modes
+
+interface TooltipParts {
+  mode: 'standard' | 'split';
+  comp: HTMLElement | null;
+  panel: HTMLElement | null;
+  pointer: HTMLElement | null;
+}
+
+const TOOLTIP_COMP_CLS = "tooltip_component";
+const TOOLTIP_TRIG_CLS = "tooltip_element-wrapper";
+const TOOLTIP_PANEL_CLS = "tooltip_tooltip-wrapper";
+const TOOLTIP_PTR_CLS = "tooltip_pointer";
+
+const flipSide: Record<string, string> = {
+  bottom: "top",
+  top: "bottom",
+  left: "right",
+  right: "left"
+};
+
+const axisMap: Record<string, {
+  start: string;
+  end: string;
+  len: string;
+  translate: string;
+}> = {
+  top:    { start: "left", end: "right", len: "width",  translate: "translateX" },
+  bottom: { start: "left", end: "right", len: "width",  translate: "translateX" },
+  left:   { start: "top",  end: "bottom", len: "height", translate: "translateY" },
+  right:  { start: "top",  end: "bottom", len: "height", translate: "translateY" }
+};
+
+function findTooltipParts(trigger: HTMLElement): TooltipParts {
+  const compAncestor = trigger.closest(`.${TOOLTIP_COMP_CLS}`) as HTMLElement;
+  if (compAncestor) {
+    // Standard Relume (icon or inline when whole component is inline)
+    return {
+      mode: "standard",
+      comp: compAncestor,
+      panel: compAncestor.querySelector(`.${TOOLTIP_PANEL_CLS}`) as HTMLElement,
+      pointer: compAncestor.querySelector(`.${TOOLTIP_PTR_CLS}`) as HTMLElement
+    };
+  }
+
+  // Split mode: trigger in label, component elsewhere, matched by data-tt
+  const group = (trigger.closest("[data-tt-group]") || trigger.parentElement) as HTMLElement;
+  const key = trigger.getAttribute("data-tt");
+  const comp = key ? group.querySelector(`.${TOOLTIP_COMP_CLS}[data-tt-for="${key}"]`) as HTMLElement : null;
+
+  return {
+    mode: "split",
+    comp,
+    panel: comp?.querySelector(`.${TOOLTIP_PANEL_CLS}`) as HTMLElement,
+    pointer: comp?.querySelector(`.${TOOLTIP_PTR_CLS}`) as HTMLElement
+  };
+}
+
+function setupTooltipTrigger(trigger: HTMLElement) {
+  if ((trigger as any).dataset._ttSetup) return;
+  (trigger as any).dataset._ttSetup = "1";
+
+  const parts = findTooltipParts(trigger);
+  const { mode, comp, panel, pointer } = parts;
+  if (!panel || !pointer) return;
+
+  const baseSide =
+    pointer.className.includes("is-left")   ? "left"  :
+    pointer.className.includes("is-right")  ? "right" :
+    pointer.className.includes("is-bottom") ? "bottom": "top";
+
+  // Helper functions
+  function show() {
+    panel.style.display = "block";
+    panel.style.opacity = "1";
+  }
+
+  function hide() {
+    panel.style.opacity = "0";
+    panel.style.display = "none";
+  }
+
+  let running = false;
+  let hoverCount = 0;
+
+  function tick() {
+    if (!running) return;
+    requestAnimationFrame(tick);
+
+    const tr = trigger.getBoundingClientRect();
+    const pr = panel.getBoundingClientRect();
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+
+    // Choose side with space when possible
+    const fits = {
+      bottom: tr.bottom + pr.height < vh,
+      top:    tr.top    - pr.height > 0,
+      left:   tr.left   - pr.width  > 0,
+      right:  tr.right  + pr.width  < vw
+    };
+    const side = fits[baseSide as keyof typeof fits] || !fits[flipSide[baseSide] as keyof typeof fits]
+      ? baseSide
+      : flipSide[baseSide];
+
+    if (mode === "standard") {
+      // Original relative logic (component & trigger together)
+      const axis = axisMap[side];
+      const opp = flipSide[side];
+
+      // Center shift within viewport
+      const midStart = (tr[axis.start as keyof DOMRect] as number + tr[axis.end as keyof DOMRect] as number - pr[axis.len as keyof DOMRect] as number) / 2;
+      const midEnd = (tr[axis.start as keyof DOMRect] as number + tr[axis.end as keyof DOMRect] as number + pr[axis.len as keyof DOMRect] as number) / 2;
+      let shift = 0;
+      const rootLen = (side === "left" || side === "right") ? vh : vw;
+      if (midStart < 0) shift = -midStart;
+      else if (rootLen < midEnd) shift = rootLen - midEnd;
+
+      panel.style.position = ""; // keep whatever your CSS sets (usually absolute)
+      panel.style.transform = axis.translate + "(" + shift + "px)";
+      pointer.style.transform = axis.translate + "(" + (-shift) + "px) rotate(45deg)";
+      return;
+    }
+
+    // SPLIT MODE: position to viewport (fixed) using trigger's rect
+    panel.style.position = "fixed";
+
+    const GAP = 8; // space between trigger and panel
+    let left = Math.round(tr.left + tr.width / 2 - pr.width / 2);
+    let top = 0;
+
+    if (side === "bottom") {
+      top = Math.round(tr.bottom + GAP);
+    } else if (side === "top") {
+      top = Math.round(tr.top - GAP - pr.height);
+    } else if (side === "left") {
+      // vertical center
+      top = Math.round(tr.top + tr.height / 2 - pr.height / 2);
+      left = Math.round(tr.left - GAP - pr.width);
+    } else { // right
+      top = Math.round(tr.top + tr.height / 2 - pr.height / 2);
+      left = Math.round(tr.right + GAP);
+    }
+
+    // Clamp horizontally/vertically into viewport
+    const margin = 8;
+    left = Math.max(margin, Math.min(left, vw - pr.width - margin));
+    top = Math.max(margin, Math.min(top, vh - pr.height - margin));
+
+    panel.style.left = left + "px";
+    panel.style.top = top + "px";
+    panel.style.right = "";
+    panel.style.bottom = "";
+    panel.style.transform = "none"; // fixed-position, no centering transform needed
+
+    // Center pointer under the trigger's center (relative to panel)
+    const triggerCenterX = tr.left + tr.width / 2;
+    const panelCenterX = left + pr.width / 2;
+    const dx = triggerCenterX - panelCenterX;
+
+    if (side === "top" || side === "bottom") {
+      pointer.style.transform = "translateX(" + dx + "px) rotate(45deg)";
+    } else {
+      // left/right: vertical pointer centering
+      const triggerCenterY = tr.top + tr.height / 2;
+      const panelCenterY = top + pr.height / 2;
+      const dy = triggerCenterY - panelCenterY;
+      pointer.style.transform = "translateY(" + dy + "px) rotate(45deg)";
+    }
+  }
+
+  function start() {
+    if (++hoverCount === 1) {
+      show();
+      running = true;
+      tick();
+    }
+  }
+
+  function stop() {
+    if (hoverCount > 0 && --hoverCount === 0) {
+      running = false;
+      hide();
+    }
+  }
+
+  trigger.addEventListener("mouseenter", start);
+  trigger.addEventListener("mouseleave", stop);
+  (comp || panel).addEventListener("mouseenter", start);
+  (comp || panel).addEventListener("mouseleave", stop);
+
+  trigger.setAttribute("tabindex", "0");
+  trigger.addEventListener("focus", start);
+  trigger.addEventListener("blur", stop);
+  trigger.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") stop();
+  });
+}
+
+function initTooltips(form: HTMLFormElement) {
+  debugLog('💬 Initializing tooltips for form...');
+  const triggers = form.querySelectorAll(`.${TOOLTIP_TRIG_CLS}`);
+  debugLog(`💬 Found ${triggers.length} tooltip triggers`);
+  triggers.forEach((trigger) => setupTooltipTrigger(trigger as HTMLElement));
+  infoLog(`✅ Tooltips initialized (${triggers.length} triggers)`);
+}
+
+function reinitializeTooltipsInRow(row: Element) {
+  debugLog('💬 Reinitializing tooltips in new row...');
+  const triggers = row.querySelectorAll(`.${TOOLTIP_TRIG_CLS}`);
+  debugLog(`💬 Found ${triggers.length} tooltip triggers in row`);
+  triggers.forEach((trigger) => setupTooltipTrigger(trigger as HTMLElement));
+}
+
 // Listen for visibility events to reinitialize hidden groups
 document.addEventListener('form-wrapper-visibility:shown', (event) => {
   const visibleContainer = event.target as Element;
@@ -1415,34 +1633,37 @@ function updateAllSummaryVisibility() {
 
 
 function initializeLibrary() {
-  
+
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
-  
+
   if (forms.length === 0) {
     return;
   }
-  
+
   forms.forEach((form, index) => {
     const formElement = form as HTMLFormElement;
-    
+
     try {
       // Initialize input formatting for inputs with data-input attribute
       initInputFormatting(formElement);
-      
+
       // Initialize form wrapper visibility for elements with data-show-when
       initFormWrapperVisibility();
-      
+
       // Initialize dynamic rows for repeatable sections
       initDynamicRows();
-      
+
       // Initialize branch-based summary visibility
       initBranchVisibility();
-      
+
+      // Initialize tooltips for form
+      initTooltips(formElement);
+
       // Summary field synchronization is handled within initDynamicRows()
-      
+
       // Dispatch custom event for form enhancement completion
       formElement.dispatchEvent(new CustomEvent('cdForm:validated', { bubbles: true }));
-      
+
     } catch (error) {
       console.error('❌ Error enhancing form:', error);
       console.error('❌ Stack trace:', error.stack);
