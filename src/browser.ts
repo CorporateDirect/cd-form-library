@@ -201,7 +201,7 @@ function createMaskitoOptions(config: FormatConfig) {
   } else if (config.type === 'number') {
     // Number formatting with thousands separators
     return {
-      mask: /^-?\d{1,3}(,\d{3})*(\.\d+)?$/,
+      mask: /^-?\d+(,\d{3})*(\.\d+)?$/,
       preprocessors: [
         ({ elementState, data }) => {
           // Remove existing commas for processing
