@@ -996,12 +996,15 @@ function updateSummaries(group: DynamicRowGroup) {
   // This handles cases where containers are initially hidden by data-show-when
   summaryContainers.forEach((summaryContainer) => {
     summaryContainer.addEventListener('form-wrapper-visibility:shown', () => {
-      console.log(`📊 SUMMARY: Container became visible, re-syncing fields for group "${group.groupName}"`);
+      console.log(`📊 SUMMARY: *** CONTAINER BECAME VISIBLE *** Re-syncing fields for group "${group.groupName}"`);
 
       // Re-sync all fields in this container
       const fieldElements = summaryContainer.querySelectorAll('[data-cd-input-field]');
-      fieldElements.forEach((element) => {
+      console.log(`📊 SUMMARY: Found ${fieldElements.length} field elements to re-sync`);
+
+      fieldElements.forEach((element, index) => {
         const fieldName = element.getAttribute('data-cd-input-field');
+        console.log(`📊 SUMMARY: Re-syncing field ${index + 1}/${fieldElements.length}: "${fieldName}"`);
         if (fieldName) {
           syncSummaryField(element as HTMLElement, fieldName);
         }
@@ -1012,6 +1015,8 @@ function updateSummaries(group: DynamicRowGroup) {
         console.log('📊 SUMMARY: Triggering TryFormly.refresh() after visibility change');
         (window as any).TryFormly.refresh();
       }
+
+      console.log(`📊 SUMMARY: *** VISIBILITY RE-SYNC COMPLETE ***`);
     });
   });
 
@@ -1174,17 +1179,20 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   
   // Update the summary element
   summaryElement.textContent = displayValue || '[Not specified]';
-  console.log(`✅ SUMMARY: Updated summary for "${fieldName}": "${displayValue}"`);
-  
+  console.log(`✅ SUMMARY: Updated summary for "${fieldName}": "${displayValue}" (empty: ${!displayValue})`);
+  console.log(`   Summary element:`, summaryElement);
+  console.log(`   Source element:`, sourceElement);
+
   // Add event listener for future changes if not already added
   if (!(sourceElement as any).__summaryListenerAdded) {
     const eventType = sourceElement.type === 'radio' || sourceElement.type === 'checkbox' ? 'change' : 'input';
-    
+
+    console.log(`🎧 SUMMARY: Adding ${eventType} listener for field "${fieldName}"...`);
     sourceElement.addEventListener(eventType, () => {
-      console.log(`🔄 SUMMARY: Field "${fieldName}" changed, updating summary...`);
+      console.log(`🔄 SUMMARY: *** FIELD INPUT EVENT FIRED *** Field "${fieldName}" changed to: "${sourceElement.value}"`);
       syncSummaryField(summaryElement, fieldName);
     });
-    
+
     // For radio buttons, also listen to all radios with the same name
     if (sourceElement.type === 'radio') {
       const allRadios = document.querySelectorAll(`input[name="${fieldName}"]`);
@@ -1198,9 +1206,11 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
         }
       });
     }
-    
+
     (sourceElement as any).__summaryListenerAdded = true;
-    console.log(`🎧 SUMMARY: Added ${eventType} listener for field "${fieldName}"`);
+    console.log(`✅ SUMMARY: Event listener successfully added for field "${fieldName}"`);
+  } else {
+    console.log(`⏭️  SUMMARY: Event listener already exists for field "${fieldName}", skipping`);
   }
 }
 
