@@ -1115,11 +1115,25 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       }
     }
     if (sourceElement) break;
-    
-    // If no visible elements found, try the first element as fallback
+
+    // If no visible elements found, find the first element with a non-empty value
+    // This handles the case where we're on the summary page and the form inputs are hidden
     if (elements.length > 0 && !sourceElement) {
-      sourceElement = elements[0] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-      console.log(`🔍 Found source using selector (fallback): ${selector}`);
+      console.log(`🔍 No visible elements found, searching ${elements.length} hidden elements for one with a value...`);
+      for (const element of Array.from(elements)) {
+        const el = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+        if (el.value && el.value.trim()) {
+          sourceElement = el;
+          console.log(`🔍 Found hidden source with value using selector: ${selector}, value="${el.value}"`);
+          break;
+        }
+      }
+
+      // If still no element with value found, use the first non-template element
+      if (!sourceElement && elements.length > 0) {
+        sourceElement = elements[0] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+        console.log(`🔍 Found source using first element (last resort): ${selector}`);
+      }
       break;
     }
   }
