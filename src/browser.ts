@@ -89,7 +89,7 @@ function createMaskitoOptions(config: FormatConfig) {
         return {
           mask: [/\d/, /\d?/, ':', /\d/, /\d/, ' ', /[APap]/, /[Mm]/],
           preprocessors: [
-            ({ elementState, data }) => {
+            ({ elementState, data }: { elementState: any; data: string }) => {
               // Auto-format time input
               const currentDigits = elementState.value.replace(/[^\d]/g, '');
               
@@ -132,7 +132,7 @@ function createMaskitoOptions(config: FormatConfig) {
             }
           ],
           postprocessors: [
-            ({ value, selection }) => {
+            ({ value, selection }: { value: string; selection: readonly [number, number] }) => {
               // Validate and clean up format
               const match = value.match(/^(\d{1,2}):(\d{2})(\s+(AM|PM))?/i);
               if (match) {
@@ -159,7 +159,7 @@ function createMaskitoOptions(config: FormatConfig) {
         return {
           mask: [/\d/, /\d?/, ':', /\d/, /\d/],
           preprocessors: [
-            ({ elementState, data }) => {
+            ({ elementState, data }: { elementState: any; data: string }) => {
               if (/^\d+$/.test(data)) {
                 const currentDigits = elementState.value.replace(/[^\d]/g, '');
                 const allDigits = currentDigits + data;
@@ -203,7 +203,7 @@ function createMaskitoOptions(config: FormatConfig) {
     return {
       mask: /^-?\d+(,\d{3})*(\.\d+)?$/,
       preprocessors: [
-        ({ elementState, data }) => {
+        ({ elementState, data }: { elementState: any; data: string }) => {
           // Remove existing commas for processing
           const cleanValue = elementState.value.replace(/,/g, '');
           const cleanData = data.replace(/,/g, '');
@@ -214,7 +214,7 @@ function createMaskitoOptions(config: FormatConfig) {
         }
       ],
       postprocessors: [
-        ({ value, selection }) => {
+        ({ value, selection }: { value: string; selection: readonly [number, number] }) => {
           // Add thousands separators
           if (value && /^-?\d+(\.\d*)?$/.test(value)) {
             const parts = value.split('.');
@@ -229,7 +229,7 @@ function createMaskitoOptions(config: FormatConfig) {
             
             return {
               value: formattedValue,
-              selection: [selection[0], selection[1]]
+              selection: [selection[0], selection[1]] as const
             };
           }
           return { value, selection };
@@ -241,7 +241,7 @@ function createMaskitoOptions(config: FormatConfig) {
     return {
       mask: /^\d{0,3}(\.\d{0,2})?%?$/,
       preprocessors: [
-        ({ elementState, data }) => {
+        ({ elementState, data }: { elementState: any; data: string }) => {
           // Remove existing % for processing
           const cleanValue = elementState.value.replace('%', '');
           const cleanData = data.replace('%', '');
@@ -252,12 +252,12 @@ function createMaskitoOptions(config: FormatConfig) {
         }
       ],
       postprocessors: [
-        ({ value, selection }) => {
+        ({ value, selection }: { value: string; selection: readonly [number, number] }) => {
           // Add % if not present and value has content
           if (value && !value.endsWith('%')) {
             return {
               value: value + '%',
-              selection: [selection[0], selection[1]]
+              selection: [selection[0], selection[1]] as const
             };
           }
           return { value, selection };
@@ -426,9 +426,9 @@ function initDynamicRows() {
   
   if (repeaterGroups.length === 0) {
     debugWarn('⚠️ No elements found with data-cd-repeat-group attribute');
-    // Check for any elements that might be close
-    const possibleGroups = document.querySelectorAll('[data*="repeat"], [data*="cd-repeat"]');
-    debugLog('🔍 Found elements with "repeat" in attributes:', possibleGroups.length);
+    // Check for common attribute name variations that might indicate misconfiguration
+    const possibleGroups = document.querySelectorAll('[data-repeat-group], [data-cd-repeater-group], [data-repeater-group]');
+    debugLog('🔍 Found elements with similar attributes:', possibleGroups.length);
     if (possibleGroups.length > 0) {
       debugLog('🔍 First possible group:', possibleGroups[0]);
       debugLog('🔍 Its attributes:', Array.from(possibleGroups[0].attributes).map(attr => `${attr.name}="${attr.value}"`));
@@ -488,7 +488,7 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     if (!addButton) {
       // Look for buttons containing the group name in their attributes or text
       const allButtons = document.querySelectorAll('[data-cd-add-row], [data-cd-repeat-add]');
-      for (const btn of allButtons) {
+      for (const btn of Array.from(allButtons)) {
         const repeatAdd = btn.getAttribute('data-cd-repeat-add');
         const addRow = btn.getAttribute('data-cd-add-row');
         if (repeatAdd === groupName || addRow === groupName || 
@@ -539,8 +539,8 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
       container.insertBefore(template, firstRow);
       debugLog(`✅ Created and hid template from first row for group "${groupName}"`);
     } else {
-      console.log('🔍 Searching for any elements that might be rows...');
-      const possibleRows = container.querySelectorAll('[data*="repeat-row"], [data*="cd-repeat"]');
+      console.log('🔍 Searching for elements with similar row attributes...');
+      const possibleRows = container.querySelectorAll('[data-repeat-row], [data-cd-repeater-row], [data-repeater-row]');
       console.log('🔍 Found possible rows:', possibleRows.length);
       if (possibleRows.length > 0) {
         console.log('🔍 First possible row:', possibleRows[0]);
@@ -1065,23 +1065,23 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   // Try different selectors to find the source element, prioritizing visible elements
   const selectors = [
     `input[name="${fieldName}"]:not([data-cd-repeat-template])`,
-    `select[name="${fieldName}"]:not([data-cd-repeat-template])`, 
+    `select[name="${fieldName}"]:not([data-cd-repeat-template])`,
     `textarea[name="${fieldName}"]:not([data-cd-repeat-template])`,
     `input[name="${fieldName}"]`,
-    `select[name="${fieldName}"]`, 
+    `select[name="${fieldName}"]`,
     `textarea[name="${fieldName}"]`,
     `input[id="${fieldName}"]`,
     `select[id="${fieldName}"]`,
     `textarea[id="${fieldName}"]`
   ];
-  
+
   for (const selector of selectors) {
     const elements = document.querySelectorAll(selector);
     // Find the first visible element
-    for (const element of elements) {
+    for (const element of Array.from(elements)) {
       const htmlEl = element as HTMLElement;
       if (htmlEl.offsetParent !== null) { // Element is visible
-        sourceElement = element;
+        sourceElement = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
         console.log(`🔍 Found visible source using selector: ${selector}`);
         break;
       }
@@ -1090,7 +1090,7 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
     
     // If no visible elements found, try the first element as fallback
     if (elements.length > 0 && !sourceElement) {
-      sourceElement = elements[0];
+      sourceElement = elements[0] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
       console.log(`🔍 Found source using selector (fallback): ${selector}`);
       break;
     }
@@ -1317,11 +1317,13 @@ function setupTooltipTrigger(trigger: HTMLElement) {
 
   // Helper functions
   function show() {
+    if (!panel) return;
     panel.style.display = "block";
     panel.style.opacity = "1";
   }
 
   function hide() {
+    if (!panel) return;
     panel.style.opacity = "0";
     panel.style.display = "none";
   }
@@ -1330,7 +1332,7 @@ function setupTooltipTrigger(trigger: HTMLElement) {
   let hoverCount = 0;
 
   function tick() {
-    if (!running) return;
+    if (!running || !panel || !pointer) return;
     requestAnimationFrame(tick);
 
     const tr = trigger.getBoundingClientRect();
@@ -1355,8 +1357,11 @@ function setupTooltipTrigger(trigger: HTMLElement) {
       const opp = flipSide[side];
 
       // Center shift within viewport
-      const midStart = (tr[axis.start as keyof DOMRect] as number + tr[axis.end as keyof DOMRect] as number - pr[axis.len as keyof DOMRect] as number) / 2;
-      const midEnd = (tr[axis.start as keyof DOMRect] as number + tr[axis.end as keyof DOMRect] as number + pr[axis.len as keyof DOMRect] as number) / 2;
+      const trStart = tr[axis.start as keyof DOMRect] as number;
+      const trEnd = tr[axis.end as keyof DOMRect] as number;
+      const prLen = pr[axis.len as keyof DOMRect] as number;
+      const midStart = (trStart + trEnd - prLen) / 2;
+      const midEnd = (trStart + trEnd + prLen) / 2;
       let shift = 0;
       const rootLen = (side === "left" || side === "right") ? vh : vw;
       if (midStart < 0) shift = -midStart;
@@ -1666,7 +1671,9 @@ function initializeLibrary() {
 
     } catch (error) {
       console.error('❌ Error enhancing form:', error);
-      console.error('❌ Stack trace:', error.stack);
+      if (error instanceof Error) {
+        console.error('❌ Stack trace:', error.stack);
+      }
     }
   });
 }
