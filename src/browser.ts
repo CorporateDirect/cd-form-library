@@ -988,10 +988,33 @@ function updateSummaries(group: DynamicRowGroup) {
       console.log(`📊 SUMMARY: Summary template hidden for container ${containerIndex}`);
     }
   });
-  
+
   // Sync field values after creating summary rows
   syncAllSummaryFields();
-  
+
+  // Add event listeners to re-sync when summary containers become visible
+  // This handles cases where containers are initially hidden by data-show-when
+  summaryContainers.forEach((summaryContainer) => {
+    summaryContainer.addEventListener('form-wrapper-visibility:shown', () => {
+      console.log(`📊 SUMMARY: Container became visible, re-syncing fields for group "${group.groupName}"`);
+
+      // Re-sync all fields in this container
+      const fieldElements = summaryContainer.querySelectorAll('[data-cd-input-field]');
+      fieldElements.forEach((element) => {
+        const fieldName = element.getAttribute('data-cd-input-field');
+        if (fieldName) {
+          syncSummaryField(element as HTMLElement, fieldName);
+        }
+      });
+
+      // Trigger TryFormly refresh
+      if (typeof (window as any).TryFormly?.refresh === 'function') {
+        console.log('📊 SUMMARY: Triggering TryFormly.refresh() after visibility change');
+        (window as any).TryFormly.refresh();
+      }
+    });
+  });
+
   // Trigger TryFormly refresh if available
   if (typeof (window as any).TryFormly?.refresh === 'function') {
     console.log('📊 SUMMARY: Triggering TryFormly.refresh()');
