@@ -1105,37 +1105,48 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
 
   for (const selector of selectors) {
     const elements = document.querySelectorAll(selector);
-    // Find the first visible element
+    if (elements.length === 0) continue;
+
+    // Priority 1: Visible element with non-empty value
     for (const element of Array.from(elements)) {
       const htmlEl = element as HTMLElement;
-      if (htmlEl.offsetParent !== null) { // Element is visible
-        sourceElement = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-        console.log(`🔍 Found visible source using selector: ${selector}`);
+      const el = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+      if (htmlEl.offsetParent !== null && el.value && el.value.trim()) {
+        sourceElement = el;
+        console.log(`🔍 Found visible source WITH VALUE using selector: ${selector}, value="${el.value}"`);
         break;
       }
     }
     if (sourceElement) break;
 
-    // If no visible elements found, find the first element with a non-empty value
-    // This handles the case where we're on the summary page and the form inputs are hidden
-    if (elements.length > 0 && !sourceElement) {
-      console.log(`🔍 No visible elements found, searching ${elements.length} hidden elements for one with a value...`);
-      for (const element of Array.from(elements)) {
-        const el = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-        if (el.value && el.value.trim()) {
-          sourceElement = el;
-          console.log(`🔍 Found hidden source with value using selector: ${selector}, value="${el.value}"`);
-          break;
-        }
+    // Priority 2: Hidden element with non-empty value
+    console.log(`🔍 No visible elements with values found, searching ${elements.length} hidden elements for one with a value...`);
+    for (const element of Array.from(elements)) {
+      const htmlEl = element as HTMLElement;
+      const el = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+      if (htmlEl.offsetParent === null && el.value && el.value.trim()) {
+        sourceElement = el;
+        console.log(`🔍 Found hidden source WITH VALUE using selector: ${selector}, value="${el.value}"`);
+        break;
       }
-
-      // If still no element with value found, use the first non-template element
-      if (!sourceElement && elements.length > 0) {
-        sourceElement = elements[0] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-        console.log(`🔍 Found source using first element (last resort): ${selector}`);
-      }
-      break;
     }
+    if (sourceElement) break;
+
+    // Priority 3: Any visible element (even if empty)
+    for (const element of Array.from(elements)) {
+      const htmlEl = element as HTMLElement;
+      if (htmlEl.offsetParent !== null) {
+        sourceElement = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+        console.log(`🔍 Found visible source (empty value) using selector: ${selector}`);
+        break;
+      }
+    }
+    if (sourceElement) break;
+
+    // Priority 4: First element as last resort
+    sourceElement = elements[0] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    console.log(`🔍 Found source using first element (last resort): ${selector}`);
+    break;
   }
   
   if (!sourceElement) {
