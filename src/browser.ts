@@ -992,13 +992,10 @@ function updateSummaries(group: DynamicRowGroup) {
   // Sync field values after creating summary rows
   syncAllSummaryFields();
 
-  // Add event listeners to re-sync when summary containers become visible
-  // This handles cases where containers are initially hidden by data-show-when
-  summaryContainers.forEach((summaryContainer) => {
-    summaryContainer.addEventListener('form-wrapper-visibility:shown', () => {
-      console.log(`📊 SUMMARY: *** CONTAINER BECAME VISIBLE *** Re-syncing fields for group "${group.groupName}"`);
-
-      // Re-sync all fields in this container
+  // Function to re-sync all fields in summary containers
+  const resyncSummaryFields = () => {
+    console.log(`📊 SUMMARY: *** RE-SYNCING ALL FIELDS *** for group "${group.groupName}"`);
+    summaryContainers.forEach((summaryContainer) => {
       const fieldElements = summaryContainer.querySelectorAll('[data-cd-input-field]');
       console.log(`📊 SUMMARY: Found ${fieldElements.length} field elements to re-sync`);
 
@@ -1009,15 +1006,58 @@ function updateSummaries(group: DynamicRowGroup) {
           syncSummaryField(element as HTMLElement, fieldName);
         }
       });
-
-      // Trigger TryFormly refresh
-      if (typeof (window as any).TryFormly?.refresh === 'function') {
-        console.log('📊 SUMMARY: Triggering TryFormly.refresh() after visibility change');
-        (window as any).TryFormly.refresh();
-      }
-
-      console.log(`📊 SUMMARY: *** VISIBILITY RE-SYNC COMPLETE ***`);
     });
+
+    // Trigger TryFormly refresh
+    if (typeof (window as any).TryFormly?.refresh === 'function') {
+      console.log('📊 SUMMARY: Triggering TryFormly.refresh() after re-sync');
+      (window as any).TryFormly.refresh();
+    }
+
+    console.log(`📊 SUMMARY: *** RE-SYNC COMPLETE ***`);
+  };
+
+  // Add event listeners to re-sync when summary containers become visible
+  // This handles cases where containers are initially hidden by data-show-when
+  summaryContainers.forEach((summaryContainer) => {
+    summaryContainer.addEventListener('form-wrapper-visibility:shown', () => {
+      console.log(`📊 SUMMARY: *** CONTAINER BECAME VISIBLE (visibility event) ***`);
+      resyncSummaryFields();
+    });
+  });
+
+  // Also monitor for form step changes using MutationObserver
+  // This handles multi-step forms where navigating to the summary page doesn't trigger visibility events
+  summaryContainers.forEach((summaryContainer) => {
+    // Find the parent form step
+    let formStep = summaryContainer.closest('[data-form="step"]');
+    if (formStep) {
+      console.log(`📊 SUMMARY: Setting up form step observer for group "${group.groupName}"`);
+
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+            const element = mutation.target as HTMLElement;
+            const isVisible = element.style.display !== 'none' && element.offsetParent !== null;
+
+            if (isVisible) {
+              console.log(`📊 SUMMARY: *** FORM STEP BECAME VISIBLE (MutationObserver) ***`);
+              // Small delay to ensure DOM is fully updated
+              setTimeout(() => resyncSummaryFields(), 100);
+            }
+          }
+        });
+      });
+
+      observer.observe(formStep, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      });
+
+      console.log(`📊 SUMMARY: Form step observer attached for group "${group.groupName}"`);
+    } else {
+      console.log(`📊 SUMMARY: No parent form step found for group "${group.groupName}"`);
+    }
   });
 
   // Trigger TryFormly refresh if available
