@@ -637,6 +637,18 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     removeButton.removeEventListener('click', handleRemoveRow);
     removeButton.addEventListener('click', handleRemoveRow);
   });
+
+  // Hide the remove button on the first visible row to prevent removing the last row
+  // Use visibility:hidden to maintain layout
+  const firstVisibleRow = existingRows[0] as HTMLElement;
+  if (firstVisibleRow) {
+    const firstRemoveButton = firstVisibleRow.querySelector('[data-cd-remove-row], [data-cd-repeat-remove]') as HTMLElement;
+    if (firstRemoveButton) {
+      firstRemoveButton.style.visibility = 'hidden';
+      firstRemoveButton.style.pointerEvents = 'none';
+      console.log(`👁️ Hide remove button on first row for group "${groupName}"`);
+    }
+  }
   
   // Apply input formatting to existing rows
   applyFormattingToRows(group);
@@ -855,9 +867,20 @@ function addNewRow(group: DynamicRowGroup) {
 
   // Update summaries
   updateSummaries(group);
-  
+
   console.log(`➕ Row added successfully, new total: ${group.rows.length} rows`);
-  
+
+  // Show the first row's remove button now that we have more than one row
+  if (group.rows.length > 1) {
+    const firstRow = group.rows[0] as HTMLElement;
+    const firstRemoveButton = firstRow.querySelector('[data-cd-remove-row], [data-cd-repeat-remove]') as HTMLElement;
+    if (firstRemoveButton) {
+      firstRemoveButton.style.visibility = 'visible';
+      firstRemoveButton.style.pointerEvents = 'auto';
+      console.log(`👁️ Show remove button on first row (${group.rows.length} rows)`);
+    }
+  }
+
   // Check if we've reached the maximum of 5 total rows and disable the add button
   if (group.rows.length >= 5 && group.addButton) {
     (group.addButton as HTMLElement).style.opacity = '0.5';
@@ -1323,10 +1346,21 @@ function removeRow(group: DynamicRowGroup, targetRow: Element) {
   
   // Reindex remaining rows
   reindexRows(group);
-  
+
   // Update summaries
   updateSummaries(group);
-  
+
+  // Hide the first row's remove button if we're back to one row
+  if (group.rows.length === 1) {
+    const firstRow = group.rows[0] as HTMLElement;
+    const firstRemoveButton = firstRow.querySelector('[data-cd-remove-row], [data-cd-repeat-remove]') as HTMLElement;
+    if (firstRemoveButton) {
+      firstRemoveButton.style.visibility = 'hidden';
+      firstRemoveButton.style.pointerEvents = 'none';
+      console.log(`👁️ Hide remove button on first row (back to 1 row)`);
+    }
+  }
+
   console.log(`➖ Row removed successfully, new total: ${group.rows.length} rows`);
   
   // Dispatch event
