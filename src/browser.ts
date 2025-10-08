@@ -838,11 +838,12 @@ function addNewRow(group: DynamicRowGroup) {
     }
   });
   
-  // Ensure the new row is visible by adding the visible class and removing inline styles
+  // Ensure the new row is visible by adding the visible class and forcing display
   const htmlRow = newRow as HTMLElement;
   console.log(`➕ Before visibility fix - classes: ${htmlRow.className}, inline style: ${htmlRow.style.display}`);
   htmlRow.classList.add('visible-row');
-  htmlRow.style.display = ''; // Remove any inline display style
+  // Force display with cssText to override Webflow's CSS cascade
+  htmlRow.style.cssText = htmlRow.style.cssText.replace(/display\s*:\s*[^;]+;?/, '') + ' display: grid !important;';
   htmlRow.removeAttribute('aria-hidden');
   console.log(`➕ After visibility fix - classes: ${htmlRow.className}, inline style: ${htmlRow.style.display}`);
   
