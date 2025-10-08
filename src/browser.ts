@@ -575,7 +575,9 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     console.log('🔍 No existing data rows, creating first row from template...');
     const firstRow = template.cloneNode(true) as Element;
     firstRow.removeAttribute('data-cd-repeat-template');
-    (firstRow as HTMLElement).style.display = '';
+    // Force display with !important to override Webflow's CSS cascade
+    const htmlFirstRow = firstRow as HTMLElement;
+    htmlFirstRow.style.cssText = htmlFirstRow.style.cssText.replace(/display\s*:\s*[^;]+;?/, '') + ' display: grid !important;';
     container.appendChild(firstRow);
     existingRows.push(firstRow);
   } else {
@@ -583,7 +585,8 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     existingRows.forEach((row, index) => {
       const htmlRow = row as HTMLElement;
       if (index === 0) {
-        htmlRow.style.display = '';
+        // Force display with !important to override Webflow's CSS cascade
+        htmlRow.style.cssText = htmlRow.style.cssText.replace(/display\s*:\s*[^;]+;?/, '') + ' display: grid !important;';
         htmlRow.removeAttribute('aria-hidden');
         console.log(`🔍 Keeping first row visible: row ${index + 1}`);
       } else {
