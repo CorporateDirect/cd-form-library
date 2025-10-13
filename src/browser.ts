@@ -520,39 +520,39 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     debugLog('🔍 No template found, searching for existing rows...');
     const firstRow = container.querySelector('[data-cd-repeat-row]');
     debugLog('🔍 First existing row found:', !!firstRow);
-    
+
     if (firstRow) {
       debugLog('🔍 First row details:', firstRow.tagName, firstRow.className);
-      
+
       template = firstRow.cloneNode(true) as Element;
       template.setAttribute('data-cd-repeat-template', '');
-      
+
       // Clear input values in template
       const inputs = template.querySelectorAll('input, select, textarea');
       debugLog('🔍 Clearing', inputs.length, 'input values in template');
       inputs.forEach((input) => {
         (input as HTMLInputElement).value = '';
       });
-      
+
       // Hide the template and insert it at the beginning
       (template as HTMLElement).style.display = 'none';
       container.insertBefore(template, firstRow);
       debugLog(`✅ Created and hid template from first row for group "${groupName}"`);
     } else {
-      console.log('🔍 Searching for elements with similar row attributes...');
+      debugLog('🔍 Searching for elements with similar row attributes...');
       const possibleRows = container.querySelectorAll('[data-repeat-row], [data-cd-repeater-row], [data-repeater-row]');
-      console.log('🔍 Found possible rows:', possibleRows.length);
+      debugLog('🔍 Found possible rows:', possibleRows.length);
       if (possibleRows.length > 0) {
-        console.log('🔍 First possible row:', possibleRows[0]);
-        console.log('🔍 Its attributes:', Array.from(possibleRows[0].attributes).map(attr => `${attr.name}="${attr.value}"`));
+        debugLog('🔍 First possible row:', possibleRows[0]);
+        debugLog('🔍 Its attributes:', Array.from(possibleRows[0].attributes).map(attr => `${attr.name}="${attr.value}"`));
       }
     }
   } else {
-    console.log('✅ Template found:', template.tagName, template.className);
+    debugLog('✅ Template found:', template.tagName, template.className);
     // Hide the template since it's just for cloning
     (template as HTMLElement).style.display = 'none';
   }
-  
+
   if (!template) {
     console.error('❌ No template available, cannot initialize group');
     return;
@@ -560,19 +560,19 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
 
   // Get existing rows (excluding template)
   const existingRows = Array.from(container.querySelectorAll('[data-cd-repeat-row]:not([data-cd-repeat-template])'));
-  console.log('🔍 Found existing data rows:', existingRows.length);
-  
+  debugLog('🔍 Found existing data rows:', existingRows.length);
+
   existingRows.forEach((row, index) => {
-    console.log(`🔍 Existing row ${index + 1}:`, {
+    debugLog(`🔍 Existing row ${index + 1}:`, {
       tag: row.tagName,
       class: row.className,
       'data-cd-repeat-row': row.getAttribute('data-cd-repeat-row')
     });
   });
-  
+
   // Ensure exactly one row is visible
   if (existingRows.length === 0) {
-    console.log('🔍 No existing data rows, creating first row from template...');
+    debugLog('🔍 No existing data rows, creating first row from template...');
     const firstRow = template.cloneNode(true) as Element;
     firstRow.removeAttribute('data-cd-repeat-template');
     // Force display with !important to override Webflow's CSS cascade
@@ -588,17 +588,17 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
         // Force display with !important to override Webflow's CSS cascade
         htmlRow.style.cssText = htmlRow.style.cssText.replace(/display\s*:\s*[^;]+;?/, '') + ' display: grid !important;';
         htmlRow.removeAttribute('aria-hidden');
-        console.log(`🔍 Keeping first row visible: row ${index + 1}`);
+        debugLog(`🔍 Keeping first row visible: row ${index + 1}`);
       } else {
         htmlRow.style.display = 'none';
         htmlRow.setAttribute('aria-hidden', 'true');
-        console.log(`🔍 Hiding extra row: row ${index + 1}`);
+        debugLog(`🔍 Hiding extra row: row ${index + 1}`);
       }
     });
-    
+
     // Keep only the first row in the array
     if (existingRows.length > 1) {
-      console.log(`🔍 Removing ${existingRows.length - 1} extra rows from DOM`);
+      debugLog(`🔍 Removing ${existingRows.length - 1} extra rows from DOM`);
       for (let i = 1; i < existingRows.length; i++) {
         existingRows[i].remove();
       }
@@ -620,7 +620,7 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
   
   // Attach add button listener
   if (addButton) {
-    console.log(`➕ Attaching add button listener for group "${groupName}"`);
+    debugLog(`➕ Attaching add button listener for group "${groupName}"`);
     // Remove any existing listeners
     addButton.removeEventListener('click', handleAddRow);
     addButton.addEventListener('click', handleAddRow);
@@ -630,11 +630,11 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
 
   // Attach remove button listeners - support both attribute patterns and any group name
   const removeButtons = container.querySelectorAll('[data-cd-remove-row], [data-cd-repeat-remove]');
-  console.log(`🔗 Found ${removeButtons.length} remove buttons for group "${groupName}"`);
+  debugLog(`🔗 Found ${removeButtons.length} remove buttons for group "${groupName}"`);
   removeButtons.forEach((removeButton) => {
     const removeAttr = removeButton.getAttribute('data-cd-repeat-remove');
     if (removeAttr) {
-      console.log(`🔗 Remove button references group: "${removeAttr}" (should be "${groupName}")`);
+      debugLog(`🔗 Remove button references group: "${removeAttr}" (should be "${groupName}")`);
     }
     // Remove any existing listeners
     removeButton.removeEventListener('click', handleRemoveRow);
@@ -649,7 +649,7 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
     if (firstRemoveButton) {
       firstRemoveButton.style.visibility = 'hidden';
       firstRemoveButton.style.pointerEvents = 'none';
-      console.log(`👁️ Hide remove button on first row for group "${groupName}"`);
+      debugLog(`👁️ Hide remove button on first row for group "${groupName}"`);
     }
   }
   
@@ -664,20 +664,20 @@ function initializeDynamicRowGroup(groupName: string, container: Element) {
 }
 
 function applyFormattingToRows(group: DynamicRowGroup) {
-  console.log(`🎨 Applying formatting to ${group.rows.length} existing rows in group "${group.groupName}"`);
-  
+  debugLog(`🎨 Applying formatting to ${group.rows.length} existing rows in group "${group.groupName}"`);
+
   group.rows.forEach((row, index) => {
     const inputs = row.querySelectorAll('input[data-input]');
-    console.log(`🎨 Row ${index + 1}: found ${inputs.length} inputs with data-input attribute`);
-    
+    debugLog(`🎨 Row ${index + 1}: found ${inputs.length} inputs with data-input attribute`);
+
     inputs.forEach((input) => {
       const inputElement = input as HTMLInputElement;
       const attr = inputElement.getAttribute('data-input');
-      
+
       if (!attr) return;
-      
-      console.log(`🎨 Applying formatting to input: data-input="${attr}"`);
-      
+
+      debugLog(`🎨 Applying formatting to input: data-input="${attr}"`);
+
       const config = parseFormat(attr);
       if (config) {
         const maskitoOptions = createMaskitoOptions(config);
@@ -686,15 +686,15 @@ function applyFormattingToRows(group: DynamicRowGroup) {
           if ((inputElement as any).__maskito) {
             (inputElement as any).__maskito.destroy();
           }
-          
+
           // Initialize new Maskito instance
           const maskito = new Maskito(inputElement, maskitoOptions);
           (inputElement as any).__maskito = maskito;
-          
+
           // Dispatch bound event
           inputElement.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
-          
-          console.log(`✅ Maskito applied to existing input with data-input="${attr}"`);
+
+          debugLog(`✅ Maskito applied to existing input with data-input="${attr}"`);
         }
       }
     });
@@ -702,62 +702,40 @@ function applyFormattingToRows(group: DynamicRowGroup) {
 }
 
 function handleAddRow(event: Event) {
-  console.log(`🖱️ Add button clicked!`, event.target);
   event.preventDefault();
-  
+
   // The clicked element might be nested inside the actual button
   const clickedElement = event.target as Element;
   const button = clickedElement.closest('[data-cd-repeat-add]') || clickedElement.closest('[data-cd-add-row]');
-  
-  console.log(`🔍 Event details:`, {
-    clickedElement: clickedElement.tagName,
-    clickedClass: clickedElement.className,
-    foundButton: !!button,
-    buttonAttr: button ? button.getAttribute('data-cd-repeat-add') || button.getAttribute('data-cd-add-row') : 'none'
-  });
-  
+
   if (!button) {
     console.error('❌ No add button found from clicked element');
     return;
   }
-  
+
   // Get the group name from the button's attribute first
   const groupName = button.getAttribute('data-cd-repeat-add') || button.getAttribute('data-cd-add-row');
-  
-  console.log(`🔍 Searching for container from button:`, {
-    button: button.tagName,
-    buttonClass: button.className,
-    groupName: groupName
-  });
-  
+
   if (!groupName) {
     console.error('❌ No group name found on add button');
     return;
   }
-  
+
   // Find the container by group name since buttons are siblings, not children
   const container = document.querySelector(`[data-cd-repeat-group="${groupName}"]`);
-  
-  console.log(`🔍 Container lookup result:`, {
-    groupName: groupName,
-    containerFound: !!container
-  });
-  
+
   if (!container) {
     console.error(`❌ No container found for group "${groupName}"`);
     return;
   }
-  
-  console.log(`📝 Found container for group: "${groupName}"`);
-  
+
   const group = activeGroups.get(groupName);
-  console.log(`📦 Retrieved group:`, !!group);
-  
+
   if (!group) {
     console.error(`❌ No group found in activeGroups for "${groupName}"`);
     return;
   }
-  
+
   addNewRow(group);
 }
 
@@ -781,44 +759,43 @@ function handleRemoveRow(event: Event) {
 }
 
 function addNewRow(group: DynamicRowGroup) {
-  console.log(`➕ Adding new row to group "${group.groupName}" (currently ${group.rows.length} rows)`);
-  
+  debugLog(`➕ Adding new row to group "${group.groupName}" (currently ${group.rows.length} rows)`);
+
   // Check if we've reached the maximum of 5 total rows (1 original + 4 additional)
   if (group.rows.length >= 5) {
-    console.log(`⚠️ Maximum rows reached for group "${group.groupName}" (5 rows max)`);
+    debugWarn(`⚠️ Maximum rows reached for group "${group.groupName}" (5 rows max)`);
     // Disable the add button
     if (group.addButton) {
       (group.addButton as HTMLElement).style.opacity = '0.5';
       (group.addButton as HTMLElement).style.pointerEvents = 'none';
-      console.log(`🚫 Add button disabled for group "${group.groupName}"`);
     }
     return;
   }
-  
+
   // Clone from the template instead of visible rows to avoid copying user data
   const template = group.container.querySelector('[data-cd-repeat-template]');
-  
+
   if (!template) {
     console.error('❌ No template found to clone');
     return;
   }
-  
+
   const newRow = template.cloneNode(true) as Element;
-  
+
   // Remove template attribute from cloned row
   newRow.removeAttribute('data-cd-repeat-template');
-  
+
   // Clear input values in the cloned row and apply formatting
   const inputs = newRow.querySelectorAll('input, select, textarea');
   inputs.forEach((input) => {
     const inputElement = input as HTMLInputElement;
     inputElement.value = '';
-    
+
     // Apply Maskito formatting to inputs with data-input attribute
     const attr = inputElement.getAttribute('data-input');
     if (attr) {
-      console.log(`➕ Applying formatting to new input: data-input="${attr}"`);
-      
+      debugLog(`➕ Applying formatting to new input: data-input="${attr}"`);
+
       const config = parseFormat(attr);
       if (config) {
         const maskitoOptions = createMaskitoOptions(config);
@@ -827,38 +804,36 @@ function addNewRow(group: DynamicRowGroup) {
           if ((inputElement as any).__maskito) {
             (inputElement as any).__maskito.destroy();
           }
-          
+
           // Initialize new Maskito instance
           const maskito = new Maskito(inputElement, maskitoOptions);
           (inputElement as any).__maskito = maskito;
-          
+
           // Dispatch bound event
           inputElement.dispatchEvent(new CustomEvent('cd:inputformat:bound', { bubbles: true }));
-          
-          console.log(`✅ Maskito applied to new input with data-input="${attr}"`);
+
+          debugLog(`✅ Maskito applied to new input with data-input="${attr}"`);
         }
       }
     }
   });
-  
+
   // Ensure the new row is visible by adding the visible class and forcing display
   const htmlRow = newRow as HTMLElement;
-  console.log(`➕ Before visibility fix - classes: ${htmlRow.className}, inline style: ${htmlRow.style.display}`);
   htmlRow.classList.add('visible-row');
   // Force display with cssText to override Webflow's CSS cascade
   htmlRow.style.cssText = htmlRow.style.cssText.replace(/display\s*:\s*[^;]+;?/, '') + ' display: grid !important;';
   htmlRow.removeAttribute('aria-hidden');
-  console.log(`➕ After visibility fix - classes: ${htmlRow.className}, inline style: ${htmlRow.style.display}`);
-  
+
   // Append to the end of the container (after the initial row)
   group.container.appendChild(newRow);
-  
+
   // Add to rows array
   group.rows.push(newRow);
 
   // Attach remove button listeners to the new row - support both attribute patterns
   const removeButtons = newRow.querySelectorAll('[data-cd-remove-row], [data-cd-repeat-remove]');
-  console.log(`➕ Attaching ${removeButtons.length} remove button listeners to new row`);
+  debugLog(`➕ Attaching ${removeButtons.length} remove button listeners to new row`);
   removeButtons.forEach((removeButton) => {
     removeButton.addEventListener('click', handleRemoveRow);
   });
@@ -872,7 +847,7 @@ function addNewRow(group: DynamicRowGroup) {
   // Update summaries
   updateSummaries(group);
 
-  console.log(`➕ Row added successfully, new total: ${group.rows.length} rows`);
+  debugLog(`➕ Row added successfully, new total: ${group.rows.length} rows`);
 
   // Show the first row's remove button now that we have more than one row
   if (group.rows.length > 1) {
@@ -881,7 +856,7 @@ function addNewRow(group: DynamicRowGroup) {
     if (firstRemoveButton) {
       firstRemoveButton.style.visibility = 'visible';
       firstRemoveButton.style.pointerEvents = 'auto';
-      console.log(`👁️ Show remove button on first row (${group.rows.length} rows)`);
+      debugLog(`👁️ Show remove button on first row (${group.rows.length} rows)`);
     }
   }
 
@@ -889,9 +864,8 @@ function addNewRow(group: DynamicRowGroup) {
   if (group.rows.length >= 5 && group.addButton) {
     (group.addButton as HTMLElement).style.opacity = '0.5';
     (group.addButton as HTMLElement).style.pointerEvents = 'none';
-    console.log(`🚫 Add button disabled for group "${group.groupName}" after reaching maximum (${group.rows.length} rows)`);
   }
-  
+
   // Dispatch event
   newRow.dispatchEvent(new CustomEvent('cd:row:added', {
     bubbles: true,
@@ -900,21 +874,21 @@ function addNewRow(group: DynamicRowGroup) {
 }
 
 function reindexRows(group: DynamicRowGroup) {
-  console.log(`🔢 DYNAMIC: Reindexing ${group.rows.length} rows for group "${group.groupName}"`);
+  debugLog(`🔢 DYNAMIC: Reindexing ${group.rows.length} rows for group "${group.groupName}"`);
   
   group.rows.forEach((row, index) => {
     const rowIndex = index + 1; // 1-based indexing
     
     // Update input names with row suffix for unique field names
     const inputs = row.querySelectorAll('[data-cd-repeat-name]');
-    console.log(`🔢 DYNAMIC: Row ${rowIndex}: found ${inputs.length} inputs with data-cd-repeat-name`);
+    debugLog(`🔢 DYNAMIC: Row ${rowIndex}: found ${inputs.length} inputs with data-cd-repeat-name`);
     inputs.forEach((input) => {
       const fieldName = input.getAttribute('data-cd-repeat-name');
       if (fieldName) {
         // Use simple suffix pattern: {field}-{i} for unique field names
         const finalName = `${fieldName}-${rowIndex}`;
         (input as HTMLInputElement).name = finalName;
-        console.log(`🔢 DYNAMIC: Row ${rowIndex}: Updated input name: ${fieldName} → ${finalName}`);
+        debugLog(`🔢 DYNAMIC: Row ${rowIndex}: Updated input name: ${fieldName} → ${finalName}`);
       }
     });
     
@@ -946,25 +920,25 @@ function reindexRows(group: DynamicRowGroup) {
   });
   
   // Dispatch synthetic input events to trigger summary updates
-  console.log(`🔢 DYNAMIC: Dispatching input events to trigger summary updates`);
+  debugLog(`🔢 DYNAMIC: Dispatching input events to trigger summary updates`);
   group.rows.forEach((row, index) => {
     const inputs = row.querySelectorAll('input, select, textarea');
-    console.log(`🔢 DYNAMIC: Row ${index + 1}: dispatching events for ${inputs.length} inputs`);
+    debugLog(`🔢 DYNAMIC: Row ${index + 1}: dispatching events for ${inputs.length} inputs`);
     inputs.forEach((input) => {
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
   });
   
   // Summary field syncing will be handled by updateSummaries() call
-  console.log(`🔢 DYNAMIC: Summary fields will be synced by updateSummaries()`);
+  debugLog(`🔢 DYNAMIC: Summary fields will be synced by updateSummaries()`);
 }
 
 function updateSummaries(group: DynamicRowGroup) {
-  console.log(`📊 SUMMARY: Updating summaries for group "${group.groupName}" (${group.rows.length} rows)`);
+  debugLog(`📊 SUMMARY: Updating summaries for group "${group.groupName}" (${group.rows.length} rows)`);
   
   // Find summary containers for this group
   const summaryContainers = document.querySelectorAll(`[data-cd-summary-for="${group.groupName}"]`);
-  console.log(`📊 SUMMARY: Found ${summaryContainers.length} summary container(s) for group "${group.groupName}"`);
+  debugLog(`📊 SUMMARY: Found ${summaryContainers.length} summary container(s) for group "${group.groupName}"`);
   
   summaryContainers.forEach((summaryContainer, containerIndex) => {
     const template = summaryContainer.querySelector('[data-cd-summary-template]');
@@ -975,11 +949,11 @@ function updateSummaries(group: DynamicRowGroup) {
     
     // Remove existing summary rows
     const existingSummaryRows = summaryContainer.querySelectorAll('[data-summary-row]');
-    console.log(`📊 SUMMARY: Removing ${existingSummaryRows.length} existing summary rows from container ${containerIndex}`);
+    debugLog(`📊 SUMMARY: Removing ${existingSummaryRows.length} existing summary rows from container ${containerIndex}`);
     existingSummaryRows.forEach(row => row.remove());
     
     // Create summary rows for each data row
-    console.log(`📊 SUMMARY: Creating ${group.rows.length} new summary rows for container ${containerIndex}`);
+    debugLog(`📊 SUMMARY: Creating ${group.rows.length} new summary rows for container ${containerIndex}`);
     group.rows.forEach((dataRow, index) => {
       const rowIndex = index + 1;
       const summaryRow = template.cloneNode(true) as Element;
@@ -993,7 +967,7 @@ function updateSummaries(group: DynamicRowGroup) {
       
       // Update data-cd-input-field attributes to match new naming pattern
       const fieldElements = summaryRow.querySelectorAll('[data-cd-input-field]');
-      console.log(`📊 SUMMARY: Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
+      debugLog(`📊 SUMMARY: Processing ${fieldElements.length} field elements in summary row ${rowIndex}`);
       fieldElements.forEach((element) => {
         const fieldPattern = element.getAttribute('data-cd-input-field');
         if (fieldPattern) {
@@ -1001,7 +975,7 @@ function updateSummaries(group: DynamicRowGroup) {
           // e.g., "person-entity-name-{i}" → "person-entity-name-1"
           const finalFieldName = fieldPattern.replace('{i}', rowIndex.toString());
           element.setAttribute('data-cd-input-field', finalFieldName);
-          console.log(`📊 SUMMARY: Updated field: ${fieldPattern} → ${finalFieldName}`);
+          debugLog(`📊 SUMMARY: Updated field: ${fieldPattern} → ${finalFieldName}`);
         }
       });
       
@@ -1012,7 +986,7 @@ function updateSummaries(group: DynamicRowGroup) {
     // Hide the summary template after creating all summary rows
     if (template) {
       (template as HTMLElement).style.display = 'none';
-      console.log(`📊 SUMMARY: Summary template hidden for container ${containerIndex}`);
+      debugLog(`📊 SUMMARY: Summary template hidden for container ${containerIndex}`);
     }
   });
 
@@ -1021,14 +995,14 @@ function updateSummaries(group: DynamicRowGroup) {
 
   // Function to re-sync all fields in summary containers
   const resyncSummaryFields = () => {
-    console.log(`📊 SUMMARY: *** RE-SYNCING ALL FIELDS *** for group "${group.groupName}"`);
+    debugLog(`📊 SUMMARY: *** RE-SYNCING ALL FIELDS *** for group "${group.groupName}"`);
     summaryContainers.forEach((summaryContainer) => {
       const fieldElements = summaryContainer.querySelectorAll('[data-cd-input-field]');
-      console.log(`📊 SUMMARY: Found ${fieldElements.length} field elements to re-sync`);
+      debugLog(`📊 SUMMARY: Found ${fieldElements.length} field elements to re-sync`);
 
       fieldElements.forEach((element, index) => {
         const fieldName = element.getAttribute('data-cd-input-field');
-        console.log(`📊 SUMMARY: Re-syncing field ${index + 1}/${fieldElements.length}: "${fieldName}"`);
+        debugLog(`📊 SUMMARY: Re-syncing field ${index + 1}/${fieldElements.length}: "${fieldName}"`);
         if (fieldName) {
           syncSummaryField(element as HTMLElement, fieldName);
         }
@@ -1037,18 +1011,18 @@ function updateSummaries(group: DynamicRowGroup) {
 
     // Trigger TryFormly refresh
     if (typeof (window as any).TryFormly?.refresh === 'function') {
-      console.log('📊 SUMMARY: Triggering TryFormly.refresh() after re-sync');
+      debugLog('📊 SUMMARY: Triggering TryFormly.refresh() after re-sync');
       (window as any).TryFormly.refresh();
     }
 
-    console.log(`📊 SUMMARY: *** RE-SYNC COMPLETE ***`);
+    debugLog(`📊 SUMMARY: *** RE-SYNC COMPLETE ***`);
   };
 
   // Add event listeners to re-sync when summary containers become visible
   // This handles cases where containers are initially hidden by data-show-when
   summaryContainers.forEach((summaryContainer) => {
     summaryContainer.addEventListener('form-wrapper-visibility:shown', () => {
-      console.log(`📊 SUMMARY: *** CONTAINER BECAME VISIBLE (visibility event) ***`);
+      debugLog(`📊 SUMMARY: *** CONTAINER BECAME VISIBLE (visibility event) ***`);
       resyncSummaryFields();
     });
   });
@@ -1059,7 +1033,7 @@ function updateSummaries(group: DynamicRowGroup) {
     // Find the parent form step
     let formStep = summaryContainer.closest('[data-form="step"]');
     if (formStep) {
-      console.log(`📊 SUMMARY: Setting up form step observer for group "${group.groupName}"`);
+      debugLog(`📊 SUMMARY: Setting up form step observer for group "${group.groupName}"`);
 
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -1068,7 +1042,7 @@ function updateSummaries(group: DynamicRowGroup) {
             const isVisible = element.style.display !== 'none' && element.offsetParent !== null;
 
             if (isVisible) {
-              console.log(`📊 SUMMARY: *** FORM STEP BECAME VISIBLE (MutationObserver) ***`);
+              debugLog(`📊 SUMMARY: *** FORM STEP BECAME VISIBLE (MutationObserver) ***`);
               // Small delay to ensure DOM is fully updated
               setTimeout(() => resyncSummaryFields(), 100);
             }
@@ -1081,34 +1055,32 @@ function updateSummaries(group: DynamicRowGroup) {
         attributeFilter: ['style', 'class']
       });
 
-      console.log(`📊 SUMMARY: Form step observer attached for group "${group.groupName}"`);
+      debugLog(`📊 SUMMARY: Form step observer attached for group "${group.groupName}"`);
     } else {
-      console.log(`📊 SUMMARY: No parent form step found for group "${group.groupName}"`);
+      debugLog(`📊 SUMMARY: No parent form step found for group "${group.groupName}"`);
     }
   });
 
   // Trigger TryFormly refresh if available
   if (typeof (window as any).TryFormly?.refresh === 'function') {
-    console.log('📊 SUMMARY: Triggering TryFormly.refresh()');
+    debugLog('📊 SUMMARY: Triggering TryFormly.refresh()');
     (window as any).TryFormly.refresh();
-  } else {
-    console.log('📊 SUMMARY: TryFormly.refresh() not available');
   }
 }
 
 // Summary field synchronization functions
 function syncAllSummaryFields() {
-  console.log('🔄 SUMMARY: Syncing all summary fields...');
+  debugLog('🔄 SUMMARY: Syncing all summary fields...');
   
   // Find all summary output elements
   const summaryElements = document.querySelectorAll('[data-cd-input-field]');
-  console.log(`🔄 SUMMARY: Found ${summaryElements.length} summary field elements`);
+  debugLog(`🔄 SUMMARY: Found ${summaryElements.length} summary field elements`);
   
   summaryElements.forEach((summaryElement, index) => {
     const fieldName = summaryElement.getAttribute('data-cd-input-field');
     if (!fieldName) return;
     
-    console.log(`🔄 SUMMARY: Syncing field ${index + 1}: "${fieldName}"`);
+    debugLog(`🔄 SUMMARY: Syncing field ${index + 1}: "${fieldName}"`);
     syncSummaryField(summaryElement as HTMLElement, fieldName);
   });
 }
@@ -1117,11 +1089,11 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   // Find the corresponding input/select/textarea element
   let sourceElement: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null = null;
   
-  console.log(`🔍 SUMMARY: Syncing summary field: "${fieldName}"`);
+  debugLog(`🔍 SUMMARY: Syncing summary field: "${fieldName}"`);
   
   // Check if this is a templated field name with {i} placeholder
   if (fieldName.includes('{i}')) {
-    console.log(`🔍 SUMMARY: Templated field detected: "${fieldName}"`);
+    debugLog(`🔍 SUMMARY: Templated field detected: "${fieldName}"`);
     
     // Extract the row number from the summary element's context
     const summaryRow = summaryElement.closest('[data-summary-row]');
@@ -1143,16 +1115,16 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
           const rowNum = bracketMatch[1];
           const baseFieldName = bracketMatch[2];
           resolvedFieldName = `${baseFieldName}-${rowNum}`;
-          console.log(`🔍 SUMMARY: Converted bracket pattern: "${fieldName}" → "${resolvedFieldName}"`);
+          debugLog(`🔍 SUMMARY: Converted bracket pattern: "${fieldName}" → "${resolvedFieldName}"`);
         }
       }
       
-      console.log(`🔍 SUMMARY: Resolved templated field: "${fieldName}" → "${resolvedFieldName}"`);
+      debugLog(`🔍 SUMMARY: Resolved templated field: "${fieldName}" → "${resolvedFieldName}"`);
       
       // Use the resolved field name for lookup
       fieldName = resolvedFieldName;
     } else {
-      console.log(`🔍 SUMMARY: Could not resolve templated field "${fieldName}" - no summary row context found`);
+      debugLog(`🔍 SUMMARY: Could not resolve templated field "${fieldName}" - no summary row context found`);
       return;
     }
   }
@@ -1180,20 +1152,20 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       const el = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
       if (htmlEl.offsetParent !== null && el.value && el.value.trim()) {
         sourceElement = el;
-        console.log(`🔍 Found visible source WITH VALUE using selector: ${selector}, value="${el.value}"`);
+        debugLog(`🔍 Found visible source WITH VALUE using selector: ${selector}, value="${el.value}"`);
         break;
       }
     }
     if (sourceElement) break;
 
     // Priority 2: Hidden element with non-empty value
-    console.log(`🔍 No visible elements with values found, searching ${elements.length} hidden elements for one with a value...`);
+    debugLog(`🔍 No visible elements with values found, searching ${elements.length} hidden elements for one with a value...`);
     for (const element of Array.from(elements)) {
       const htmlEl = element as HTMLElement;
       const el = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
       if (htmlEl.offsetParent === null && el.value && el.value.trim()) {
         sourceElement = el;
-        console.log(`🔍 Found hidden source WITH VALUE using selector: ${selector}, value="${el.value}"`);
+        debugLog(`🔍 Found hidden source WITH VALUE using selector: ${selector}, value="${el.value}"`);
         break;
       }
     }
@@ -1204,7 +1176,7 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       const htmlEl = element as HTMLElement;
       if (htmlEl.offsetParent !== null) {
         sourceElement = element as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-        console.log(`🔍 Found visible source (empty value) using selector: ${selector}`);
+        debugLog(`🔍 Found visible source (empty value) using selector: ${selector}`);
         break;
       }
     }
@@ -1212,12 +1184,12 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
 
     // Priority 4: First element as last resort
     sourceElement = elements[0] as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-    console.log(`🔍 Found source using first element (last resort): ${selector}`);
+    debugLog(`🔍 Found source using first element (last resort): ${selector}`);
     break;
   }
   
   if (!sourceElement) {
-    console.log(`🔍 SUMMARY: Direct match failed for field: "${fieldName}"`);
+    debugLog(`🔍 SUMMARY: Direct match failed for field: "${fieldName}"`);
     
     // Debug: Log all available dynamic row input names with the new suffix pattern
     const allInputs = Array.from(document.querySelectorAll('input[name], select[name], textarea[name]'));
@@ -1226,13 +1198,13 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       return name && name.includes('-'); // New pattern uses hyphens
     });
     const dynamicNames = dynamicInputs.map(el => el.getAttribute('name'));
-    console.log(`🔍 SUMMARY: Available dynamic input names (with suffix pattern):`, dynamicNames);
-    console.log(`🔍 SUMMARY: Looking for field name: "${fieldName}"`);
+    debugLog(`🔍 SUMMARY: Available dynamic input names (with suffix pattern):`, dynamicNames);
+    debugLog(`🔍 SUMMARY: Looking for field name: "${fieldName}"`);
     
     return;
   }
   
-  console.log(`🔍 SUMMARY: Found source element for "${fieldName}":`, sourceElement.tagName, sourceElement.type || '');
+  debugLog(`🔍 SUMMARY: Found source element for "${fieldName}":`, sourceElement.tagName, sourceElement.type || '');
   
   // Get and set the current value
   let displayValue = '';
@@ -1240,19 +1212,19 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   // Debug: Log the actual input value and element details
   if (sourceElement.tagName.toLowerCase() === 'input' || sourceElement.tagName.toLowerCase() === 'textarea') {
     const inputEl = sourceElement as HTMLInputElement;
-    console.log(`🔍 SUMMARY DEBUG: Input element value: "${inputEl.value}"`);
-    console.log(`🔍 SUMMARY DEBUG: Input element name: "${inputEl.name}"`);
-    console.log(`🔍 SUMMARY DEBUG: Input element id: "${inputEl.id}"`);
-    console.log(`🔍 SUMMARY DEBUG: Element visibility: display="${inputEl.style.display}", parent visible="${inputEl.offsetParent !== null}"`);
-    console.log(`🔍 SUMMARY DEBUG: Element classes: "${inputEl.className}"`);
+    debugLog(`🔍 SUMMARY DEBUG: Input element value: "${inputEl.value}"`);
+    debugLog(`🔍 SUMMARY DEBUG: Input element name: "${inputEl.name}"`);
+    debugLog(`🔍 SUMMARY DEBUG: Input element id: "${inputEl.id}"`);
+    debugLog(`🔍 SUMMARY DEBUG: Element visibility: display="${inputEl.style.display}", parent visible="${inputEl.offsetParent !== null}"`);
+    debugLog(`🔍 SUMMARY DEBUG: Element classes: "${inputEl.className}"`);
     
     // Check if there are multiple elements with the same name
     const allWithSameName = document.querySelectorAll(`[name="${fieldName}"]`);
-    console.log(`🔍 SUMMARY DEBUG: Found ${allWithSameName.length} elements with name="${fieldName}"`);
+    debugLog(`🔍 SUMMARY DEBUG: Found ${allWithSameName.length} elements with name="${fieldName}"`);
     if (allWithSameName.length > 1) {
       allWithSameName.forEach((el, idx) => {
         const htmlEl = el as HTMLElement;
-        console.log(`🔍 SUMMARY DEBUG: Element ${idx + 1}: value="${(el as HTMLInputElement).value}", visible="${htmlEl.offsetParent !== null}", classes="${htmlEl.className}"`);
+        debugLog(`🔍 SUMMARY DEBUG: Element ${idx + 1}: value="${(el as HTMLInputElement).value}", visible="${htmlEl.offsetParent !== null}", classes="${htmlEl.className}"`);
       });
     }
   }
@@ -1271,17 +1243,15 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
   
   // Update the summary element
   summaryElement.textContent = displayValue || '[Not specified]';
-  console.log(`✅ SUMMARY: Updated summary for "${fieldName}": "${displayValue}" (empty: ${!displayValue})`);
-  console.log(`   Summary element:`, summaryElement);
-  console.log(`   Source element:`, sourceElement);
+  debugLog(`✅ SUMMARY: Updated summary for "${fieldName}": "${displayValue}" (empty: ${!displayValue})`);
 
   // Add event listener for future changes if not already added
   if (!(sourceElement as any).__summaryListenerAdded) {
     const eventType = sourceElement.type === 'radio' || sourceElement.type === 'checkbox' ? 'change' : 'input';
 
-    console.log(`🎧 SUMMARY: Adding ${eventType} listener for field "${fieldName}"...`);
+    debugLog(`🎧 SUMMARY: Adding ${eventType} listener for field "${fieldName}"...`);
     sourceElement.addEventListener(eventType, () => {
-      console.log(`🔄 SUMMARY: *** FIELD INPUT EVENT FIRED *** Field "${fieldName}" changed to: "${sourceElement.value}"`);
+      debugLog(`🔄 SUMMARY: *** FIELD INPUT EVENT FIRED *** Field "${fieldName}" changed to: "${sourceElement.value}"`);
       syncSummaryField(summaryElement, fieldName);
     });
 
@@ -1291,7 +1261,7 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
       allRadios.forEach(radio => {
         if (!(radio as any).__summaryListenerAdded) {
           radio.addEventListener('change', () => {
-            console.log(`🔄 SUMMARY: Radio "${fieldName}" changed, updating summary...`);
+            debugLog(`🔄 SUMMARY: Radio "${fieldName}" changed, updating summary...`);
             syncSummaryField(summaryElement, fieldName);
           });
           (radio as any).__summaryListenerAdded = true;
@@ -1300,9 +1270,9 @@ function syncSummaryField(summaryElement: HTMLElement, fieldName: string) {
     }
 
     (sourceElement as any).__summaryListenerAdded = true;
-    console.log(`✅ SUMMARY: Event listener successfully added for field "${fieldName}"`);
+    debugLog(`✅ SUMMARY: Event listener successfully added for field "${fieldName}"`);
   } else {
-    console.log(`⏭️  SUMMARY: Event listener already exists for field "${fieldName}", skipping`);
+    debugLog(`⏭️  SUMMARY: Event listener already exists for field "${fieldName}", skipping`);
   }
 }
 
@@ -1318,7 +1288,7 @@ function findRowContainingElement(group: DynamicRowGroup, element: Element): {ro
 }
 
 function removeRow(group: DynamicRowGroup, targetRow: Element) {
-  console.log(`➖ Removing row from group "${group.groupName}" (currently ${group.rows.length} rows)`);
+  debugLog(`➖ Removing row from group "${group.groupName}" (currently ${group.rows.length} rows)`);
   
   // Validate minimum row count - prevent removing last row
   if (group.rows.length <= 1) {
@@ -1333,7 +1303,7 @@ function removeRow(group: DynamicRowGroup, targetRow: Element) {
     return;
   }
   
-  console.log(`➖ Removing row at index ${targetIndex}`);
+  debugLog(`➖ Removing row at index ${targetIndex}`);
   
   // Remove the row from DOM
   targetRow.remove();
@@ -1345,7 +1315,7 @@ function removeRow(group: DynamicRowGroup, targetRow: Element) {
   if (group.rows.length < 5 && group.addButton) {
     (group.addButton as HTMLElement).style.opacity = '';
     (group.addButton as HTMLElement).style.pointerEvents = '';
-    console.log(`✅ Add button re-enabled for group "${group.groupName}"`);
+    debugLog(`✅ Add button re-enabled for group "${group.groupName}"`);
   }
   
   // Reindex remaining rows
@@ -1361,11 +1331,11 @@ function removeRow(group: DynamicRowGroup, targetRow: Element) {
     if (firstRemoveButton) {
       firstRemoveButton.style.visibility = 'hidden';
       firstRemoveButton.style.pointerEvents = 'none';
-      console.log(`👁️ Hide remove button on first row (back to 1 row)`);
+      debugLog(`👁️ Hide remove button on first row (back to 1 row)`);
     }
   }
 
-  console.log(`➖ Row removed successfully, new total: ${group.rows.length} rows`);
+  debugLog(`➖ Row removed successfully, new total: ${group.rows.length} rows`);
   
   // Dispatch event
   targetRow.dispatchEvent(new CustomEvent('cd:row:removed', {
@@ -1776,53 +1746,95 @@ function updateAllSummaryVisibility() {
 // Skip Navigation (Tryformly Integration)
 // Provides custom skip functionality that works with Tryformly multi-step forms
 function initSkipNavigation() {
-  infoLog('⏭️ Initializing Skip Navigation...');
+  console.log('⏭️ [CD SKIP] Initializing Skip Navigation...');
 
   const skipButtons = document.querySelectorAll('[data-cd-skip]');
-  debugLog(`⏭️ Found ${skipButtons.length} skip buttons`);
+  console.log(`⏭️ [CD SKIP] Found ${skipButtons.length} skip buttons`);
 
-  skipButtons.forEach((button) => {
-    button.addEventListener('click', handleSkipClick);
-  });
+  if (skipButtons.length > 0) {
+    skipButtons.forEach((button, index) => {
+      const target = button.getAttribute('data-cd-skip');
+      console.log(`⏭️ [CD SKIP] Button ${index + 1}:`, {
+        element: button,
+        tagName: button.tagName,
+        classList: button.className,
+        targetStep: target
+      });
+      button.addEventListener('click', handleSkipClick);
+    });
+  } else {
+    console.warn('⚠️ [CD SKIP] No buttons found with [data-cd-skip] attribute');
+  }
 
-  infoLog(`✅ Skip navigation initialized (${skipButtons.length} buttons)`);
+  console.log(`✅ [CD SKIP] Skip navigation initialized (${skipButtons.length} buttons)`);
 }
 
 function handleSkipClick(event: Event) {
+  console.log('🖱️ [CD SKIP] ========== SKIP BUTTON CLICKED ==========');
+  console.log('🖱️ [CD SKIP] Event:', event);
+
   event.preventDefault();
 
   const button = event.currentTarget as HTMLElement;
   const targetAnswer = button.getAttribute('data-cd-skip');
 
+  console.log(`🔍 [CD SKIP] Button details:`, {
+    element: button,
+    tagName: button.tagName,
+    classList: button.className,
+    'data-cd-skip': targetAnswer
+  });
+
   if (!targetAnswer) {
-    console.error('❌ No target specified in data-cd-skip');
+    console.error('❌ [CD SKIP] No target specified in data-cd-skip attribute');
     return;
   }
 
-  debugLog(`⏭️ Skip button clicked, target: "${targetAnswer}"`);
+  console.log(`🔍 [CD SKIP] Searching for step with [data-answer="${targetAnswer}"]`);
 
   // Find the target step by data-answer attribute
   const targetStep = document.querySelector(`[data-answer="${targetAnswer}"]`);
 
   if (!targetStep) {
-    console.error(`❌ Target step not found: data-answer="${targetAnswer}"`);
+    console.error(`❌ [CD SKIP] Target step NOT FOUND: [data-answer="${targetAnswer}"]`);
+
+    // Debug: List all available data-answer values
+    const allStepsWithAnswer = document.querySelectorAll('[data-answer]');
+    console.log(`🔍 [CD SKIP] Available steps with [data-answer] (${allStepsWithAnswer.length} total):`);
+    allStepsWithAnswer.forEach((step, idx) => {
+      const answer = step.getAttribute('data-answer');
+      console.log(`  ${idx + 1}. [data-answer="${answer}"]`, {
+        element: step,
+        tagName: step.tagName,
+        classList: step.className
+      });
+    });
     return;
   }
 
-  debugLog(`⏭️ Target step found:`, targetStep);
+  console.log(`✅ [CD SKIP] Target step FOUND:`, {
+    element: targetStep,
+    tagName: targetStep.tagName,
+    classList: targetStep.className,
+    'data-answer': targetStep.getAttribute('data-answer')
+  });
 
   // Hide all steps
   const allSteps = document.querySelectorAll('[data-form="step"]');
-  allSteps.forEach((step) => {
+  console.log(`👁️ [CD SKIP] Hiding ${allSteps.length} total steps`);
+
+  allSteps.forEach((step, idx) => {
     const htmlStep = step as HTMLElement;
     htmlStep.style.display = 'none';
     htmlStep.classList.remove('active-answer-card');
+    console.log(`  ${idx + 1}. Hidden step:`, step.getAttribute('data-answer') || 'no data-answer');
   });
 
   // Show the target step
   const htmlTargetStep = targetStep as HTMLElement;
   htmlTargetStep.style.display = '';
   htmlTargetStep.classList.add('active-answer-card');
+  console.log(`👁️ [CD SKIP] Target step now visible (display="${htmlTargetStep.style.display}")`);
 
   // Update step counter if Tryformly step counter exists
   const currentStepElement = document.querySelector('[data-text="current-step"]');
@@ -1832,20 +1844,27 @@ function handleSkipClick(event: Event) {
     const targetIndex = allStepsArray.indexOf(targetStep);
     if (targetIndex !== -1) {
       currentStepElement.textContent = String(targetIndex + 1);
-      debugLog(`⏭️ Updated step counter to: ${targetIndex + 1}`);
+      console.log(`🔢 [CD SKIP] Updated step counter to: ${targetIndex + 1}`);
     }
+  } else {
+    console.log(`ℹ️ [CD SKIP] No step counter found ([data-text="current-step"])`);
   }
 
   // Trigger TryFormly refresh if available
   if (typeof (window as any).TryFormly?.refresh === 'function') {
-    debugLog('⏭️ Triggering TryFormly.refresh()');
+    console.log('🔄 [CD SKIP] Triggering TryFormly.refresh()');
     (window as any).TryFormly.refresh();
+  } else {
+    console.log('ℹ️ [CD SKIP] TryFormly.refresh() not available');
   }
 
   // Scroll to top of form
   const form = targetStep.closest('form');
   if (form) {
+    console.log('📜 [CD SKIP] Scrolling to form');
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    console.log('ℹ️ [CD SKIP] No parent form found for scrolling');
   }
 
   // Dispatch custom event
@@ -1854,7 +1873,7 @@ function handleSkipClick(event: Event) {
     detail: { targetAnswer, button }
   }));
 
-  infoLog(`✅ Skipped to step: "${targetAnswer}"`);
+  console.log(`✅ [CD SKIP] ========== SKIP COMPLETE: "${targetAnswer}" ==========`);
 }
 
 function initializeLibrary() {
