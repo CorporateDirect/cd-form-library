@@ -1881,6 +1881,9 @@ function initializeLibrary() {
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
 
   if (forms.length === 0) {
+    console.warn('⚠️ [CD FORM] No forms found with data-cd-form="true"');
+    // Still initialize skip navigation even if no forms found
+    initSkipNavigation();
     return;
   }
 
@@ -1903,9 +1906,6 @@ function initializeLibrary() {
       // Initialize tooltips for form
       initTooltips(formElement);
 
-      // Initialize skip navigation for data-cd-skip buttons
-      initSkipNavigation();
-
       // Summary field synchronization is handled within initDynamicRows()
 
       // Dispatch custom event for form enhancement completion
@@ -1918,6 +1918,9 @@ function initializeLibrary() {
       }
     }
   });
+
+  // Initialize skip navigation globally (not per-form, since skip buttons may be outside forms)
+  initSkipNavigation();
 }
 
 // Auto-initialize on DOM ready
