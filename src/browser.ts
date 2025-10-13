@@ -1773,6 +1773,90 @@ function updateAllSummaryVisibility() {
 }
 
 
+// Skip Navigation (Tryformly Integration)
+// Provides custom skip functionality that works with Tryformly multi-step forms
+function initSkipNavigation() {
+  infoLog('⏭️ Initializing Skip Navigation...');
+
+  const skipButtons = document.querySelectorAll('[data-cd-skip]');
+  debugLog(`⏭️ Found ${skipButtons.length} skip buttons`);
+
+  skipButtons.forEach((button) => {
+    button.addEventListener('click', handleSkipClick);
+  });
+
+  infoLog(`✅ Skip navigation initialized (${skipButtons.length} buttons)`);
+}
+
+function handleSkipClick(event: Event) {
+  event.preventDefault();
+
+  const button = event.currentTarget as HTMLElement;
+  const targetAnswer = button.getAttribute('data-cd-skip');
+
+  if (!targetAnswer) {
+    console.error('❌ No target specified in data-cd-skip');
+    return;
+  }
+
+  debugLog(`⏭️ Skip button clicked, target: "${targetAnswer}"`);
+
+  // Find the target step by data-answer attribute
+  const targetStep = document.querySelector(`[data-answer="${targetAnswer}"]`);
+
+  if (!targetStep) {
+    console.error(`❌ Target step not found: data-answer="${targetAnswer}"`);
+    return;
+  }
+
+  debugLog(`⏭️ Target step found:`, targetStep);
+
+  // Hide all steps
+  const allSteps = document.querySelectorAll('[data-form="step"]');
+  allSteps.forEach((step) => {
+    const htmlStep = step as HTMLElement;
+    htmlStep.style.display = 'none';
+    htmlStep.classList.remove('active-answer-card');
+  });
+
+  // Show the target step
+  const htmlTargetStep = targetStep as HTMLElement;
+  htmlTargetStep.style.display = '';
+  htmlTargetStep.classList.add('active-answer-card');
+
+  // Update step counter if Tryformly step counter exists
+  const currentStepElement = document.querySelector('[data-text="current-step"]');
+  if (currentStepElement) {
+    // Find the step index
+    const allStepsArray = Array.from(allSteps);
+    const targetIndex = allStepsArray.indexOf(targetStep);
+    if (targetIndex !== -1) {
+      currentStepElement.textContent = String(targetIndex + 1);
+      debugLog(`⏭️ Updated step counter to: ${targetIndex + 1}`);
+    }
+  }
+
+  // Trigger TryFormly refresh if available
+  if (typeof (window as any).TryFormly?.refresh === 'function') {
+    debugLog('⏭️ Triggering TryFormly.refresh()');
+    (window as any).TryFormly.refresh();
+  }
+
+  // Scroll to top of form
+  const form = targetStep.closest('form');
+  if (form) {
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Dispatch custom event
+  targetStep.dispatchEvent(new CustomEvent('cd:skip:navigated', {
+    bubbles: true,
+    detail: { targetAnswer, button }
+  }));
+
+  infoLog(`✅ Skipped to step: "${targetAnswer}"`);
+}
+
 function initializeLibrary() {
 
   const forms = document.querySelectorAll('form[data-cd-form="true"]');
@@ -1799,6 +1883,9 @@ function initializeLibrary() {
 
       // Initialize tooltips for form
       initTooltips(formElement);
+
+      // Initialize skip navigation for data-cd-skip buttons
+      initSkipNavigation();
 
       // Summary field synchronization is handled within initDynamicRows()
 
