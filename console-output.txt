@@ -1,10 +1,11 @@
-multi-step.js:3380 Counter already updated for this month.
-realshield:135 [rows_json] missing hidden input
-(anonymous) @ realshield:135
-browser.js?t=${Date.now()}:4 🔄 Initializing Dynamic Rows...
-browser.js?t=${Date.now()}:4 🔍 Found existing data rows: 2
-browser.js?t=${Date.now()}:4 🔍 Existing row 1: Object
-browser.js?t=${Date.now()}:4 🔍 Existing row 2: Object
+ Counter already updated for this month.
+ [rows_json] missing hidden input
+(anonymous) @ realshield:139
+(anonymous) @ realshield:191
+ 🔄 Initializing Dynamic Rows...
+ 🔍 Found existing data rows: 2
+ 🔍 Existing row 1: {tag: 'DIV', class: 'multi-form_input-row-wrapper visible-row', data-cd-repeat-row: 'member-1-trustee'}
+browser.js?t=${Date.now()}:4 🔍 Existing row 2: {tag: 'DIV', class: 'multi-form_input-row-wrapper', data-cd-repeat-row: 'member-1-trustee'}
 browser.js?t=${Date.now()}:4 🔍 Keeping first row visible: row 1
 browser.js?t=${Date.now()}:4 🔍 Hiding extra row: row 2
 browser.js?t=${Date.now()}:4 🔍 Removing 1 extra rows from DOM
@@ -12,11 +13,12 @@ browser.js?t=${Date.now()}:4 ➕ Attaching add button listener for group "member
 browser.js?t=${Date.now()}:4 🔗 Found 2 remove buttons for group "member-1-trustee"
 browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
 browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
+browser.js?t=${Date.now()}:4 👁️ Hide remove button on first row for group "member-1-trustee"
 browser.js?t=${Date.now()}:4 🎨 Applying formatting to 1 existing rows in group "member-1-trustee"
 browser.js?t=${Date.now()}:4 🎨 Row 1: found 0 inputs with data-input attribute
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 1 rows for group "member-1-trustee"
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: member_1_trustee → member_1_trustee-1
+browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: trustee_1_name → trustee_1_name-1
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Dispatching input events to trigger summary updates
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: dispatching events for 1 inputs
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Summary fields will be synced by updateSummaries()
@@ -25,24 +27,34 @@ browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for grou
 browser.js?t=${Date.now()}:4 🔄 SUMMARY: Syncing all summary fields...
 browser.js?t=${Date.now()}:4 🔄 SUMMARY: Found 0 summary field elements
 browser.js?t=${Date.now()}:4 📊 SUMMARY: TryFormly.refresh() not available
-browser.js?t=${Date.now()}:4 🔍 Found existing data rows: 1
-browser.js?t=${Date.now()}:4 🔍 Existing row 1: Object
+browser.js?t=${Date.now()}:4 🔍 Found existing data rows: 2
+browser.js?t=${Date.now()}:4 🔍 Existing row 1: {tag: 'DIV', class: 'multi-form_input-row-wrapper visible-row', data-cd-repeat-row: 'member-2-trustee'}
+browser.js?t=${Date.now()}:4 🔍 Existing row 2: {tag: 'DIV', class: 'multi-form_input-row-wrapper', data-cd-repeat-row: 'member-1-trustee'}
 browser.js?t=${Date.now()}:4 🔍 Keeping first row visible: row 1
-browser.js?t=${Date.now()}:4 ➕ Attaching add button listener for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔗 Found 3 remove buttons for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
-browser.js?t=${Date.now()}:4 🎨 Applying formatting to 1 existing rows in group "member-1-trustee"
+browser.js?t=${Date.now()}:4 🔍 Hiding extra row: row 2
+browser.js?t=${Date.now()}:4 🔍 Removing 1 extra rows from DOM
+browser.js?t=${Date.now()}:4 ❌ No add button found for group "member-2-trustee". Checked selectors: [data-cd-add-row], [data-cd-repeat-add="member-2-trustee"]
+We @ browser.js?t=${Date.now()}:4
+(anonymous) @ browser.js?t=${Date.now()}:4
+on @ browser.js?t=${Date.now()}:4
+(anonymous) @ browser.js?t=${Date.now()}:4
+le @ browser.js?t=${Date.now()}:4
+(anonymous) @ browser.js?t=${Date.now()}:4
+(anonymous) @ browser.js?t=${Date.now()}:4
+browser.js?t=${Date.now()}:4 🔗 Found 2 remove buttons for group "member-2-trustee"
+browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-2-trustee" (should be "member-2-trustee")
+browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-2-trustee" (should be "member-2-trustee")
+browser.js?t=${Date.now()}:4 👁️ Hide remove button on first row for group "member-2-trustee"
+browser.js?t=${Date.now()}:4 🎨 Applying formatting to 1 existing rows in group "member-2-trustee"
 browser.js?t=${Date.now()}:4 🎨 Row 1: found 0 inputs with data-input attribute
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 1 rows for group "member-1-trustee"
+browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 1 rows for group "member-2-trustee"
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: member_1_trustee → member_1_trustee-1
+browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: trustee_2_name → trustee_2_name-1
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Dispatching input events to trigger summary updates
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: dispatching events for 1 inputs
 browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Summary fields will be synced by updateSummaries()
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Updating summaries for group "member-1-trustee" (1 rows)
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for group "member-1-trustee"
+browser.js?t=${Date.now()}:4 📊 SUMMARY: Updating summaries for group "member-2-trustee" (1 rows)
+browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for group "member-2-trustee"
 browser.js?t=${Date.now()}:4 🔄 SUMMARY: Syncing all summary fields...
 browser.js?t=${Date.now()}:4 🔄 SUMMARY: Found 0 summary field elements
 browser.js?t=${Date.now()}:4 📊 SUMMARY: TryFormly.refresh() not available
@@ -50,74 +62,26 @@ browser.js?t=${Date.now()}:4 ✅ Dynamic rows initialization complete
 browser.js?t=${Date.now()}:4 🌿 Initializing Branch-Based Summary Visibility...
 browser.js?t=${Date.now()}:4 ✅ Branch-based summary visibility initialization complete
 browser.js?t=${Date.now()}:4 ✅ Tooltips initialized (1 triggers)
-v1?ray=98a8bc89fb7b67a0&lang=auto:1  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.
-lp @ v1?ray=98a8bc89fb7b67a0&lang=auto:1
-  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.
-lp @ challenges.cloudflar…b7b67a0&lang=auto:1
-v1?ray=98a8bc89fb7b67a0&lang=auto:1 Request for the Private Access Token challenge.
-v1?ray=98a8bc89fb7b67a0&lang=auto:1 
-api.js:1 [Cloudflare Turnstile] Error: 600010.
-b @ api.js:1
-M @ api.js:1
 multi-step.js:1656 selections email [{…}] 1
+v1?ray=98b72991282cb8bd&lang=auto:1 
+v1?ray=98b72991282cb8bd&lang=auto:1 Request for the Private Access Token challenge.
+multi-step.js:1656 selections email [{…}] 1
+multi-step.js:1656 selections email [{…}] 1
+multi-step.js:1656 selections email [{…}] 1
+multi-step.js:1656 selections email [{…}] 1
+v1?ray=98b72991282cb8bd&lang=auto:1  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.
+uA @ v1?ray=98b72991282cb8bd&lang=auto:1
+(anonymous) @ v1?ray=98b72991282cb8bd&lang=auto:1
+(anonymous) @ v1?ray=98b72991282cb8bd&lang=auto:1
+uN @ v1?ray=98b72991282cb8bd&lang=auto:1
 auto:1 The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
-challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/turnstile/f/ov2/av0/rch/408xv/0x4AAAAAAAQTptj2So4dx43e/auto/fbE/new/normal/auto:1 The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
-multi-step.js:1656 selections email [{…}] 1
-multi-step.js:1656 selections email [{…}] 1
-multi-step.js:1656 selections email [{…}] 1
-multi-step.js:1656 selections email [{…}] 1
-v1?ray=98a8bcdb39c867a0&lang=auto:1 
-auto:1 The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
-browser.js?t=${Date.now()}:4 🖱️ Add button clicked! <div class=​"text-size-small">​Add row​</div>​
-browser.js?t=${Date.now()}:4 🔍 Event details: {clickedElement: 'DIV', clickedClass: 'text-size-small', foundButton: true, buttonAttr: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Searching for container from button: {button: 'A', buttonClass: 'button is-secondary is-icon-left row-button w-inline-block', groupName: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Container lookup result: {groupName: 'member-1-trustee', containerFound: true}
-browser.js?t=${Date.now()}:4 📝 Found container for group: "member-1-trustee"
-browser.js?t=${Date.now()}:4 📦 Retrieved group: true
-browser.js?t=${Date.now()}:4 ➕ Adding new row to group "member-1-trustee" (currently 1 rows)
-browser.js?t=${Date.now()}:4 ➕ Before visibility fix - classes: multi-form_input-row-wrapper visible-row, inline style: none
-browser.js?t=${Date.now()}:4 ➕ After visibility fix - classes: multi-form_input-row-wrapper visible-row, inline style: 
-browser.js?t=${Date.now()}:4 ➕ Attaching 1 remove button listeners to new row
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 2 rows for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: member_1_trustee → member_1_trustee-1
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 2: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 2: Updated input name: member_1_trustee → member_1_trustee-2
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Dispatching input events to trigger summary updates
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 2: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Summary fields will be synced by updateSummaries()
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Updating summaries for group "member-1-trustee" (2 rows)
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Syncing all summary fields...
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Found 0 summary field elements
-browser.js?t=${Date.now()}:4 📊 SUMMARY: TryFormly.refresh() not available
-browser.js?t=${Date.now()}:4 ➕ Row added successfully, new total: 2 rows
-browser.js?t=${Date.now()}:4 🖱️ Add button clicked! <div class=​"text-size-small">​Add row​</div>​
-browser.js?t=${Date.now()}:4 🔍 Event details: {clickedElement: 'DIV', clickedClass: 'text-size-small', foundButton: true, buttonAttr: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Searching for container from button: {button: 'A', buttonClass: 'button is-secondary is-icon-left row-button w-inline-block', groupName: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Container lookup result: {groupName: 'member-1-trustee', containerFound: true}
-browser.js?t=${Date.now()}:4 📝 Found container for group: "member-1-trustee"
-browser.js?t=${Date.now()}:4 📦 Retrieved group: true
-browser.js?t=${Date.now()}:4 ➕ Adding new row to group "member-1-trustee" (currently 2 rows)
-browser.js?t=${Date.now()}:4 ➕ Before visibility fix - classes: multi-form_input-row-wrapper visible-row, inline style: none
-browser.js?t=${Date.now()}:4 ➕ After visibility fix - classes: multi-form_input-row-wrapper visible-row, inline style: 
-browser.js?t=${Date.now()}:4 ➕ Attaching 1 remove button listeners to new row
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 3 rows for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: member_1_trustee → member_1_trustee-1
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 2: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 2: Updated input name: member_1_trustee → member_1_trustee-2
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 3: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 3: Updated input name: member_1_trustee → member_1_trustee-3
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Dispatching input events to trigger summary updates
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 2: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 3: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Summary fields will be synced by updateSummaries()
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Updating summaries for group "member-1-trustee" (3 rows)
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Syncing all summary fields...
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Found 0 summary field elements
-browser.js?t=${Date.now()}:4 📊 SUMMARY: TryFormly.refresh() not available
-browser.js?t=${Date.now()}:4 ➕ Row added successfully, new total: 3 rows
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6

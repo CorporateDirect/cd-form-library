@@ -1790,33 +1790,40 @@ function handleSkipClick(event: Event) {
     return;
   }
 
-  console.log(`🔍 [CD SKIP] Searching for step with [data-answer="${targetAnswer}"]`);
+  console.log(`🎯 [CD SKIP] LOOKING FOR MATCH:`);
+  console.log(`   Button has: data-cd-skip="${targetAnswer}"`);
+  console.log(`   Searching for step with: data-answer="${targetAnswer}"`);
 
   // Find the target step by data-answer attribute
   const targetStep = document.querySelector(`[data-answer="${targetAnswer}"]`);
 
   if (!targetStep) {
-    console.error(`❌ [CD SKIP] Target step NOT FOUND: [data-answer="${targetAnswer}"]`);
+    console.error(`❌ [CD SKIP] ========== NO MATCH FOUND ==========`);
+    console.error(`   Button's data-cd-skip value: "${targetAnswer}"`);
+    console.error(`   Could not find any step with: data-answer="${targetAnswer}"`);
 
     // Debug: List all available data-answer values
     const allStepsWithAnswer = document.querySelectorAll('[data-answer]');
-    console.log(`🔍 [CD SKIP] Available steps with [data-answer] (${allStepsWithAnswer.length} total):`);
+    console.log(`\n📋 [CD SKIP] Available steps (${allStepsWithAnswer.length} total):`);
     allStepsWithAnswer.forEach((step, idx) => {
       const answer = step.getAttribute('data-answer');
-      console.log(`  ${idx + 1}. [data-answer="${answer}"]`, {
-        element: step,
-        tagName: step.tagName,
-        classList: step.className
-      });
+      const matches = answer === targetAnswer;
+      console.log(`   ${matches ? '✅' : '  '} ${idx + 1}. data-answer="${answer}"${matches ? ' ← MATCH!' : ''}`);
     });
+
+    console.log(`\n💡 [CD SKIP] TIP: Make sure data-cd-skip="${targetAnswer}" matches one of the data-answer values above`);
     return;
   }
 
-  console.log(`✅ [CD SKIP] Target step FOUND:`, {
+  const foundAnswer = targetStep.getAttribute('data-answer');
+  console.log(`✅ [CD SKIP] ========== MATCH FOUND ==========`);
+  console.log(`   Button's data-cd-skip: "${targetAnswer}"`);
+  console.log(`   Step's data-answer: "${foundAnswer}"`);
+  console.log(`   Match: ${targetAnswer === foundAnswer ? '✅ YES' : '❌ NO'}`);
+  console.log(`   Target step:`, {
     element: targetStep,
     tagName: targetStep.tagName,
-    classList: targetStep.className,
-    'data-answer': targetStep.getAttribute('data-answer')
+    classList: targetStep.className
   });
 
   // Hide all steps
