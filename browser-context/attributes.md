@@ -37,6 +37,51 @@ This document lists all data attributes used by the CD Form Library and their pu
 
 **Example:** `data-show-when="entity-type=individual"` shows the element when the field named "entity-type" has value "individual".
 
+## Auto-Fill (Copy Field Values)
+
+### `data-cd-auto-source`
+**Value:** Group identifier (string)
+**Applied to:** Container element wrapping source fields
+**Purpose:** Marks a container as the source of field values that can be copied to destination fields when a trigger is activated.
+
+### `data-cd-auto-dest`
+**Value:** Group identifier (matches `data-cd-auto-source` value)
+**Applied to:** Container element wrapping destination fields
+**Purpose:** Marks a container as the destination for auto-filled field values. Fields within this container will receive values from the matching source container.
+
+### `data-cd-auto-trigger`
+**Value:** Group identifier (matches `data-cd-auto-source` and `data-cd-auto-dest` values)
+**Applied to:** Checkbox or radio input element
+**Purpose:** When checked, triggers copying of all matching field values from source to destination containers. When unchecked, clears all destination fields.
+
+### `data-cd-field-key`
+**Value:** Field identifier (string)
+**Applied to:** Input, select, or textarea elements within source and destination containers
+**Purpose:** Identifies matching fields between source and destination containers. Fields with the same `data-cd-field-key` value will be paired for auto-fill, regardless of their `name` attributes.
+
+**Example:**
+```html
+<!-- Source fields -->
+<div data-cd-auto-source="contact-info">
+  <input name="primary-first-name" data-cd-field-key="first-name" value="John">
+  <input name="primary-last-name" data-cd-field-key="last-name" value="Doe">
+</div>
+
+<!-- Trigger -->
+<label>
+  <input type="checkbox" data-cd-auto-trigger="contact-info">
+  Use same contact information
+</label>
+
+<!-- Destination fields -->
+<div data-cd-auto-dest="contact-info">
+  <input name="secondary-first-name" data-cd-field-key="first-name">
+  <input name="secondary-last-name" data-cd-field-key="last-name">
+</div>
+```
+
+When the checkbox is checked, "John" and "Doe" will be copied to the secondary fields. When unchecked, the secondary fields will be cleared.
+
 ## Skip Navigation
 
 ### `data-cd-skip`

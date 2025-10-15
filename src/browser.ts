@@ -1742,6 +1742,256 @@ function updateAllSummaryVisibility() {
   });
 }
 
+// Auto-Fill Functionality
+// Copies field values from source to destination when trigger is checked
+// Useful for "use same information" scenarios in forms
+
+function copyFieldValue(source: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, dest: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) {
+  const sourceType = source.type?.toLowerCase() || source.tagName.toLowerCase();
+  const destType = dest.type?.toLowerCase() || dest.tagName.toLowerCase();
+
+  console.log(`📋 [AUTO-FILL] Copying value: ${sourceType} → ${destType}`, {
+    sourceName: source.getAttribute('name'),
+    destName: dest.getAttribute('name'),
+    sourceValue: (source as HTMLInputElement).value
+  });
+
+  if (sourceType === 'checkbox') {
+    (dest as HTMLInputElement).checked = (source as HTMLInputElement).checked;
+    console.log(`✅ [AUTO-FILL] Copied checkbox state: ${(source as HTMLInputElement).checked}`);
+  } else if (sourceType === 'radio') {
+    // For radio groups, find the checked radio in source group
+    const sourceName = source.getAttribute('name');
+    if (!sourceName) {
+      console.warn('⚠️ [AUTO-FILL] Source radio missing name attribute');
+      return;
+    }
+
+    const checkedRadio = document.querySelector(`input[name="${sourceName}"]:checked`) as HTMLInputElement;
+    if (!checkedRadio) {
+      console.log('ℹ️ [AUTO-FILL] No radio selected in source group');
+      return;
+    }
+
+    // Find matching radio in dest group
+    const destName = dest.getAttribute('name');
+    if (!destName) {
+      console.warn('⚠️ [AUTO-FILL] Dest radio missing name attribute');
+      return;
+    }
+
+    const destRadio = document.querySelector(`input[name="${destName}"][value="${checkedRadio.value}"]`) as HTMLInputElement;
+    if (destRadio) {
+      destRadio.checked = true;
+      console.log(`✅ [AUTO-FILL] Copied radio value: "${checkedRadio.value}"`);
+    } else {
+      console.warn(`⚠️ [AUTO-FILL] No matching radio found in dest with value="${checkedRadio.value}"`);
+    }
+  } else if (source.tagName.toLowerCase() === 'select') {
+    // For select elements (including multi-select)
+    const sourceSelect = source as HTMLSelectElement;
+    const destSelect = dest as HTMLSelectElement;
+
+    if (sourceSelect.multiple) {
+      // Multi-select: copy all selected options
+      const selectedValues: string[] = [];
+      Array.from(destSelect.options).forEach((option, index) => {
+        option.selected = sourceSelect.options[index]?.selected || false;
+        if (option.selected) selectedValues.push(option.value);
+      });
+      console.log(`✅ [AUTO-FILL] Copied multi-select values:`, selectedValues);
+    } else {
+      // Single select: copy selected value
+      destSelect.value = sourceSelect.value;
+      console.log(`✅ [AUTO-FILL] Copied select value: "${sourceSelect.value}"`);
+    }
+  } else {
+    // text, email, tel, textarea, number, date, time, etc.
+    (dest as HTMLInputElement).value = (source as HTMLInputElement).value;
+    console.log(`✅ [AUTO-FILL] Copied value: "${(source as HTMLInputElement).value}"`);
+  }
+}
+
+function clearFieldValue(field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) {
+  const fieldType = field.type?.toLowerCase() || field.tagName.toLowerCase();
+  const fieldName = field.getAttribute('name');
+
+  console.log(`🧹 [AUTO-FILL] Clearing field: type="${fieldType}", name="${fieldName}"`);
+
+  if (fieldType === 'checkbox') {
+    (field as HTMLInputElement).checked = false;
+  } else if (fieldType === 'radio') {
+    (field as HTMLInputElement).checked = false;
+  } else if (field.tagName.toLowerCase() === 'select') {
+    const select = field as HTMLSelectElement;
+    if (select.multiple) {
+      Array.from(select.options).forEach(option => {
+        option.selected = false;
+      });
+    } else {
+      select.selectedIndex = 0; // Reset to first option
+    }
+  } else {
+    (field as HTMLInputElement).value = '';
+  }
+}
+
+function clearAutoFillFields(groupName: string, form: HTMLFormElement) {
+  console.log(`🧹 [AUTO-FILL] Clearing fields for group "${groupName}"...`);
+
+  const dest = form.querySelector(`[data-cd-auto-dest="${groupName}"]`);
+  if (!dest) {
+    console.warn(`⚠️ [AUTO-FILL] Destination container not found: data-cd-auto-dest="${groupName}"`);
+    return;
+  }
+
+  const destFields = dest.querySelectorAll('[data-cd-field-key]');
+  console.log(`🧹 [AUTO-FILL] Found ${destFields.length} destination fields to clear`);
+
+  destFields.forEach((field) => {
+    const fieldKey = field.getAttribute('data-cd-field-key');
+    clearFieldValue(field as HTMLInputElement);
+
+    // Dispatch events for summary/other listeners
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+
+    console.log(`✅ [AUTO-FILL] Cleared field with key="${fieldKey}"`);
+  });
+
+  console.log(`✅ [AUTO-FILL] Cleared ${destFields.length} fields for group "${groupName}"`);
+}
+
+function copyAutoFillFields(groupName: string, form: HTMLFormElement) {
+  console.log(`📋 [AUTO-FILL] ========== COPYING FIELDS ==========`);
+  console.log(`📋 [AUTO-FILL] Group: "${groupName}"`);
+
+  // Find source container within form
+  const source = form.querySelector(`[data-cd-auto-source="${groupName}"]`);
+  if (!source) {
+    console.warn(`⚠️ [AUTO-FILL] Source container not found: data-cd-auto-source="${groupName}"`);
+    console.warn(`⚠️ [AUTO-FILL] Make sure your source fields are wrapped in an element with data-cd-auto-source="${groupName}"`);
+    return;
+  }
+
+  console.log(`✅ [AUTO-FILL] Found source container:`, {
+    element: source,
+    tagName: source.tagName,
+    classList: source.className
+  });
+
+  // Find dest container within form
+  const dest = form.querySelector(`[data-cd-auto-dest="${groupName}"]`);
+  if (!dest) {
+    console.warn(`⚠️ [AUTO-FILL] Destination container not found: data-cd-auto-dest="${groupName}"`);
+    console.warn(`⚠️ [AUTO-FILL] Make sure your destination fields are wrapped in an element with data-cd-auto-dest="${groupName}"`);
+    return;
+  }
+
+  console.log(`✅ [AUTO-FILL] Found destination container:`, {
+    element: dest,
+    tagName: dest.tagName,
+    classList: dest.className
+  });
+
+  // Get all source fields with data-cd-field-key
+  const sourceFields = source.querySelectorAll('[data-cd-field-key]');
+  console.log(`📋 [AUTO-FILL] Found ${sourceFields.length} source fields to copy`);
+
+  if (sourceFields.length === 0) {
+    console.warn(`⚠️ [AUTO-FILL] No source fields found with [data-cd-field-key] attribute`);
+    return;
+  }
+
+  let copiedCount = 0;
+
+  // For each source field
+  sourceFields.forEach((sourceField, index) => {
+    const fieldKey = sourceField.getAttribute('data-cd-field-key');
+    if (!fieldKey) {
+      console.warn(`⚠️ [AUTO-FILL] Source field ${index + 1} missing data-cd-field-key value`);
+      return;
+    }
+
+    console.log(`\n📋 [AUTO-FILL] --- Processing field ${index + 1}/${sourceFields.length} ---`);
+    console.log(`📋 [AUTO-FILL] Field key: "${fieldKey}"`);
+
+    // Find matching dest field
+    const destField = dest.querySelector(`[data-cd-field-key="${fieldKey}"]`);
+
+    if (!destField) {
+      console.warn(`⚠️ [AUTO-FILL] No destination field found for key="${fieldKey}"`);
+      console.warn(`⚠️ [AUTO-FILL] Make sure destination has an element with data-cd-field-key="${fieldKey}"`);
+      return;
+    }
+
+    console.log(`✅ [AUTO-FILL] Found destination field for key="${fieldKey}"`);
+
+    // Copy value based on input type
+    copyFieldValue(
+      sourceField as HTMLInputElement,
+      destField as HTMLInputElement
+    );
+    copiedCount++;
+
+    // Dispatch events for summary/other listeners
+    destField.dispatchEvent(new Event('input', { bubbles: true }));
+    destField.dispatchEvent(new Event('change', { bubbles: true }));
+    console.log(`📤 [AUTO-FILL] Dispatched input/change events for key="${fieldKey}"`);
+  });
+
+  console.log(`\n✅ [AUTO-FILL] ========== COPY COMPLETE ==========`);
+  console.log(`✅ [AUTO-FILL] Successfully copied ${copiedCount}/${sourceFields.length} fields for group "${groupName}"`);
+}
+
+function initAutoFill(form: HTMLFormElement) {
+  console.log('🔄 [AUTO-FILL] Initializing Auto-Fill for form...');
+
+  // Find all triggers within THIS form only
+  const triggers = form.querySelectorAll('[data-cd-auto-trigger]');
+  console.log(`🔄 [AUTO-FILL] Found ${triggers.length} auto-fill triggers`);
+
+  if (triggers.length === 0) {
+    console.log('ℹ️ [AUTO-FILL] No triggers found, skipping auto-fill initialization');
+    return;
+  }
+
+  triggers.forEach((trigger, index) => {
+    const groupName = trigger.getAttribute('data-cd-auto-trigger');
+
+    if (!groupName) {
+      console.warn('⚠️ [AUTO-FILL] Trigger missing group name:', trigger);
+      return;
+    }
+
+    console.log(`🔄 [AUTO-FILL] Setting up trigger ${index + 1}/${triggers.length}:`, {
+      element: trigger,
+      tagName: trigger.tagName,
+      type: (trigger as HTMLInputElement).type,
+      groupName: groupName
+    });
+
+    // Set up change listener
+    trigger.addEventListener('change', (e) => {
+      const input = e.target as HTMLInputElement;
+
+      console.log(`\n🔔 [AUTO-FILL] ========== TRIGGER CHANGED ==========`);
+      console.log(`🔔 [AUTO-FILL] Group: "${groupName}"`);
+      console.log(`🔔 [AUTO-FILL] Checked: ${input.checked}`);
+      console.log(`🔔 [AUTO-FILL] Value: "${input.value}"`);
+
+      if (input.checked) {
+        copyAutoFillFields(groupName, form);
+      } else {
+        clearAutoFillFields(groupName, form);
+      }
+    });
+
+    console.log(`✅ [AUTO-FILL] Trigger ${index + 1} ready: group="${groupName}"`);
+  });
+
+  console.log(`✅ [AUTO-FILL] Auto-fill initialization complete (${triggers.length} triggers)`);
+}
 
 // Skip Navigation (Tryformly Integration)
 // Provides custom skip functionality that works with Tryformly multi-step forms
@@ -1934,6 +2184,9 @@ function initializeLibrary() {
 
       // Initialize dynamic rows for repeatable sections
       initDynamicRows();
+
+      // Initialize auto-fill functionality for form
+      initAutoFill(formElement);
 
       // Initialize branch-based summary visibility
       initBranchVisibility();
