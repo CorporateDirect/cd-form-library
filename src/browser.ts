@@ -1384,116 +1384,37 @@ const axisMap: Record<string, {
 };
 
 function findTooltipParts(trigger: HTMLElement): TooltipParts {
-  console.log('🔍 [TOOLTIP] Finding tooltip parts for trigger:', {
-    element: trigger,
-    tagName: trigger.tagName,
-    classList: trigger.className,
-    'data-tt': trigger.getAttribute('data-tt'),
-    'data-_tt-setup': trigger.getAttribute('data-_tt-setup')
-  });
-
   const compAncestor = trigger.closest(`.${TOOLTIP_COMP_CLS}`) as HTMLElement;
   if (compAncestor) {
     // Standard Relume (icon or inline when whole component is inline)
-    console.log('✅ [TOOLTIP] Found STANDARD mode (trigger inside component)');
-    const panel = compAncestor.querySelector(`.${TOOLTIP_PANEL_CLS}`) as HTMLElement;
-    const pointer = compAncestor.querySelector(`.${TOOLTIP_PTR_CLS}`) as HTMLElement;
-
-    console.log('🔍 [TOOLTIP] Standard mode parts:', {
-      comp: compAncestor,
-      panel: panel,
-      pointer: pointer,
-      panelFound: !!panel,
-      pointerFound: !!pointer
-    });
-
     return {
       mode: "standard",
       comp: compAncestor,
-      panel,
-      pointer
+      panel: compAncestor.querySelector(`.${TOOLTIP_PANEL_CLS}`) as HTMLElement,
+      pointer: compAncestor.querySelector(`.${TOOLTIP_PTR_CLS}`) as HTMLElement
     };
   }
 
   // Split mode: trigger in label, component elsewhere, matched by data-tt
   const group = (trigger.closest("[data-tt-group]") || trigger.parentElement) as HTMLElement;
   const key = trigger.getAttribute("data-tt");
-
-  console.log('🔍 [TOOLTIP] Attempting SPLIT mode:', {
-    group: group,
-    groupTagName: group?.tagName,
-    groupClass: group?.className,
-    key: key,
-    searchingFor: `.${TOOLTIP_COMP_CLS}[data-tt-for="${key}"]`
-  });
-
   const comp = key ? group.querySelector(`.${TOOLTIP_COMP_CLS}[data-tt-for="${key}"]`) as HTMLElement : null;
-  const panel = comp?.querySelector(`.${TOOLTIP_PANEL_CLS}`) as HTMLElement;
-  const pointer = comp?.querySelector(`.${TOOLTIP_PTR_CLS}`) as HTMLElement;
-
-  console.log('🔍 [TOOLTIP] Split mode search results:', {
-    comp: comp,
-    compFound: !!comp,
-    panel: panel,
-    panelFound: !!panel,
-    pointer: pointer,
-    pointerFound: !!pointer
-  });
-
-  // If comp not found, let's debug why
-  if (!comp && key) {
-    const allCompsInGroup = group.querySelectorAll(`.${TOOLTIP_COMP_CLS}`);
-    console.log('⚠️ [TOOLTIP] Component NOT found. Debugging:', {
-      key: key,
-      allCompsInGroup: allCompsInGroup.length,
-      compsDetails: Array.from(allCompsInGroup).map(c => ({
-        element: c,
-        'data-tt-for': c.getAttribute('data-tt-for')
-      }))
-    });
-  }
 
   return {
     mode: "split",
     comp,
-    panel,
-    pointer
+    panel: comp?.querySelector(`.${TOOLTIP_PANEL_CLS}`) as HTMLElement,
+    pointer: comp?.querySelector(`.${TOOLTIP_PTR_CLS}`) as HTMLElement
   };
 }
 
 function setupTooltipTrigger(trigger: HTMLElement) {
-  console.log('⚙️ [TOOLTIP] Setting up tooltip trigger:', {
-    element: trigger,
-    alreadySetup: !!(trigger as any).dataset._ttSetup
-  });
-
-  if ((trigger as any).dataset._ttSetup) {
-    console.log('⏭️ [TOOLTIP] Already setup, skipping...');
-    return;
-  }
+  if ((trigger as any).dataset._ttSetup) return;
   (trigger as any).dataset._ttSetup = "1";
 
   const parts = findTooltipParts(trigger);
   const { mode, comp, panel, pointer } = parts;
-
-  console.log('⚙️ [TOOLTIP] Setup result:', {
-    mode: mode,
-    hasPanel: !!panel,
-    hasPointer: !!pointer,
-    willSetup: !!(panel && pointer)
-  });
-
-  if (!panel || !pointer) {
-    console.warn('⚠️ [TOOLTIP] Cannot setup tooltip - missing panel or pointer:', {
-      trigger: trigger,
-      'data-tt': trigger.getAttribute('data-tt'),
-      panel: panel,
-      pointer: pointer
-    });
-    return;
-  }
-
-  console.log('✅ [TOOLTIP] Successfully setting up tooltip trigger with event listeners');
+  if (!panel || !pointer) return;
 
   const baseSide =
     pointer.className.includes("is-left")   ? "left"  :
@@ -1634,22 +1555,11 @@ function setupTooltipTrigger(trigger: HTMLElement) {
 }
 
 function initTooltips(form: HTMLFormElement) {
-  console.log('💬 [TOOLTIP] ========== INITIALIZING TOOLTIPS ==========');
-  console.log('💬 [TOOLTIP] Form:', {
-    element: form,
-    id: form.id,
-    'data-cd-form': form.getAttribute('data-cd-form')
-  });
-
+  debugLog('💬 Initializing tooltips for form...');
   const triggers = form.querySelectorAll(`.${TOOLTIP_TRIG_CLS}`);
-  console.log(`💬 [TOOLTIP] Found ${triggers.length} tooltip triggers in form`);
-
-  triggers.forEach((trigger, index) => {
-    console.log(`\n💬 [TOOLTIP] ========== TRIGGER ${index + 1}/${triggers.length} ==========`);
-    setupTooltipTrigger(trigger as HTMLElement);
-  });
-
-  console.log(`\n✅ [TOOLTIP] Tooltips initialization complete (${triggers.length} triggers)`);
+  debugLog(`💬 Found ${triggers.length} tooltip triggers`);
+  triggers.forEach((trigger) => setupTooltipTrigger(trigger as HTMLElement));
+  infoLog(`✅ Tooltips initialized (${triggers.length} triggers)`);
 }
 
 function reinitializeTooltipsInRow(row: Element) {

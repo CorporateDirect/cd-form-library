@@ -1,120 +1,43 @@
-manifest.json:1 Manifest: property 'start_url' ignored, should be same origin as document.
- Hold up!
- If someone told you to paste some code here, don’t! It’s a scam that will give them access to your Webflow account.
- Or, you might be just the kind of inquisitive problem-solver we love to hire. If you’re interested in building the future of software creation with us, check out https://wfl.io/engineering-jobs
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 <link rel=preload> uses an unsupported `as` value
-Vj @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:1 Datadog Browser SDK: Customer data exceeds the recommended 3KiB threshold. More details: https://docs.datadoghq.com/real_user_monitoring/browser/troubleshooting/#customer-data-exceeds-the-recommended-threshold-warning
-displayCustomerDataLimitReachedWarning @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:1
-webflow_content.js:2 [Relume Analytics] chrome-ext:paste
-webflow_content.js:2 Relume: performing class sync Object
-webflow_content.js:2 Relume: pasting new data into webflow Object
-webflow_content.js:2 [Relume Analytics] chrome-ext:class-sync
-webflow_content.js:2 Relume: finished class sync Object
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Unable to preventDefault inside passive event listener invocation.
-preventDefault @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
- selections email  0
- Counter already updated for this month.
- 🔄 Initializing Dynamic Rows...
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- ✅ Dynamic rows initialization complete
- 🌿 Initializing Branch-Based Summary Visibility...
- ✅ Branch-based summary visibility initialization complete
- ✅ Tooltips initialized (38 triggers)
- ⏭️ [CD SKIP] Initializing Skip Navigation...
- ⏭️ [CD SKIP] Found 0 skip buttons
- ⚠️ [CD SKIP] No buttons found with [data-cd-skip] attribute
-We @ browser.js?t=${Date.now()}:4
- ✅ [CD SKIP] Skip navigation initialized (0 buttons)
-[Violation] Potential permissions policy violation: payment is not allowed in this document.
- selections email  0
- selections email  0
- selections email  0
- selections email  0
- selections email  0
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
-ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
-ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <svg> attribute viewBox: Expected number, "0 0 224 NaN".
-ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
-ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
-ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <svg> attribute viewBox: Expected number, "0 0 224 NaN".
-ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
-VM5742:3380 Counter already updated for this month.
+multi-step.js:3380 Counter already updated for this month.
 browser.js?t=${Date.now()}:4 🔄 Initializing Dynamic Rows...
 browser.js?t=${Date.now()}:4 ❌ No add button found for group "additional-entity". Checked selectors: [data-cd-add-row], [data-cd-repeat-add="additional-entity"]
 Ke @ browser.js?t=${Date.now()}:4
 browser.js?t=${Date.now()}:4 ✅ Dynamic rows initialization complete
 browser.js?t=${Date.now()}:4 🌿 Initializing Branch-Based Summary Visibility...
 browser.js?t=${Date.now()}:4 ✅ Branch-based summary visibility initialization complete
-browser.js?t=${Date.now()}:4 ✅ Tooltips initialized (1 triggers)
-browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Initializing Skip Navigation...
-browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Found 4 skip buttons
-browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 1: Object
-browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 2: Object
-browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 3: Object
-browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 4: Object
-browser.js?t=${Date.now()}:4 ✅ [CD SKIP] Skip navigation initialized (4 buttons)
-VM5742:1656 selections email Array(2) 1
-[Violation] Potential permissions policy violation: payment is not allowed in this document.
-VM5742:1656 selections email Array(2) 1
-VM5742:1656 selections email Array(2) 1
-browser.js?t=${Date.now()}:4 🖱️ [CD SKIP] ========== SKIP BUTTON CLICKED ==========
-browser.js?t=${Date.now()}:4 🖱️ [CD SKIP] Event: PointerEvent
-browser.js?t=${Date.now()}:4 🔍 [CD SKIP] Button details: Object
-browser.js?t=${Date.now()}:4 🎯 [CD SKIP] LOOKING FOR MATCH:
-browser.js?t=${Date.now()}:4    Button has: data-cd-skip="step-8"
-browser.js?t=${Date.now()}:4    Searching for step with: data-answer="step-8"
-browser.js?t=${Date.now()}:6 ✅ [CD SKIP] ========== MATCH FOUND ==========
-browser.js?t=${Date.now()}:6    Button's data-cd-skip: "step-8"
-browser.js?t=${Date.now()}:6    Step's data-answer: "step-8"
-browser.js?t=${Date.now()}:6    Match: ✅ YES
-browser.js?t=${Date.now()}:6    Target step: Object
-browser.js?t=${Date.now()}:6 👁️ [CD SKIP] Hiding 27 total steps
-browser.js?t=${Date.now()}:6   1. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   2. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   3. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   4. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   5. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   6. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   7. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   8. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   9. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   10. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   11. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   12. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   13. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   14. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   15. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   16. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   17. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   18. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   19. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   20. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   21. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   22. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   23. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   24. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   25. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   26. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6   27. Hidden step: no data-answer
-browser.js?t=${Date.now()}:6 👁️ [CD SKIP] Target step now visible (display="")
-browser.js?t=${Date.now()}:6 ℹ️ [CD SKIP] No step counter found ([data-text="current-step"])
-browser.js?t=${Date.now()}:6 ℹ️ [CD SKIP] TryFormly.refresh() not available
-browser.js?t=${Date.now()}:6 📜 [CD SKIP] Scrolling to form
-browser.js?t=${Date.now()}:6 ✅ [CD SKIP] ========== SKIP COMPLETE: "step-8" ==========
+browser.js?t=${Date.now()}:4 💬 [TOOLTIP] ========== INITIALIZING TOOLTIPS ==========
+browser.js?t=${Date.now()}:4 💬 [TOOLTIP] Form: Object
+browser.js?t=${Date.now()}:4 💬 [TOOLTIP] Found 2 tooltip triggers in form
+browser.js?t=${Date.now()}:4 
+💬 [TOOLTIP] ========== TRIGGER 1/2 ==========
+browser.js?t=${Date.now()}:4 ⚙️ [TOOLTIP] Setting up tooltip trigger: ObjectalreadySetup: falseelement: span.tooltip_element-wrapper.tool-tipaccessKey: ""ariaActiveDescendantElement: nullariaAtomic: nullariaAutoComplete: nullariaBrailleLabel: nullariaBrailleRoleDescription: nullariaBusy: nullariaChecked: nullariaColCount: nullariaColIndex: nullariaColIndexText: nullariaColSpan: nullariaControlsElements: nullariaCurrent: nullariaDescribedByElements: nullariaDescription: nullariaDetailsElements: nullariaDisabled: nullariaErrorMessageElements: nullariaExpanded: nullariaFlowToElements: nullariaHasPopup: nullariaHidden: nullariaInvalid: nullariaKeyShortcuts: nullariaLabel: nullariaLabelledByElements: nullariaLevel: nullariaLive: nullariaModal: nullariaMultiLine: nullariaMultiSelectable: nullariaOrientation: nullariaPlaceholder: nullariaPosInSet: nullariaPressed: nullariaReadOnly: nullariaRelevant: nullariaRequired: nullariaRoleDescription: nullariaRowCount: nullariaRowIndex: nullariaRowIndexText: nullariaRowSpan: nullariaSelected: nullariaSetSize: nullariaSort: nullariaValueMax: nullariaValueMin: nullariaValueNow: nullariaValueText: nullassignedSlot: nullattributeStyleMap: StylePropertyMap {size: 0}attributes: NamedNodeMap {0: data-tt, 1: class, 2: data-_tt-setup, data-tt: data-tt, class: class, data-_tt-setup: data-_tt-setup, length: 3}autocapitalize: ""autofocus: falsebaseURI: "https://cd-forms.webflow.io/formations/realshield"childElementCount: 0childNodes: NodeList [text]children: HTMLCollection []classList: DOMTokenList(2) ['tooltip_element-wrapper', 'tool-tip', value: 'tooltip_element-wrapper tool-tip']className: "tooltip_element-wrapper tool-tip"clientHeight: 18clientLeft: 0clientTop: 0clientWidth: 115contentEditable: "inherit"currentCSSZoom: 1dataset: DOMStringMap {tt: 'holding-company-1', _ttSetup: '1'}dir: ""draggable: falseeditContext: nullelementTiming: ""enterKeyHint: ""firstChild: textfirstElementChild: nullhidden: falseid: ""inert: falseinnerHTML: "holding company"innerText: "holding company"inputMode: ""isConnected: trueisContentEditable: falselang: ""lastChild: textlastElementChild: nulllocalName: "span"namespaceURI: "http://www.w3.org/1999/xhtml"nextElementSibling: nullnextSibling: textnodeName: "SPAN"nodeType: 1nodeValue: nullnonce: ""offsetHeight: 18offsetLeft: 250offsetParent: label.form_field-labeloffsetTop: 0offsetWidth: 115onabort: nullonanimationend: nullonanimationiteration: nullonanimationstart: nullonauxclick: nullonbeforecopy: nullonbeforecut: nullonbeforeinput: nullonbeforematch: nullonbeforepaste: nullonbeforetoggle: nullonbeforexrselect: nullonblur: nulloncancel: nulloncanplay: nulloncanplaythrough: nullonchange: nullonclick: nullonclose: nulloncommand: nulloncontentvisibilityautostatechange: nulloncontextlost: nulloncontextmenu: nulloncontextrestored: nulloncopy: nulloncuechange: nulloncut: nullondblclick: nullondrag: nullondragend: nullondragenter: nullondragleave: nullondragover: nullondragstart: nullondrop: nullondurationchange: nullonemptied: nullonended: nullonerror: nullonfocus: nullonformdata: nullonfullscreenchange: nullonfullscreenerror: nullongotpointercapture: nulloninput: nulloninvalid: nullonkeydown: nullonkeypress: nullonkeyup: nullonload: nullonloadeddata: nullonloadedmetadata: nullonloadstart: nullonlostpointercapture: nullonmousedown: nullonmouseenter: nullonmouseleave: nullonmousemove: nullonmouseout: nullonmouseover: nullonmouseup: nullonmousewheel: nullonpaste: nullonpause: nullonplay: nullonplaying: nullonpointercancel: nullonpointerdown: nullonpointerenter: nullonpointerleave: nullonpointermove: nullonpointerout: nullonpointerover: nullonpointerrawupdate: nullonpointerup: nullonprogress: nullonratechange: nullonreset: nullonresize: nullonscroll: nullonscrollend: nullonscrollsnapchange: nullonscrollsnapchanging: nullonsearch: nullonsecuritypolicyviolation: nullonseeked: nullonseeking: nullonselect: nullonselectionchange: nullonselectstart: nullonslotchange: nullonstalled: nullonsubmit: nullonsuspend: nullontimeupdate: nullontoggle: nullontransitioncancel: nullontransitionend: nullontransitionrun: nullontransitionstart: nullonvolumechange: nullonwaiting: nullonwebkitanimationend: nullonwebkitanimationiteration: nullonwebkitanimationstart: nullonwebkitfullscreenchange: nullonwebkitfullscreenerror: nullonwebkittransitionend: nullonwheel: nullouterHTML: "<span data-tt=\"holding-company-1\" class=\"tooltip_element-wrapper tool-tip\" data-_tt-setup=\"1\">holding company</span>"outerText: "holding company"ownerDocument: documentparentElement: label.form_field-labelparentNode: label.form_field-labelpart: DOMTokenList [value: '']popover: nullprefix: nullpreviousElementSibling: nullpreviousSibling: textrole: nullscrollHeight: 18scrollLeft: 0scrollTop: 0scrollWidth: 115shadowRoot: nullslot: ""spellcheck: truestyle: CSSStyleDeclaration {accentColor: '', additiveSymbols: '', alignContent: '', alignItems: '', alignSelf: '', …}tabIndex: -1tagName: "SPAN"textContent: "holding company"title: ""translate: truevirtualKeyboardPolicy: ""writingSuggestions: "true"[[Prototype]]: HTMLSpanElement(...)[[Prototype]]: Objectconstructor: ƒ Object()hasOwnProperty: ƒ hasOwnProperty()isPrototypeOf: ƒ isPrototypeOf()propertyIsEnumerable: ƒ propertyIsEnumerable()toLocaleString: ƒ toLocaleString()toString: ƒ toString()valueOf: ƒ valueOf()__defineGetter__: ƒ __defineGetter__()__defineSetter__: ƒ __defineSetter__()__lookupGetter__: ƒ __lookupGetter__()__lookupSetter__: ƒ __lookupSetter__()__proto__: (...)get __proto__: ƒ __proto__()set __proto__: ƒ __proto__()
+browser.js?t=${Date.now()}:4 🔍 [TOOLTIP] Finding tooltip parts for trigger: ObjectclassList: "tooltip_element-wrapper tool-tip"data-_tt-setup: "1"data-tt: "holding-company-1"element: span.tooltip_element-wrapper.tool-tiptagName: "SPAN"[[Prototype]]: Object
+browser.js?t=${Date.now()}:4 🔍 [TOOLTIP] Attempting SPLIT mode: Object
+browser.js?t=${Date.now()}:4 🔍 [TOOLTIP] Split mode search results: Object
+browser.js?t=${Date.now()}:4 ⚠️ [TOOLTIP] Component NOT found. Debugging: Object
+browser.js?t=${Date.now()}:4 ⚙️ [TOOLTIP] Setup result: Object
+browser.js?t=${Date.now()}:4 ⚠️ [TOOLTIP] Cannot setup tooltip - missing panel or pointer: Object
+Ze @ browser.js?t=${Date.now()}:4
+browser.js?t=${Date.now()}:4 
+💬 [TOOLTIP] ========== TRIGGER 2/2 ==========
+browser.js?t=${Date.now()}:4 ⚙️ [TOOLTIP] Setting up tooltip trigger: ObjectalreadySetup: falseelement: span.tooltip_element-wrapper.tool-tip[[Prototype]]: Object
+browser.js?t=${Date.now()}:4 🔍 [TOOLTIP] Finding tooltip parts for trigger: Object
+browser.js?t=${Date.now()}:4 🔍 [TOOLTIP] Attempting SPLIT mode: Object
+browser.js?t=${Date.now()}:4 🔍 [TOOLTIP] Split mode search results: Object
+browser.js?t=${Date.now()}:4 ⚙️ [TOOLTIP] Setup result: Object
+browser.js?t=${Date.now()}:4 ✅ [TOOLTIP] Successfully setting up tooltip trigger with event listeners
+browser.js?t=${Date.now()}:5 
+✅ [TOOLTIP] Tooltips initialization complete (2 triggers)
+browser.js?t=${Date.now()}:6 ⏭️ [CD SKIP] Initializing Skip Navigation...
+browser.js?t=${Date.now()}:6 ⏭️ [CD SKIP] Found 4 skip buttons
+browser.js?t=${Date.now()}:6 ⏭️ [CD SKIP] Button 1: ObjectclassList: "button is-secondary w-button"element: a.button.is-secondary.w-buttontagName: "A"targetStep: "step-8"[[Prototype]]: Object
+browser.js?t=${Date.now()}:6 ⏭️ [CD SKIP] Button 2: Object
+browser.js?t=${Date.now()}:6 ⏭️ [CD SKIP] Button 3: Object
+browser.js?t=${Date.now()}:6 ⏭️ [CD SKIP] Button 4: Object
+browser.js?t=${Date.now()}:6 ✅ [CD SKIP] Skip navigation initialized (4 buttons)
+multi-step.js:1656 selections email Array(2) 1
+v1?ray=98f148bfdfef2f08&lang=auto:1 Request for the Private Access Token challenge.
+v1?ray=98f148bfdfef2f08&lang=auto:1  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.
+B5 @ v1?ray=98f148bfdfef2f08&lang=auto:1
+v1?ray=98f148bfdfef2f08&lang=auto:1 
+auto:1 The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
