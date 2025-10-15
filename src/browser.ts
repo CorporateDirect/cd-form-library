@@ -1839,8 +1839,36 @@ function handleSkipClick(event: Event) {
 
   // Show the target step
   const htmlTargetStep = targetStep as HTMLElement;
-  htmlTargetStep.style.display = '';
+
+  // Log current state before changing
+  console.log(`🔍 [CD SKIP] Target step BEFORE changes:`, {
+    display: getComputedStyle(htmlTargetStep).display,
+    inlineDisplay: htmlTargetStep.style.display,
+    visibility: getComputedStyle(htmlTargetStep).visibility,
+    opacity: getComputedStyle(htmlTargetStep).opacity,
+    classList: htmlTargetStep.className,
+    offsetHeight: htmlTargetStep.offsetHeight,
+    offsetWidth: htmlTargetStep.offsetWidth
+  });
+
+  // Force display to block (Tryformly may use CSS display:none)
+  htmlTargetStep.style.display = 'block';
+  htmlTargetStep.style.visibility = 'visible';
+  htmlTargetStep.style.opacity = '1';
   htmlTargetStep.classList.add('active-answer-card');
+
+  // Log current state after changing
+  console.log(`🔍 [CD SKIP] Target step AFTER changes:`, {
+    display: getComputedStyle(htmlTargetStep).display,
+    inlineDisplay: htmlTargetStep.style.display,
+    visibility: getComputedStyle(htmlTargetStep).visibility,
+    opacity: getComputedStyle(htmlTargetStep).opacity,
+    classList: htmlTargetStep.className,
+    offsetHeight: htmlTargetStep.offsetHeight,
+    offsetWidth: htmlTargetStep.offsetWidth,
+    isVisible: htmlTargetStep.offsetHeight > 0 && htmlTargetStep.offsetWidth > 0
+  });
+
   console.log(`👁️ [CD SKIP] Target step now visible (display="${htmlTargetStep.style.display}")`);
 
   // Update step counter if Tryformly step counter exists

@@ -1,87 +1,120 @@
+manifest.json:1 Manifest: property 'start_url' ignored, should be same origin as document.
+ Hold up!
+ If someone told you to paste some code here, don’t! It’s a scam that will give them access to your Webflow account.
+ Or, you might be just the kind of inquisitive problem-solver we love to hire. If you’re interested in building the future of software creation with us, check out https://wfl.io/engineering-jobs
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 <link rel=preload> uses an unsupported `as` value
+Vj @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:1 Datadog Browser SDK: Customer data exceeds the recommended 3KiB threshold. More details: https://docs.datadoghq.com/real_user_monitoring/browser/troubleshooting/#customer-data-exceeds-the-recommended-threshold-warning
+displayCustomerDataLimitReachedWarning @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:1
+webflow_content.js:2 [Relume Analytics] chrome-ext:paste
+webflow_content.js:2 Relume: performing class sync Object
+webflow_content.js:2 Relume: pasting new data into webflow Object
+webflow_content.js:2 [Relume Analytics] chrome-ext:class-sync
+webflow_content.js:2 Relume: finished class sync Object
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Unable to preventDefault inside passive event listener invocation.
+preventDefault @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+ selections email  0
  Counter already updated for this month.
- [rows_json] missing hidden input
-(anonymous) @ realshield:139
-(anonymous) @ realshield:191
  🔄 Initializing Dynamic Rows...
- 🔍 Found existing data rows: 2
- 🔍 Existing row 1: {tag: 'DIV', class: 'multi-form_input-row-wrapper visible-row', data-cd-repeat-row: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Existing row 2: {tag: 'DIV', class: 'multi-form_input-row-wrapper', data-cd-repeat-row: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Keeping first row visible: row 1
-browser.js?t=${Date.now()}:4 🔍 Hiding extra row: row 2
-browser.js?t=${Date.now()}:4 🔍 Removing 1 extra rows from DOM
-browser.js?t=${Date.now()}:4 ➕ Attaching add button listener for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔗 Found 2 remove buttons for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-1-trustee" (should be "member-1-trustee")
-browser.js?t=${Date.now()}:4 👁️ Hide remove button on first row for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🎨 Applying formatting to 1 existing rows in group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🎨 Row 1: found 0 inputs with data-input attribute
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 1 rows for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: trustee_1_name → trustee_1_name-1
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Dispatching input events to trigger summary updates
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Summary fields will be synced by updateSummaries()
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Updating summaries for group "member-1-trustee" (1 rows)
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for group "member-1-trustee"
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Syncing all summary fields...
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Found 0 summary field elements
-browser.js?t=${Date.now()}:4 📊 SUMMARY: TryFormly.refresh() not available
-browser.js?t=${Date.now()}:4 🔍 Found existing data rows: 2
-browser.js?t=${Date.now()}:4 🔍 Existing row 1: {tag: 'DIV', class: 'multi-form_input-row-wrapper visible-row', data-cd-repeat-row: 'member-2-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Existing row 2: {tag: 'DIV', class: 'multi-form_input-row-wrapper', data-cd-repeat-row: 'member-1-trustee'}
-browser.js?t=${Date.now()}:4 🔍 Keeping first row visible: row 1
-browser.js?t=${Date.now()}:4 🔍 Hiding extra row: row 2
-browser.js?t=${Date.now()}:4 🔍 Removing 1 extra rows from DOM
-browser.js?t=${Date.now()}:4 ❌ No add button found for group "member-2-trustee". Checked selectors: [data-cd-add-row], [data-cd-repeat-add="member-2-trustee"]
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ ✅ Dynamic rows initialization complete
+ 🌿 Initializing Branch-Based Summary Visibility...
+ ✅ Branch-based summary visibility initialization complete
+ ✅ Tooltips initialized (38 triggers)
+ ⏭️ [CD SKIP] Initializing Skip Navigation...
+ ⏭️ [CD SKIP] Found 0 skip buttons
+ ⚠️ [CD SKIP] No buttons found with [data-cd-skip] attribute
 We @ browser.js?t=${Date.now()}:4
-(anonymous) @ browser.js?t=${Date.now()}:4
-on @ browser.js?t=${Date.now()}:4
-(anonymous) @ browser.js?t=${Date.now()}:4
-le @ browser.js?t=${Date.now()}:4
-(anonymous) @ browser.js?t=${Date.now()}:4
-(anonymous) @ browser.js?t=${Date.now()}:4
-browser.js?t=${Date.now()}:4 🔗 Found 2 remove buttons for group "member-2-trustee"
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-2-trustee" (should be "member-2-trustee")
-browser.js?t=${Date.now()}:4 🔗 Remove button references group: "member-2-trustee" (should be "member-2-trustee")
-browser.js?t=${Date.now()}:4 👁️ Hide remove button on first row for group "member-2-trustee"
-browser.js?t=${Date.now()}:4 🎨 Applying formatting to 1 existing rows in group "member-2-trustee"
-browser.js?t=${Date.now()}:4 🎨 Row 1: found 0 inputs with data-input attribute
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Reindexing 1 rows for group "member-2-trustee"
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: found 1 inputs with data-cd-repeat-name
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: Updated input name: trustee_2_name → trustee_2_name-1
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Dispatching input events to trigger summary updates
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Row 1: dispatching events for 1 inputs
-browser.js?t=${Date.now()}:4 🔢 DYNAMIC: Summary fields will be synced by updateSummaries()
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Updating summaries for group "member-2-trustee" (1 rows)
-browser.js?t=${Date.now()}:4 📊 SUMMARY: Found 0 summary container(s) for group "member-2-trustee"
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Syncing all summary fields...
-browser.js?t=${Date.now()}:4 🔄 SUMMARY: Found 0 summary field elements
-browser.js?t=${Date.now()}:4 📊 SUMMARY: TryFormly.refresh() not available
+ ✅ [CD SKIP] Skip navigation initialized (0 buttons)
+[Violation] Potential permissions policy violation: payment is not allowed in this document.
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+ selections email  0
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
+ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
+ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <svg> attribute viewBox: Expected number, "0 0 224 NaN".
+ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
+ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <path> attribute d: Expected number, "…a 2 2 0 0 1 2 2vNaNa -2 2 0 0 1 …".
+ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+webflow-designer.6447de857ec8dc0d.chunk-ep.js:255 Error: <svg> attribute viewBox: Expected number, "0 0 224 NaN".
+ta @ webflow-designer.6447de857ec8dc0d.chunk-ep.js:255
+VM5742:3380 Counter already updated for this month.
+browser.js?t=${Date.now()}:4 🔄 Initializing Dynamic Rows...
+browser.js?t=${Date.now()}:4 ❌ No add button found for group "additional-entity". Checked selectors: [data-cd-add-row], [data-cd-repeat-add="additional-entity"]
+Ke @ browser.js?t=${Date.now()}:4
 browser.js?t=${Date.now()}:4 ✅ Dynamic rows initialization complete
 browser.js?t=${Date.now()}:4 🌿 Initializing Branch-Based Summary Visibility...
 browser.js?t=${Date.now()}:4 ✅ Branch-based summary visibility initialization complete
 browser.js?t=${Date.now()}:4 ✅ Tooltips initialized (1 triggers)
-multi-step.js:1656 selections email [{…}] 1
-v1?ray=98b72991282cb8bd&lang=auto:1 
-v1?ray=98b72991282cb8bd&lang=auto:1 Request for the Private Access Token challenge.
-multi-step.js:1656 selections email [{…}] 1
-multi-step.js:1656 selections email [{…}] 1
-multi-step.js:1656 selections email [{…}] 1
-multi-step.js:1656 selections email [{…}] 1
-v1?ray=98b72991282cb8bd&lang=auto:1  Note that 'script-src' was not explicitly set, so 'default-src' is used as a fallback.
-uA @ v1?ray=98b72991282cb8bd&lang=auto:1
-(anonymous) @ v1?ray=98b72991282cb8bd&lang=auto:1
-(anonymous) @ v1?ray=98b72991282cb8bd&lang=auto:1
-uN @ v1?ray=98b72991282cb8bd&lang=auto:1
-auto:1 The resource https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/b/cmg/1 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
-multi-step.js:1656 selections email (6) [{…}, {…}, {…}, {…}, {…}, {…}] 6
+browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Initializing Skip Navigation...
+browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Found 4 skip buttons
+browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 1: Object
+browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 2: Object
+browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 3: Object
+browser.js?t=${Date.now()}:4 ⏭️ [CD SKIP] Button 4: Object
+browser.js?t=${Date.now()}:4 ✅ [CD SKIP] Skip navigation initialized (4 buttons)
+VM5742:1656 selections email Array(2) 1
+[Violation] Potential permissions policy violation: payment is not allowed in this document.
+VM5742:1656 selections email Array(2) 1
+VM5742:1656 selections email Array(2) 1
+browser.js?t=${Date.now()}:4 🖱️ [CD SKIP] ========== SKIP BUTTON CLICKED ==========
+browser.js?t=${Date.now()}:4 🖱️ [CD SKIP] Event: PointerEvent
+browser.js?t=${Date.now()}:4 🔍 [CD SKIP] Button details: Object
+browser.js?t=${Date.now()}:4 🎯 [CD SKIP] LOOKING FOR MATCH:
+browser.js?t=${Date.now()}:4    Button has: data-cd-skip="step-8"
+browser.js?t=${Date.now()}:4    Searching for step with: data-answer="step-8"
+browser.js?t=${Date.now()}:6 ✅ [CD SKIP] ========== MATCH FOUND ==========
+browser.js?t=${Date.now()}:6    Button's data-cd-skip: "step-8"
+browser.js?t=${Date.now()}:6    Step's data-answer: "step-8"
+browser.js?t=${Date.now()}:6    Match: ✅ YES
+browser.js?t=${Date.now()}:6    Target step: Object
+browser.js?t=${Date.now()}:6 👁️ [CD SKIP] Hiding 27 total steps
+browser.js?t=${Date.now()}:6   1. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   2. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   3. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   4. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   5. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   6. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   7. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   8. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   9. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   10. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   11. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   12. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   13. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   14. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   15. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   16. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   17. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   18. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   19. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   20. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   21. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   22. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   23. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   24. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   25. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   26. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6   27. Hidden step: no data-answer
+browser.js?t=${Date.now()}:6 👁️ [CD SKIP] Target step now visible (display="")
+browser.js?t=${Date.now()}:6 ℹ️ [CD SKIP] No step counter found ([data-text="current-step"])
+browser.js?t=${Date.now()}:6 ℹ️ [CD SKIP] TryFormly.refresh() not available
+browser.js?t=${Date.now()}:6 📜 [CD SKIP] Scrolling to form
+browser.js?t=${Date.now()}:6 ✅ [CD SKIP] ========== SKIP COMPLETE: "step-8" ==========
