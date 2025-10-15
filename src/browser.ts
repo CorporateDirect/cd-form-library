@@ -1792,6 +1792,15 @@ function copyFieldValue(source: HTMLInputElement | HTMLSelectElement | HTMLTextA
     const sourceSelect = source as HTMLSelectElement;
     const destSelect = dest as HTMLSelectElement;
 
+    console.log(`🔍 [AUTO-FILL] SELECT Debug:`, {
+      sourceValue: sourceSelect.value,
+      sourceSelectedIndex: sourceSelect.selectedIndex,
+      sourceOptionsCount: sourceSelect.options.length,
+      destOptionsCount: destSelect.options.length,
+      sourceOptions: Array.from(sourceSelect.options).map(o => ({ value: o.value, text: o.text, selected: o.selected })),
+      destOptions: Array.from(destSelect.options).map(o => ({ value: o.value, text: o.text, selected: o.selected }))
+    });
+
     if (sourceSelect.multiple) {
       // Multi-select: copy all selected options
       const selectedValues: string[] = [];
@@ -1802,8 +1811,18 @@ function copyFieldValue(source: HTMLInputElement | HTMLSelectElement | HTMLTextA
       console.log(`✅ [AUTO-FILL] Copied multi-select values:`, selectedValues);
     } else {
       // Single select: copy selected value
-      destSelect.value = sourceSelect.value;
-      console.log(`✅ [AUTO-FILL] Copied select value: "${sourceSelect.value}"`);
+      const sourceValue = sourceSelect.value;
+
+      // Try to find matching option in dest
+      const destOption = Array.from(destSelect.options).find(opt => opt.value === sourceValue);
+
+      if (destOption) {
+        destSelect.value = sourceValue;
+        console.log(`✅ [AUTO-FILL] Copied select value: "${sourceValue}"`);
+      } else {
+        console.warn(`⚠️ [AUTO-FILL] Could not find matching option in destination select. Source value: "${sourceValue}"`);
+        console.warn(`⚠️ [AUTO-FILL] Available destination options:`, Array.from(destSelect.options).map(o => o.value));
+      }
     }
   } else {
     // text, email, tel, textarea, number, date, time, etc.
