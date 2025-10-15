@@ -28,10 +28,258 @@ const debugWarn = (...args: any[]) => DEBUG_MODE && console.warn(...args);
 const infoLog = (...args: any[]) => console.log(...args); // Always show important info
 const errorLog = (...args: any[]) => console.error(...args); // Always show errors
 
+// Country codes data for auto-populating select dropdowns
+const COUNTRY_CODES = [
+  { code: "+93", iso: "AF", name: "Afghanistan", flag: "🇦🇫" },
+  { code: "+358", iso: "AX", name: "Åland Islands", flag: "🇦🇽" },
+  { code: "+355", iso: "AL", name: "Albania", flag: "🇦🇱" },
+  { code: "+213", iso: "DZ", name: "Algeria", flag: "🇩🇿" },
+  { code: "+1684", iso: "AS", name: "American Samoa", flag: "🇦🇸" },
+  { code: "+376", iso: "AD", name: "Andorra", flag: "🇦🇩" },
+  { code: "+244", iso: "AO", name: "Angola", flag: "🇦🇴" },
+  { code: "+1264", iso: "AI", name: "Anguilla", flag: "🇦🇮" },
+  { code: "+672", iso: "AQ", name: "Antarctica", flag: "🇦🇶" },
+  { code: "+1268", iso: "AG", name: "Antigua and Barbuda", flag: "🇦🇬" },
+  { code: "+54", iso: "AR", name: "Argentina", flag: "🇦🇷" },
+  { code: "+374", iso: "AM", name: "Armenia", flag: "🇦🇲" },
+  { code: "+297", iso: "AW", name: "Aruba", flag: "🇦🇼" },
+  { code: "+61", iso: "AU", name: "Australia", flag: "🇦🇺" },
+  { code: "+43", iso: "AT", name: "Austria", flag: "🇦🇹" },
+  { code: "+994", iso: "AZ", name: "Azerbaijan", flag: "🇦🇿" },
+  { code: "+1242", iso: "BS", name: "Bahamas", flag: "🇧🇸" },
+  { code: "+973", iso: "BH", name: "Bahrain", flag: "🇧🇭" },
+  { code: "+880", iso: "BD", name: "Bangladesh", flag: "🇧🇩" },
+  { code: "+1246", iso: "BB", name: "Barbados", flag: "🇧🇧" },
+  { code: "+375", iso: "BY", name: "Belarus", flag: "🇧🇾" },
+  { code: "+32", iso: "BE", name: "Belgium", flag: "🇧🇪" },
+  { code: "+501", iso: "BZ", name: "Belize", flag: "🇧🇿" },
+  { code: "+229", iso: "BJ", name: "Benin", flag: "🇧🇯" },
+  { code: "+1441", iso: "BM", name: "Bermuda", flag: "🇧🇲" },
+  { code: "+975", iso: "BT", name: "Bhutan", flag: "🇧🇹" },
+  { code: "+591", iso: "BO", name: "Bolivia", flag: "🇧🇴" },
+  { code: "+387", iso: "BA", name: "Bosnia and Herzegovina", flag: "🇧🇦" },
+  { code: "+267", iso: "BW", name: "Botswana", flag: "🇧🇼" },
+  { code: "+55", iso: "BR", name: "Brazil", flag: "🇧🇷" },
+  { code: "+246", iso: "IO", name: "British Indian Ocean Territory", flag: "🇮🇴" },
+  { code: "+673", iso: "BN", name: "Brunei", flag: "🇧🇳" },
+  { code: "+359", iso: "BG", name: "Bulgaria", flag: "🇧🇬" },
+  { code: "+226", iso: "BF", name: "Burkina Faso", flag: "🇧🇫" },
+  { code: "+257", iso: "BI", name: "Burundi", flag: "🇧🇮" },
+  { code: "+855", iso: "KH", name: "Cambodia", flag: "🇰🇭" },
+  { code: "+237", iso: "CM", name: "Cameroon", flag: "🇨🇲" },
+  { code: "+1", iso: "CA", name: "Canada", flag: "🇨🇦" },
+  { code: "+238", iso: "CV", name: "Cape Verde", flag: "🇨🇻" },
+  { code: "+1345", iso: "KY", name: "Cayman Islands", flag: "🇰🇾" },
+  { code: "+236", iso: "CF", name: "Central African Republic", flag: "🇨🇫" },
+  { code: "+235", iso: "TD", name: "Chad", flag: "🇹🇩" },
+  { code: "+56", iso: "CL", name: "Chile", flag: "🇨🇱" },
+  { code: "+86", iso: "CN", name: "China", flag: "🇨🇳" },
+  { code: "+61", iso: "CX", name: "Christmas Island", flag: "🇨🇽" },
+  { code: "+61", iso: "CC", name: "Cocos Islands", flag: "🇨🇨" },
+  { code: "+57", iso: "CO", name: "Colombia", flag: "🇨🇴" },
+  { code: "+269", iso: "KM", name: "Comoros", flag: "🇰🇲" },
+  { code: "+242", iso: "CG", name: "Congo", flag: "🇨🇬" },
+  { code: "+243", iso: "CD", name: "Congo (DRC)", flag: "🇨🇩" },
+  { code: "+682", iso: "CK", name: "Cook Islands", flag: "🇨🇰" },
+  { code: "+506", iso: "CR", name: "Costa Rica", flag: "🇨🇷" },
+  { code: "+385", iso: "HR", name: "Croatia", flag: "🇭🇷" },
+  { code: "+53", iso: "CU", name: "Cuba", flag: "🇨🇺" },
+  { code: "+599", iso: "CW", name: "Curaçao", flag: "🇨🇼" },
+  { code: "+357", iso: "CY", name: "Cyprus", flag: "🇨🇾" },
+  { code: "+420", iso: "CZ", name: "Czech Republic", flag: "🇨🇿" },
+  { code: "+45", iso: "DK", name: "Denmark", flag: "🇩🇰" },
+  { code: "+253", iso: "DJ", name: "Djibouti", flag: "🇩🇯" },
+  { code: "+1767", iso: "DM", name: "Dominica", flag: "🇩🇲" },
+  { code: "+1809", iso: "DO", name: "Dominican Republic", flag: "🇩🇴" },
+  { code: "+593", iso: "EC", name: "Ecuador", flag: "🇪🇨" },
+  { code: "+20", iso: "EG", name: "Egypt", flag: "🇪🇬" },
+  { code: "+503", iso: "SV", name: "El Salvador", flag: "🇸🇻" },
+  { code: "+240", iso: "GQ", name: "Equatorial Guinea", flag: "🇬🇶" },
+  { code: "+291", iso: "ER", name: "Eritrea", flag: "🇪🇷" },
+  { code: "+372", iso: "EE", name: "Estonia", flag: "🇪🇪" },
+  { code: "+251", iso: "ET", name: "Ethiopia", flag: "🇪🇹" },
+  { code: "+500", iso: "FK", name: "Falkland Islands", flag: "🇫🇰" },
+  { code: "+298", iso: "FO", name: "Faroe Islands", flag: "🇫🇴" },
+  { code: "+679", iso: "FJ", name: "Fiji", flag: "🇫🇯" },
+  { code: "+358", iso: "FI", name: "Finland", flag: "🇫🇮" },
+  { code: "+33", iso: "FR", name: "France", flag: "🇫🇷" },
+  { code: "+594", iso: "GF", name: "French Guiana", flag: "🇬🇫" },
+  { code: "+689", iso: "PF", name: "French Polynesia", flag: "🇵🇫" },
+  { code: "+241", iso: "GA", name: "Gabon", flag: "🇬🇦" },
+  { code: "+220", iso: "GM", name: "Gambia", flag: "🇬🇲" },
+  { code: "+995", iso: "GE", name: "Georgia", flag: "🇬🇪" },
+  { code: "+49", iso: "DE", name: "Germany", flag: "🇩🇪" },
+  { code: "+233", iso: "GH", name: "Ghana", flag: "🇬🇭" },
+  { code: "+350", iso: "GI", name: "Gibraltar", flag: "🇬🇮" },
+  { code: "+30", iso: "GR", name: "Greece", flag: "🇬🇷" },
+  { code: "+299", iso: "GL", name: "Greenland", flag: "🇬🇱" },
+  { code: "+1473", iso: "GD", name: "Grenada", flag: "🇬🇩" },
+  { code: "+590", iso: "GP", name: "Guadeloupe", flag: "🇬🇵" },
+  { code: "+1671", iso: "GU", name: "Guam", flag: "🇬🇺" },
+  { code: "+502", iso: "GT", name: "Guatemala", flag: "🇬🇹" },
+  { code: "+44", iso: "GG", name: "Guernsey", flag: "🇬🇬" },
+  { code: "+224", iso: "GN", name: "Guinea", flag: "🇬🇳" },
+  { code: "+245", iso: "GW", name: "Guinea-Bissau", flag: "🇬🇼" },
+  { code: "+592", iso: "GY", name: "Guyana", flag: "🇬🇾" },
+  { code: "+509", iso: "HT", name: "Haiti", flag: "🇭🇹" },
+  { code: "+504", iso: "HN", name: "Honduras", flag: "🇭🇳" },
+  { code: "+852", iso: "HK", name: "Hong Kong", flag: "🇭🇰" },
+  { code: "+36", iso: "HU", name: "Hungary", flag: "🇭🇺" },
+  { code: "+354", iso: "IS", name: "Iceland", flag: "🇮🇸" },
+  { code: "+91", iso: "IN", name: "India", flag: "🇮🇳" },
+  { code: "+62", iso: "ID", name: "Indonesia", flag: "🇮🇩" },
+  { code: "+98", iso: "IR", name: "Iran", flag: "🇮🇷" },
+  { code: "+964", iso: "IQ", name: "Iraq", flag: "🇮🇶" },
+  { code: "+353", iso: "IE", name: "Ireland", flag: "🇮🇪" },
+  { code: "+44", iso: "IM", name: "Isle of Man", flag: "🇮🇲" },
+  { code: "+972", iso: "IL", name: "Israel", flag: "🇮🇱" },
+  { code: "+39", iso: "IT", name: "Italy", flag: "🇮🇹" },
+  { code: "+225", iso: "CI", name: "Ivory Coast", flag: "🇨🇮" },
+  { code: "+1876", iso: "JM", name: "Jamaica", flag: "🇯🇲" },
+  { code: "+81", iso: "JP", name: "Japan", flag: "🇯🇵" },
+  { code: "+44", iso: "JE", name: "Jersey", flag: "🇯🇪" },
+  { code: "+962", iso: "JO", name: "Jordan", flag: "🇯🇴" },
+  { code: "+7", iso: "KZ", name: "Kazakhstan", flag: "🇰🇿" },
+  { code: "+254", iso: "KE", name: "Kenya", flag: "🇰🇪" },
+  { code: "+686", iso: "KI", name: "Kiribati", flag: "🇰🇮" },
+  { code: "+383", iso: "XK", name: "Kosovo", flag: "🇽🇰" },
+  { code: "+965", iso: "KW", name: "Kuwait", flag: "🇰🇼" },
+  { code: "+996", iso: "KG", name: "Kyrgyzstan", flag: "🇰🇬" },
+  { code: "+856", iso: "LA", name: "Laos", flag: "🇱🇦" },
+  { code: "+371", iso: "LV", name: "Latvia", flag: "🇱🇻" },
+  { code: "+961", iso: "LB", name: "Lebanon", flag: "🇱🇧" },
+  { code: "+266", iso: "LS", name: "Lesotho", flag: "🇱🇸" },
+  { code: "+231", iso: "LR", name: "Liberia", flag: "🇱🇷" },
+  { code: "+218", iso: "LY", name: "Libya", flag: "🇱🇾" },
+  { code: "+423", iso: "LI", name: "Liechtenstein", flag: "🇱🇮" },
+  { code: "+370", iso: "LT", name: "Lithuania", flag: "🇱🇹" },
+  { code: "+352", iso: "LU", name: "Luxembourg", flag: "🇱🇺" },
+  { code: "+853", iso: "MO", name: "Macao", flag: "🇲🇴" },
+  { code: "+389", iso: "MK", name: "Macedonia", flag: "🇲🇰" },
+  { code: "+261", iso: "MG", name: "Madagascar", flag: "🇲🇬" },
+  { code: "+265", iso: "MW", name: "Malawi", flag: "🇲🇼" },
+  { code: "+60", iso: "MY", name: "Malaysia", flag: "🇲🇾" },
+  { code: "+960", iso: "MV", name: "Maldives", flag: "🇲🇻" },
+  { code: "+223", iso: "ML", name: "Mali", flag: "🇲🇱" },
+  { code: "+356", iso: "MT", name: "Malta", flag: "🇲🇹" },
+  { code: "+692", iso: "MH", name: "Marshall Islands", flag: "🇲🇭" },
+  { code: "+596", iso: "MQ", name: "Martinique", flag: "🇲🇶" },
+  { code: "+222", iso: "MR", name: "Mauritania", flag: "🇲🇷" },
+  { code: "+230", iso: "MU", name: "Mauritius", flag: "🇲🇺" },
+  { code: "+262", iso: "YT", name: "Mayotte", flag: "🇾🇹" },
+  { code: "+52", iso: "MX", name: "Mexico", flag: "🇲🇽" },
+  { code: "+691", iso: "FM", name: "Micronesia", flag: "🇫🇲" },
+  { code: "+373", iso: "MD", name: "Moldova", flag: "🇲🇩" },
+  { code: "+377", iso: "MC", name: "Monaco", flag: "🇲🇨" },
+  { code: "+976", iso: "MN", name: "Mongolia", flag: "🇲🇳" },
+  { code: "+382", iso: "ME", name: "Montenegro", flag: "🇲🇪" },
+  { code: "+1664", iso: "MS", name: "Montserrat", flag: "🇲🇸" },
+  { code: "+212", iso: "MA", name: "Morocco", flag: "🇲🇦" },
+  { code: "+258", iso: "MZ", name: "Mozambique", flag: "🇲🇿" },
+  { code: "+95", iso: "MM", name: "Myanmar", flag: "🇲🇲" },
+  { code: "+264", iso: "NA", name: "Namibia", flag: "🇳🇦" },
+  { code: "+674", iso: "NR", name: "Nauru", flag: "🇳🇷" },
+  { code: "+977", iso: "NP", name: "Nepal", flag: "🇳🇵" },
+  { code: "+31", iso: "NL", name: "Netherlands", flag: "🇳🇱" },
+  { code: "+687", iso: "NC", name: "New Caledonia", flag: "🇳🇨" },
+  { code: "+64", iso: "NZ", name: "New Zealand", flag: "🇳🇿" },
+  { code: "+505", iso: "NI", name: "Nicaragua", flag: "🇳🇮" },
+  { code: "+227", iso: "NE", name: "Niger", flag: "🇳🇪" },
+  { code: "+234", iso: "NG", name: "Nigeria", flag: "🇳🇬" },
+  { code: "+683", iso: "NU", name: "Niue", flag: "🇳🇺" },
+  { code: "+672", iso: "NF", name: "Norfolk Island", flag: "🇳🇫" },
+  { code: "+850", iso: "KP", name: "North Korea", flag: "🇰🇵" },
+  { code: "+1670", iso: "MP", name: "Northern Mariana Islands", flag: "🇲🇵" },
+  { code: "+47", iso: "NO", name: "Norway", flag: "🇳🇴" },
+  { code: "+968", iso: "OM", name: "Oman", flag: "🇴🇲" },
+  { code: "+92", iso: "PK", name: "Pakistan", flag: "🇵🇰" },
+  { code: "+680", iso: "PW", name: "Palau", flag: "🇵🇼" },
+  { code: "+970", iso: "PS", name: "Palestine", flag: "🇵🇸" },
+  { code: "+507", iso: "PA", name: "Panama", flag: "🇵🇦" },
+  { code: "+675", iso: "PG", name: "Papua New Guinea", flag: "🇵🇬" },
+  { code: "+595", iso: "PY", name: "Paraguay", flag: "🇵🇾" },
+  { code: "+51", iso: "PE", name: "Peru", flag: "🇵🇪" },
+  { code: "+63", iso: "PH", name: "Philippines", flag: "🇵🇭" },
+  { code: "+48", iso: "PL", name: "Poland", flag: "🇵🇱" },
+  { code: "+351", iso: "PT", name: "Portugal", flag: "🇵🇹" },
+  { code: "+1787", iso: "PR", name: "Puerto Rico", flag: "🇵🇷" },
+  { code: "+974", iso: "QA", name: "Qatar", flag: "🇶🇦" },
+  { code: "+262", iso: "RE", name: "Réunion", flag: "🇷🇪" },
+  { code: "+40", iso: "RO", name: "Romania", flag: "🇷🇴" },
+  { code: "+7", iso: "RU", name: "Russia", flag: "🇷🇺" },
+  { code: "+250", iso: "RW", name: "Rwanda", flag: "🇷🇼" },
+  { code: "+590", iso: "BL", name: "Saint Barthélemy", flag: "🇧🇱" },
+  { code: "+290", iso: "SH", name: "Saint Helena", flag: "🇸🇭" },
+  { code: "+1869", iso: "KN", name: "Saint Kitts and Nevis", flag: "🇰🇳" },
+  { code: "+1758", iso: "LC", name: "Saint Lucia", flag: "🇱🇨" },
+  { code: "+590", iso: "MF", name: "Saint Martin", flag: "🇲🇫" },
+  { code: "+508", iso: "PM", name: "Saint Pierre and Miquelon", flag: "🇵🇲" },
+  { code: "+1784", iso: "VC", name: "Saint Vincent and the Grenadines", flag: "🇻🇨" },
+  { code: "+685", iso: "WS", name: "Samoa", flag: "🇼🇸" },
+  { code: "+378", iso: "SM", name: "San Marino", flag: "🇸🇲" },
+  { code: "+239", iso: "ST", name: "São Tomé and Príncipe", flag: "🇸🇹" },
+  { code: "+966", iso: "SA", name: "Saudi Arabia", flag: "🇸🇦" },
+  { code: "+221", iso: "SN", name: "Senegal", flag: "🇸🇳" },
+  { code: "+381", iso: "RS", name: "Serbia", flag: "🇷🇸" },
+  { code: "+248", iso: "SC", name: "Seychelles", flag: "🇸🇨" },
+  { code: "+232", iso: "SL", name: "Sierra Leone", flag: "🇸🇱" },
+  { code: "+65", iso: "SG", name: "Singapore", flag: "🇸🇬" },
+  { code: "+1721", iso: "SX", name: "Sint Maarten", flag: "🇸🇽" },
+  { code: "+421", iso: "SK", name: "Slovakia", flag: "🇸🇰" },
+  { code: "+386", iso: "SI", name: "Slovenia", flag: "🇸🇮" },
+  { code: "+677", iso: "SB", name: "Solomon Islands", flag: "🇸🇧" },
+  { code: "+252", iso: "SO", name: "Somalia", flag: "🇸🇴" },
+  { code: "+27", iso: "ZA", name: "South Africa", flag: "🇿🇦" },
+  { code: "+82", iso: "KR", name: "South Korea", flag: "🇰🇷" },
+  { code: "+211", iso: "SS", name: "South Sudan", flag: "🇸🇸" },
+  { code: "+34", iso: "ES", name: "Spain", flag: "🇪🇸" },
+  { code: "+94", iso: "LK", name: "Sri Lanka", flag: "🇱🇰" },
+  { code: "+249", iso: "SD", name: "Sudan", flag: "🇸🇩" },
+  { code: "+597", iso: "SR", name: "Suriname", flag: "🇸🇷" },
+  { code: "+47", iso: "SJ", name: "Svalbard and Jan Mayen", flag: "🇸🇯" },
+  { code: "+268", iso: "SZ", name: "Swaziland", flag: "🇸🇿" },
+  { code: "+46", iso: "SE", name: "Sweden", flag: "🇸🇪" },
+  { code: "+41", iso: "CH", name: "Switzerland", flag: "🇨🇭" },
+  { code: "+963", iso: "SY", name: "Syria", flag: "🇸🇾" },
+  { code: "+886", iso: "TW", name: "Taiwan", flag: "🇹🇼" },
+  { code: "+992", iso: "TJ", name: "Tajikistan", flag: "🇹🇯" },
+  { code: "+255", iso: "TZ", name: "Tanzania", flag: "🇹🇿" },
+  { code: "+66", iso: "TH", name: "Thailand", flag: "🇹🇭" },
+  { code: "+670", iso: "TL", name: "Timor-Leste", flag: "🇹🇱" },
+  { code: "+228", iso: "TG", name: "Togo", flag: "🇹🇬" },
+  { code: "+690", iso: "TK", name: "Tokelau", flag: "🇹🇰" },
+  { code: "+676", iso: "TO", name: "Tonga", flag: "🇹🇴" },
+  { code: "+1868", iso: "TT", name: "Trinidad and Tobago", flag: "🇹🇹" },
+  { code: "+216", iso: "TN", name: "Tunisia", flag: "🇹🇳" },
+  { code: "+90", iso: "TR", name: "Turkey", flag: "🇹🇷" },
+  { code: "+993", iso: "TM", name: "Turkmenistan", flag: "🇹🇲" },
+  { code: "+1649", iso: "TC", name: "Turks and Caicos Islands", flag: "🇹🇨" },
+  { code: "+688", iso: "TV", name: "Tuvalu", flag: "🇹🇻" },
+  { code: "+256", iso: "UG", name: "Uganda", flag: "🇺🇬" },
+  { code: "+380", iso: "UA", name: "Ukraine", flag: "🇺🇦" },
+  { code: "+971", iso: "AE", name: "United Arab Emirates", flag: "🇦🇪" },
+  { code: "+44", iso: "GB", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "+1", iso: "US", name: "United States", flag: "🇺🇸" },
+  { code: "+598", iso: "UY", name: "Uruguay", flag: "🇺🇾" },
+  { code: "+998", iso: "UZ", name: "Uzbekistan", flag: "🇺🇿" },
+  { code: "+678", iso: "VU", name: "Vanuatu", flag: "🇻🇺" },
+  { code: "+379", iso: "VA", name: "Vatican City", flag: "🇻🇦" },
+  { code: "+58", iso: "VE", name: "Venezuela", flag: "🇻🇪" },
+  { code: "+84", iso: "VN", name: "Vietnam", flag: "🇻🇳" },
+  { code: "+1284", iso: "VG", name: "Virgin Islands (British)", flag: "🇻🇬" },
+  { code: "+1340", iso: "VI", name: "Virgin Islands (US)", flag: "🇻🇮" },
+  { code: "+681", iso: "WF", name: "Wallis and Futuna", flag: "🇼🇫" },
+  { code: "+212", iso: "EH", name: "Western Sahara", flag: "🇪🇭" },
+  { code: "+967", iso: "YE", name: "Yemen", flag: "🇾🇪" },
+  { code: "+260", iso: "ZM", name: "Zambia", flag: "🇿🇲" },
+  { code: "+263", iso: "ZW", name: "Zimbabwe", flag: "🇿🇼" }
+];
+
 interface FormatConfig {
-  type: 'date' | 'time' | 'percent' | 'number';
+  type: 'date' | 'time' | 'percent' | 'number' | 'country-code';
   pattern: string;
   defaultMeridiem?: 'AM' | 'PM';
+  countryCodeFormat?: 'default' | 'iso' | 'flag' | 'name' | 'flag-iso' | 'flag-name';
 }
 
 
@@ -68,7 +316,27 @@ function parseFormat(attr: string): FormatConfig | null {
   if (normalized === 'percent') {
     return { type: 'percent', pattern: 'percent' };
   }
-  
+
+  // Country code formats
+  if (normalized === 'country-code') {
+    return { type: 'country-code', pattern: 'country-code', countryCodeFormat: 'default' };
+  }
+  if (normalized === 'country-code:iso') {
+    return { type: 'country-code', pattern: 'country-code', countryCodeFormat: 'iso' };
+  }
+  if (normalized === 'country-code:flag') {
+    return { type: 'country-code', pattern: 'country-code', countryCodeFormat: 'flag' };
+  }
+  if (normalized === 'country-code:name') {
+    return { type: 'country-code', pattern: 'country-code', countryCodeFormat: 'name' };
+  }
+  if (normalized === 'country-code:flag-iso') {
+    return { type: 'country-code', pattern: 'country-code', countryCodeFormat: 'flag-iso' };
+  }
+  if (normalized === 'country-code:flag-name') {
+    return { type: 'country-code', pattern: 'country-code', countryCodeFormat: 'flag-name' };
+  }
+
   return null;
 }
 
@@ -314,6 +582,78 @@ function initInputFormatting(form: HTMLFormElement) {
     // Store maskito instance for cleanup if needed
     (input as any).__maskito = maskito;
   });
+}
+
+// Country Code Select Population
+function populateCountryCodeSelect(select: HTMLSelectElement, format: 'default' | 'iso' | 'flag' | 'name' | 'flag-iso' | 'flag-name') {
+  console.log(`📞 [COUNTRY-CODE] Populating select with format: "${format}"`);
+
+  // Clear existing options except the first (placeholder)
+  const hasPlaceholder = select.options.length > 0 && select.options[0].value === '';
+  if (hasPlaceholder) {
+    // Keep the placeholder
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+  } else {
+    // Clear all options
+    select.innerHTML = '';
+  }
+
+  // Add all country codes
+  COUNTRY_CODES.forEach((country) => {
+    const option = document.createElement('option');
+    option.value = country.code;
+
+    // Format the display text based on format type
+    switch (format) {
+      case 'default':
+        option.textContent = country.code;
+        break;
+      case 'iso':
+        option.textContent = `${country.code} (${country.iso})`;
+        break;
+      case 'flag':
+        option.textContent = `${country.flag} ${country.code}`;
+        break;
+      case 'name':
+        option.textContent = `${country.code} ${country.name}`;
+        break;
+      case 'flag-iso':
+        option.textContent = `${country.flag} ${country.code} (${country.iso})`;
+        break;
+      case 'flag-name':
+        option.textContent = `${country.flag} ${country.code} ${country.name}`;
+        break;
+    }
+
+    select.appendChild(option);
+  });
+
+  console.log(`✅ [COUNTRY-CODE] Populated ${COUNTRY_CODES.length} country codes`);
+}
+
+function initCountryCodeSelects(form: HTMLFormElement) {
+  debugLog('📞 Initializing country code selects...');
+
+  const selects = form.querySelectorAll('select[data-input^="country-code"]');
+  debugLog(`📞 Found ${selects.length} country code selects`);
+
+  selects.forEach((select) => {
+    const attr = select.getAttribute('data-input');
+    if (!attr) return;
+
+    const config = parseFormat(attr);
+    if (!config || config.type !== 'country-code') return;
+
+    const format = config.countryCodeFormat || 'default';
+    populateCountryCodeSelect(select as HTMLSelectElement, format);
+
+    // Mark as initialized
+    (select as any).__countryCodeInitialized = true;
+  });
+
+  infoLog(`✅ Country code selects initialized (${selects.length} selects)`);
 }
 
 // Form wrapper visibility implementation
@@ -2205,6 +2545,9 @@ function initializeLibrary() {
     const formElement = form as HTMLFormElement;
 
     try {
+      // Initialize country code selects for dropdowns with data-input="country-code"
+      initCountryCodeSelects(formElement);
+
       // Initialize input formatting for inputs with data-input attribute
       initInputFormatting(formElement);
 

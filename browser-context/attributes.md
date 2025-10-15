@@ -12,11 +12,13 @@ This document lists all data attributes used by the CD Form Library and their pu
 ## Input Formatting
 
 ### `data-input`
-**Value:** Format string (e.g., `"date:mmddyyyy"`, `"time:hhmm am"`, `"number"`, `"percent"`)
-**Applied to:** `<input>`
-**Purpose:** Applies automatic formatting/masking to input fields. Supports date, time, number, and percent formats.
+**Value:** Format string (e.g., `"date:mmddyyyy"`, `"time:hhmm am"`, `"number"`, `"percent"`, `"country-code"`)
+**Applied to:** `<input>` or `<select>`
+**Purpose:** Applies automatic formatting/masking to input fields or auto-populates select dropdowns. Supports date, time, number, percent, and country code formats.
 
 **Supported formats:**
+
+**Date/Time Formats:**
 - `date:mmddyyyy` - MM/DD/YYYY date format
 - `date:ddmmyyyy` - DD/MM/YYYY date format
 - `time:hhmm` or `time:hhmm am` - 12-hour time format with AM
@@ -25,8 +27,25 @@ This document lists all data attributes used by the CD Form Library and their pu
 - `time:h:mm pm` - Flexible hour time with PM
 - `time:hh:mm` or `time:hh:mm am` - 24-hour or 12-hour format
 - `time:hh:mm pm` - 12-hour format defaulting to PM
+
+**Number Formats:**
 - `number` - Number formatting with thousands separators
 - `percent` - Percentage formatting (0-100%)
+
+**Country Code Formats (for `<select>` elements):**
+- `country-code` - Just the code (e.g., `+1`)
+- `country-code:iso` - Code with ISO (e.g., `+1 (US)`)
+- `country-code:flag` - Flag emoji with code (e.g., `🇺🇸 +1`)
+- `country-code:name` - Code with country name (e.g., `+1 United States`)
+- `country-code:flag-iso` - Flag, code, and ISO (e.g., `🇺🇸 +1 (US)`)
+- `country-code:flag-name` - Flag, code, and name (e.g., `🇺🇸 +1 United States`)
+
+**Example:**
+```html
+<select data-input="country-code:flag-iso" name="country-code">
+  <!-- Auto-populated with: 🇺🇸 +1 (US), 🇬🇧 +44 (GB), etc. -->
+</select>
+```
 
 ## Conditional Visibility
 
