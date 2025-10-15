@@ -634,26 +634,69 @@ function populateCountryCodeSelect(select: HTMLSelectElement, format: 'default' 
 }
 
 function initCountryCodeSelects(form: HTMLFormElement) {
-  debugLog('📞 Initializing country code selects...');
+  console.log('📞 [COUNTRY-CODE] ========== INITIALIZING ==========');
+  console.log('📞 [COUNTRY-CODE] Form:', {
+    element: form,
+    id: form.id,
+    'data-cd-form': form.getAttribute('data-cd-form')
+  });
 
   const selects = form.querySelectorAll('select[data-input^="country-code"]');
-  debugLog(`📞 Found ${selects.length} country code selects`);
+  console.log(`📞 [COUNTRY-CODE] Found ${selects.length} country code selects`);
 
-  selects.forEach((select) => {
+  if (selects.length === 0) {
+    console.warn('⚠️ [COUNTRY-CODE] No selects found with data-input starting with "country-code"');
+    console.warn('⚠️ [COUNTRY-CODE] Make sure your <select> has attribute like: data-input="country-code" or data-input="country-code:flag"');
+
+    // Debug: Show all selects in the form
+    const allSelects = form.querySelectorAll('select');
+    console.log(`📞 [COUNTRY-CODE] Total selects in form: ${allSelects.length}`);
+    allSelects.forEach((sel, idx) => {
+      console.log(`📞 [COUNTRY-CODE] Select ${idx + 1}:`, {
+        element: sel,
+        name: sel.getAttribute('name'),
+        'data-input': sel.getAttribute('data-input')
+      });
+    });
+    return;
+  }
+
+  selects.forEach((select, index) => {
+    console.log(`\n📞 [COUNTRY-CODE] ========== PROCESSING SELECT ${index + 1}/${selects.length} ==========`);
+
     const attr = select.getAttribute('data-input');
-    if (!attr) return;
+    console.log(`📞 [COUNTRY-CODE] data-input attribute: "${attr}"`);
+
+    if (!attr) {
+      console.warn('⚠️ [COUNTRY-CODE] Select has no data-input attribute, skipping');
+      return;
+    }
 
     const config = parseFormat(attr);
-    if (!config || config.type !== 'country-code') return;
+    console.log(`📞 [COUNTRY-CODE] Parsed config:`, config);
+
+    if (!config) {
+      console.warn(`⚠️ [COUNTRY-CODE] Could not parse format from: "${attr}"`);
+      return;
+    }
+
+    if (config.type !== 'country-code') {
+      console.warn(`⚠️ [COUNTRY-CODE] Config type is "${config.type}", expected "country-code"`);
+      return;
+    }
 
     const format = config.countryCodeFormat || 'default';
+    console.log(`📞 [COUNTRY-CODE] Using format: "${format}"`);
+
     populateCountryCodeSelect(select as HTMLSelectElement, format);
 
     // Mark as initialized
     (select as any).__countryCodeInitialized = true;
+    console.log(`✅ [COUNTRY-CODE] Select ${index + 1} initialized successfully`);
   });
 
-  infoLog(`✅ Country code selects initialized (${selects.length} selects)`);
+  console.log(`\n✅ [COUNTRY-CODE] ========== INITIALIZATION COMPLETE ==========`);
+  console.log(`✅ [COUNTRY-CODE] Processed ${selects.length} country code selects`);
 }
 
 // Form wrapper visibility implementation
