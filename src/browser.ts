@@ -1819,6 +1819,16 @@ function copyFieldValue(source: HTMLInputElement | HTMLSelectElement | HTMLTextA
       if (destOption) {
         destSelect.value = sourceValue;
         console.log(`✅ [AUTO-FILL] Copied select value: "${sourceValue}"`);
+
+        // Check if this select is enhanced by Tom Select or similar library
+        const tomSelectInstance = (destSelect as any).tomselect;
+        if (tomSelectInstance) {
+          console.log(`🔄 [AUTO-FILL] Detected Tom Select on destination, triggering update...`);
+          tomSelectInstance.setValue(sourceValue, false); // false = don't trigger change event (we'll do that after)
+          console.log(`✅ [AUTO-FILL] Tom Select updated`);
+        } else {
+          console.log(`ℹ️ [AUTO-FILL] No Tom Select instance detected, using native select`);
+        }
       } else {
         console.warn(`⚠️ [AUTO-FILL] Could not find matching option in destination select. Source value: "${sourceValue}"`);
         console.warn(`⚠️ [AUTO-FILL] Available destination options:`, Array.from(destSelect.options).map(o => o.value));
