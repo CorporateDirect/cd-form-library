@@ -95,22 +95,33 @@ Auto-populate select dropdowns with international country calling codes in multi
 <!-- Result: 🇺🇸 +1 United States, 🇬🇧 +44 United Kingdom, etc. -->
 ```
 
-**Searchable Dropdown:**
+**Searchable/Editable Dropdown with Finsweet:**
 
-Add `data-dropdown-search="true"` to enable type-to-search functionality:
+For a more elegant searchable dropdown experience, use [Finsweet Combo Box](https://finsweet.com/attributes/combo-box). The library automatically detects and works with Finsweet combo boxes:
 
 ```html
-<select
-  data-input="country-code:flag-iso"
-  data-dropdown-search="true"
-  name="country-code">
-</select>
+<div fs-combobox-element="dropdown">
+  <div class="dropdown-toggle">
+    <input fs-combobox-element="text-input" type="text" placeholder="Search country code..." />
+    <button fs-combobox-element="clear">Clear</button>
+  </div>
+  <div class="dropdown-list">
+    <select
+      data-input="country-code:flag-iso"
+      fs-combobox-element="select"
+      name="country-code">
+      <!-- Auto-populated by CD Form Library -->
+    </select>
+    <div fs-combobox-element="empty">No matching countries found</div>
+  </div>
+</div>
 ```
 
-Users can then type:
-- `1` to find all codes starting with +1 (US, Canada, etc.)
-- `US` to find United States
-- `44` to find +44 (United Kingdom)
+**Features:**
+- United States appears first (optimized for US-based users)
+- Type to search by code, ISO, or country name
+- Editable text input for custom entries
+- Works seamlessly with `data-cd-field-key` auto-fill
 
 ## Dynamic Form Visibility
 

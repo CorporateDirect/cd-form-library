@@ -3,8 +3,6 @@
 
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
-import TomSelect from 'tom-select';
-// Note: Tom Select CSS removed - styling controlled by Webflow Designer
 
 const VERSION = '0.1.119';
 
@@ -692,54 +690,6 @@ function initCountryCodeSelects(form: HTMLFormElement) {
     console.log(`📞 [COUNTRY-CODE] Using format: "${format}"`);
 
     populateCountryCodeSelect(select as HTMLSelectElement, format);
-
-    // Initialize Tom Select if data-dropdown-search="true"
-    const enableSearch = select.getAttribute('data-dropdown-search') === 'true';
-    if (enableSearch) {
-      console.log(`🔍 [COUNTRY-CODE] Initializing search for select ${index + 1}`);
-      try {
-        const tomSelectInstance = new TomSelect(select as HTMLSelectElement, {
-          create: false,
-          sortField: {
-            field: 'text',
-            direction: 'asc'
-          },
-          maxOptions: null,
-          // No placeholder override - controlled by Webflow Designer
-          // Exact match search: score matches by how well they align with query
-          score: function(search: string) {
-            const searchLower = search.toLowerCase();
-            return function(item: any) {
-              const text = (item.text || '').toLowerCase();
-
-              // Exact match gets highest score
-              if (text === searchLower) return 1000;
-
-              // Starts with search (e.g., "+1" matches "+1", "+1264", etc.)
-              if (text.startsWith(searchLower)) return 500;
-
-              // Contains search anywhere
-              if (text.includes(searchLower)) return 100;
-
-              // No match
-              return 0;
-            };
-          },
-          render: {
-            no_results: function() {
-              return '<div class="no-results">No matching country codes found</div>';
-            }
-          }
-        });
-
-        // Store Tom Select instance on the original select element for auto-fill compatibility
-        (select as any).tomselect = tomSelectInstance;
-
-        console.log(`✅ [COUNTRY-CODE] Search initialized for select ${index + 1}`);
-      } catch (error) {
-        console.error(`❌ [COUNTRY-CODE] Failed to initialize search:`, error);
-      }
-    }
 
     // Mark as initialized
     (select as any).__countryCodeInitialized = true;
@@ -2254,14 +2204,16 @@ function copyFieldValue(source: HTMLInputElement | HTMLSelectElement | HTMLTextA
         destSelect.value = sourceValue;
         console.log(`✅ [AUTO-FILL] Copied select value: "${sourceValue}"`);
 
-        // Check if this select is enhanced by Tom Select or similar library
-        const tomSelectInstance = (destSelect as any).tomselect;
-        if (tomSelectInstance) {
-          console.log(`🔄 [AUTO-FILL] Detected Tom Select on destination, triggering update...`);
-          tomSelectInstance.setValue(sourceValue, false); // false = don't trigger change event (we'll do that after)
-          console.log(`✅ [AUTO-FILL] Tom Select updated`);
-        } else {
-          console.log(`ℹ️ [AUTO-FILL] No Tom Select instance detected, using native select`);
+        // Check if this select is inside a Finsweet Combo Box
+        const comboBoxContainer = destSelect.closest('[fs-combobox-element="dropdown"]');
+        if (comboBoxContainer) {
+          console.log(`🔄 [AUTO-FILL] Detected Finsweet Combo Box, updating text input...`);
+          const textInput = comboBoxContainer.querySelector('[fs-combobox-element="text-input"]') as HTMLInputElement;
+          if (textInput) {
+            // Set the text input to match the selected option's display text
+            textInput.value = destOption.textContent || destOption.text || sourceValue;
+            console.log(`✅ [AUTO-FILL] Combo box text input updated: "${textInput.value}"`);
+          }
         }
       } else {
         console.warn(`⚠️ [AUTO-FILL] Could not find matching option in destination select. Source value: "${sourceValue}"`);

@@ -40,20 +40,28 @@ This document lists all data attributes used by the CD Form Library and their pu
 - `country-code:flag-iso` - Flag, code, and ISO (e.g., `🇺🇸 +1 (US)`)
 - `country-code:flag-name` - Flag, code, and name (e.g., `🇺🇸 +1 United States`)
 
-**Searchable Dropdown:**
-Add `data-dropdown-search="true"` to enable type-to-search functionality on country code selects.
+**Integration with Finsweet Combo Box:**
+Country codes work seamlessly with [Finsweet Combo Box](https://finsweet.com/attributes/combo-box) for searchable/editable dropdowns. The library automatically detects combo box selects and updates both the hidden select and visible text input during auto-fill operations.
 
 **Example:**
 ```html
 <!-- Basic country code select -->
 <select data-input="country-code:flag-iso" name="country-code">
   <!-- Auto-populated with: 🇺🇸 +1 (US), 🇬🇧 +44 (GB), etc. -->
+  <!-- United States appears first -->
 </select>
 
-<!-- Searchable country code select -->
-<select data-input="country-code:flag-iso" data-dropdown-search="true" name="country-code">
-  <!-- Auto-populated with searchable dropdown -->
-</select>
+<!-- With Finsweet Combo Box (searchable) -->
+<div fs-combobox-element="dropdown">
+  <div class="dropdown-toggle">
+    <input fs-combobox-element="text-input" type="text" />
+  </div>
+  <div class="dropdown-list">
+    <select data-input="country-code:flag-iso" fs-combobox-element="select" name="country-code">
+      <!-- Auto-populated by CD Form Library -->
+    </select>
+  </div>
+</div>
 ```
 
 ## Conditional Visibility
