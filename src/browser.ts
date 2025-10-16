@@ -3,6 +3,8 @@
 
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
+import TomSelect from 'tom-select';
+import 'tom-select/dist/css/tom-select.default.css';
 
 const VERSION = '0.1.119';
 
@@ -689,6 +691,28 @@ function initCountryCodeSelects(form: HTMLFormElement) {
     console.log(`📞 [COUNTRY-CODE] Using format: "${format}"`);
 
     populateCountryCodeSelect(select as HTMLSelectElement, format);
+
+    // Initialize Tom Select if data-dropdown-search="true"
+    const enableSearch = select.getAttribute('data-dropdown-search') === 'true';
+    if (enableSearch) {
+      console.log(`🔍 [COUNTRY-CODE] Initializing search for select ${index + 1}`);
+      try {
+        new TomSelect(select as HTMLSelectElement, {
+          create: false,
+          sortField: 'text',
+          maxOptions: null,
+          placeholder: 'Search country code...',
+          render: {
+            no_results: function() {
+              return '<div class="no-results">No matching country codes found</div>';
+            }
+          }
+        });
+        console.log(`✅ [COUNTRY-CODE] Search initialized for select ${index + 1}`);
+      } catch (error) {
+        console.error(`❌ [COUNTRY-CODE] Failed to initialize search:`, error);
+      }
+    }
 
     // Mark as initialized
     (select as any).__countryCodeInitialized = true;

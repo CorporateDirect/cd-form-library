@@ -4,10 +4,16 @@ A Webflow-native form enhancement library that adds advanced functionality to fo
 
 ## Quick Start
 
-Add this script tag to your Webflow site (in Project Settings > Custom Code > Footer Code):
+Add these tags to your Webflow site:
 
+**In Project Settings > Custom Code > Head Code:**
 ```html
-<script src="https://unpkg.com/cd-form-library@0.1.109/dist/browser.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/cd-form-library@latest/dist/browser.css">
+```
+
+**In Project Settings > Custom Code > Footer Code:**
+```html
+<script src="https://unpkg.com/cd-form-library@latest/dist/browser.js"></script>
 ```
 
 Then add `data-cd-form="true"` to your form element:
@@ -21,6 +27,7 @@ Then add `data-cd-form="true"` to your form element:
 ## Features
 
 - **Input Formatting**: Automatic date, time, and percentage formatting with masks
+- **Country Code Dropdowns**: Auto-populated, searchable country code selects with multiple display formats
 - **Dynamic Form Visibility**: Show/hide form sections based on user selections
 - **Dynamic Rows**: Add/remove repeatable form sections with automatic field naming
 - **Summary Fields**: Real-time summary display of form data
@@ -63,6 +70,53 @@ Add input masks for dates, times, and percentages using the `data-input` attribu
 <!-- Automatic % symbol -->
 <input type="text" data-input="percent" placeholder="Enter percentage">
 ```
+
+### Country Code Dropdowns
+
+Auto-populate select dropdowns with international country calling codes in multiple formats:
+
+```html
+<!-- Basic country code (just the code) -->
+<select data-input="country-code" name="country-code"></select>
+<!-- Result: +1, +44, +33, etc. -->
+
+<!-- With ISO country code -->
+<select data-input="country-code:iso" name="country-code"></select>
+<!-- Result: +1 (US), +44 (GB), +33 (FR), etc. -->
+
+<!-- With flag emoji -->
+<select data-input="country-code:flag" name="country-code"></select>
+<!-- Result: 🇺🇸 +1, 🇬🇧 +44, 🇫🇷 +33, etc. -->
+
+<!-- With country name -->
+<select data-input="country-code:name" name="country-code"></select>
+<!-- Result: +1 United States, +44 United Kingdom, etc. -->
+
+<!-- With flag and ISO (recommended) -->
+<select data-input="country-code:flag-iso" name="country-code"></select>
+<!-- Result: 🇺🇸 +1 (US), 🇬🇧 +44 (GB), etc. -->
+
+<!-- With flag and full name -->
+<select data-input="country-code:flag-name" name="country-code"></select>
+<!-- Result: 🇺🇸 +1 United States, 🇬🇧 +44 United Kingdom, etc. -->
+```
+
+**Searchable Dropdown:**
+
+Add `data-dropdown-search="true"` to enable type-to-search functionality:
+
+```html
+<select
+  data-input="country-code:flag-iso"
+  data-dropdown-search="true"
+  name="country-code">
+</select>
+```
+
+Users can then type:
+- `1` to find all codes starting with +1 (US, Canada, etc.)
+- `US` to find United States
+- `44` to find +44 (United Kingdom)
 
 ## Dynamic Form Visibility
 

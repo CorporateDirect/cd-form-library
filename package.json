@@ -1,6 +1,6 @@
 {
   "name": "cd-form-library",
-  "version": "0.1.139",
+  "version": "0.1.140",
   "description": "Webflow-native form enhancement library using Custom Attributes",
   "main": "dist/browser.js",
   "unpkg": "dist/browser.js",
@@ -19,7 +19,8 @@
   "license": "MIT",
   "dependencies": {
     "@maskito/core": "^3.10.3",
-    "@maskito/kit": "^3.10.3"
+    "@maskito/kit": "^3.10.3",
+    "tom-select": "^2.4.3"
   },
   "devDependencies": {
     "esbuild": "^0.25.9",

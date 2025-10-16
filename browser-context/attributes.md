@@ -40,10 +40,19 @@ This document lists all data attributes used by the CD Form Library and their pu
 - `country-code:flag-iso` - Flag, code, and ISO (e.g., `🇺🇸 +1 (US)`)
 - `country-code:flag-name` - Flag, code, and name (e.g., `🇺🇸 +1 United States`)
 
+**Searchable Dropdown:**
+Add `data-dropdown-search="true"` to enable type-to-search functionality on country code selects.
+
 **Example:**
 ```html
+<!-- Basic country code select -->
 <select data-input="country-code:flag-iso" name="country-code">
   <!-- Auto-populated with: 🇺🇸 +1 (US), 🇬🇧 +44 (GB), etc. -->
+</select>
+
+<!-- Searchable country code select -->
+<select data-input="country-code:flag-iso" data-dropdown-search="true" name="country-code">
+  <!-- Auto-populated with searchable dropdown -->
 </select>
 ```
 
