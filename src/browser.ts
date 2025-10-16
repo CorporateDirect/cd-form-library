@@ -4,7 +4,7 @@
 import { Maskito } from '@maskito/core';
 import { maskitoDateOptionsGenerator, maskitoTimeOptionsGenerator } from '@maskito/kit';
 import TomSelect from 'tom-select';
-import 'tom-select/dist/css/tom-select.default.css';
+// Note: Tom Select CSS removed - styling controlled by Webflow Designer
 
 const VERSION = '0.1.119';
 
@@ -31,7 +31,9 @@ const infoLog = (...args: any[]) => console.log(...args); // Always show importa
 const errorLog = (...args: any[]) => console.error(...args); // Always show errors
 
 // Country codes data for auto-populating select dropdowns
+// United States is first as 98% of clients are US-based
 const COUNTRY_CODES = [
+  { code: "+1", iso: "US", name: "United States", flag: "🇺🇸" },
   { code: "+93", iso: "AF", name: "Afghanistan", flag: "🇦🇫" },
   { code: "+358", iso: "AX", name: "Åland Islands", flag: "🇦🇽" },
   { code: "+355", iso: "AL", name: "Albania", flag: "🇦🇱" },
@@ -261,7 +263,6 @@ const COUNTRY_CODES = [
   { code: "+380", iso: "UA", name: "Ukraine", flag: "🇺🇦" },
   { code: "+971", iso: "AE", name: "United Arab Emirates", flag: "🇦🇪" },
   { code: "+44", iso: "GB", name: "United Kingdom", flag: "🇬🇧" },
-  { code: "+1", iso: "US", name: "United States", flag: "🇺🇸" },
   { code: "+598", iso: "UY", name: "Uruguay", flag: "🇺🇾" },
   { code: "+998", iso: "UZ", name: "Uzbekistan", flag: "🇺🇿" },
   { code: "+678", iso: "VU", name: "Vanuatu", flag: "🇻🇺" },
@@ -697,17 +698,43 @@ function initCountryCodeSelects(form: HTMLFormElement) {
     if (enableSearch) {
       console.log(`🔍 [COUNTRY-CODE] Initializing search for select ${index + 1}`);
       try {
-        new TomSelect(select as HTMLSelectElement, {
+        const tomSelectInstance = new TomSelect(select as HTMLSelectElement, {
           create: false,
-          sortField: 'text',
+          sortField: {
+            field: 'text',
+            direction: 'asc'
+          },
           maxOptions: null,
-          placeholder: 'Search country code...',
+          // No placeholder override - controlled by Webflow Designer
+          // Exact match search: score matches by how well they align with query
+          score: function(search: string) {
+            const searchLower = search.toLowerCase();
+            return function(item: any) {
+              const text = (item.text || '').toLowerCase();
+
+              // Exact match gets highest score
+              if (text === searchLower) return 1000;
+
+              // Starts with search (e.g., "+1" matches "+1", "+1264", etc.)
+              if (text.startsWith(searchLower)) return 500;
+
+              // Contains search anywhere
+              if (text.includes(searchLower)) return 100;
+
+              // No match
+              return 0;
+            };
+          },
           render: {
             no_results: function() {
               return '<div class="no-results">No matching country codes found</div>';
             }
           }
         });
+
+        // Store Tom Select instance on the original select element for auto-fill compatibility
+        (select as any).tomselect = tomSelectInstance;
+
         console.log(`✅ [COUNTRY-CODE] Search initialized for select ${index + 1}`);
       } catch (error) {
         console.error(`❌ [COUNTRY-CODE] Failed to initialize search:`, error);

@@ -4,14 +4,8 @@ A Webflow-native form enhancement library that adds advanced functionality to fo
 
 ## Quick Start
 
-Add these tags to your Webflow site:
+Add this script tag to your Webflow site (in Project Settings > Custom Code > Head Code):
 
-**In Project Settings > Custom Code > Head Code:**
-```html
-<link rel="stylesheet" href="https://unpkg.com/cd-form-library@latest/dist/browser.css">
-```
-
-**In Project Settings > Custom Code > Footer Code:**
 ```html
 <script src="https://unpkg.com/cd-form-library@latest/dist/browser.js"></script>
 ```
